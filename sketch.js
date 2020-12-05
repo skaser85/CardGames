@@ -350,22 +350,31 @@ function draw() {
         p.draw();
     }
 
-    // update cards
+    // figure out which cards have the mouse over them
+    let possibleCards = [];
     for(let c of deck.cardsInPlay) {
-        let card = c.card;
-        if(curCard === null) {
-            card.update();
-            if(card.isActive) {
-                curCard = c;
-            }
-        } else {
-            if(curCard === c) {
-                card.update();
-                if(!card.isActive) {
-                    curCard = null;
-                }
-            }
+        c.card.update();
+        if(c.card.isActive) {
+            possibleCards.push(c);
         }
+    }
+
+    // if no cards have the mouse over them, then curCard is nothing
+    // if only one card has the mouse over it, then curdCard is that card
+    // otherwise, loop over the array and set the isActive property to
+    // false except for the last one, because that's the card that we're
+    // going to set as the curCard
+    if(possibleCards.length === 0) {
+        curCard = null;
+     } else if(possibleCards.length === 1) {
+        curCard = possibleCards[0];
+    } else {
+        // minus 1 because we don't want to do this to the last
+        // card in this array
+        for(let i = 0; i < possibleCards.length - 1; i++) {
+            possibleCards[i].card.isActive = false;
+        }
+        curCard = possibleCards[possibleCards.length - 1];
     }
 
     playerHand.update();

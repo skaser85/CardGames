@@ -88,15 +88,34 @@ class PlayArea {
     }
 
     addTo(card) {
-        card.card.pile = this;
-        card.card.setCoords(this.x, this.y);
-        card.card.setRotation(this.rotateDeg);
-        this.cards.push(card);
+        if(card.card.pile && 
+           card.card.pile instanceof PlayArea &&
+           card.card.pile.cards.length > 1) {
+            let takePile = card.card.pile;
+            let cards = [...takePile.cards];
+            for(let i = 0; i < cards.length; i++) {
+                let c = cards[i];
+                takePile.removeFrom(c);
+                c.card.pile = this;
+                c.card.setCoords(this.x, this.y);
+                c.card.setRotation(this.rotateDeg);
+                this.cards.push(c);
+            };
+        } else {
+            if(card.card.pile) {
+                card.card.pile.removeFrom(card);
+            }
+            card.card.pile = this;
+            card.card.setCoords(this.x, this.y);
+            card.card.setRotation(this.rotateDeg);
+            this.cards.push(card);
+        }
     }
 
     removeFrom(card) {
         let cardIndex = this.cards.indexOf(card);
         this.cards.splice(cardIndex, 1);
+        card.card.pile = null;
     }
 
     mouseIsOver() {
@@ -132,7 +151,6 @@ class PlayArea {
                     card.draw();
                 }
                 if(i > 0 && i === this.cards.length - 1) {
-                    // console.log(card);
                     let offset = 25;
                     switch(this.name) {
                         case "northPile":

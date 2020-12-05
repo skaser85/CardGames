@@ -27,6 +27,9 @@ class Hand {
     }
 
     addTo(card) {
+        if(card.card.pile) {
+            card.card.pile.removeFrom(card);
+        }
         card.card.pile = this;
         card.card.setCoords(this.x, this.y);
         card.card.setRotation(this.rotateDeg);

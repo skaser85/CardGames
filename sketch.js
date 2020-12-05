@@ -408,7 +408,6 @@ function mouseClicked() {
                 
                 let card = selectedCard.card;
                 if(curPile.canPlace(selectedCard)) {
-                    card.pile.removeFrom(selectedCard);
                     curPile.addTo(selectedCard);
                 } else {
                     card.setCoords(card.pile.x, card.pile.y);

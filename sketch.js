@@ -15,6 +15,7 @@ let southWestPile;
 let westPile;
 let northWestPile;
 let playAreas = [];
+let playerHand;
 let yellow;
 let blue;
 let salmon;
@@ -319,6 +320,8 @@ function setup() {
     deck = new Deck(width / 2 - pileWidth / 2, height / 2 - pileHeight / 2, cardWidth, cardHeight, "purple", salmon);
     deck.cards = cards;
 
+    playerHand = new Hand(width / 2, height - cardHeight + 30, width - 20, cardHeight + 10, 0);
+
     dealCards();
 
     // displayAllCards();
@@ -350,19 +353,23 @@ function draw() {
     // update cards
     for(let c of deck.cardsInPlay) {
         let card = c.card;
-        card.update();
         if(curCard === null) {
+            card.update();
             if(card.isActive) {
                 curCard = c;
             }
         } else {
             if(curCard === c) {
+                card.update();
                 if(!card.isActive) {
                     curCard = null;
                 }
             }
         }
     }
+
+    playerHand.update();
+    playerHand.draw();
 }
 
 function mouseClicked() {
@@ -456,4 +463,9 @@ function dealCards() {
     eastPile.addTo(east);
     let west = deck.getCard();
     westPile.addTo(west);
+
+    for(let i = 0; i < 7; i++) {
+        let card = deck.getCard();
+        playerHand.addTo(card);
+    }
 }

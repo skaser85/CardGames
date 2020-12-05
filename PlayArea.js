@@ -129,7 +129,7 @@ class PlayArea {
                     card.draw();
                 }
                 if(i > 0 && i === this.cards.length - 1) {
-                    console.log(card);
+                    // console.log(card);
                     if((this.name === "north") || (this.name === "south")) {
                         card.setCoords(this.x, this.y + 50);
                         console.log(card);

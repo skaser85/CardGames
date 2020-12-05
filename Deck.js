@@ -10,7 +10,7 @@ class Deck {
         this.bottom = this.y + (this.height / 2);
         this.deckColor = deckColor;
         this.borderColor = borderColor;
-        this.fillIn = false;
+        this.isActive = false;
         this.cards = [];
         this.cardsInPlay = [];
         
@@ -34,12 +34,12 @@ class Deck {
     }
 
     update() {
-        this.fillIn = this.mouseIsOver();
+        this.isActive = this.mouseIsOver();
     }
 
     draw() {
         push()
-        if(this.fillIn) {
+        if(this.isActive) {
             fill(this.borderColor);
         } else {
             noFill();

@@ -328,6 +328,9 @@ function setup() {
 function draw() {
     background(0, 100, 0);
 
+    deck.update();
+    deck.draw();
+
     // update & draw Play Areas
     for(let p of playAreas) {
         p.update();
@@ -345,10 +348,7 @@ function draw() {
         p.draw();
     }
 
-    deck.update();
-    deck.draw();
-
-    // draw cards
+    // update cards
     for(let c of deck.cardsInPlay) {
         let card = c.card;
         card.update();
@@ -364,80 +364,63 @@ function draw() {
             }
         }
     }
-
-    // if we're over a pile, drop it on the pile
-    // if(curCard && curPile && !mouseIsPressed) {
-    //     let card = curCard.card;
-    //     if(curPile.canPlace(curCard)) {
-    //         card.pile.removeFrom(curCard);
-    //         curPile.addTo(curCard);
-    //     } else {
-    //         card.setCoords(card.pile.x, card.pile.y);
-    //     }
-    // }
-
-    // if we're not over a pile, then send it back to the pile it's
-    // already assigned to
-    if(curCard && !curPile && !mouseIsPressed) {
-        let card = curCard.card;
-        if(!card.pile.isActive) {
-            card.setCoords(card.pile.x, card.pile.y);
-        }
-    }
-
-    // deck.cardsInPlay.forEach(card => {
-    //     if(!card.card.isActive) {
-    //         card.card.draw();
-    //     }
-    // });
-
-    // if(curCard) {
-    //     curCard.card.draw();
-    // }
 }
 
 function mouseClicked() {
-    if(!selectedCard && !selectedPile) {
-        if(curCard) {
-            curCard.card.isSelected = true;
-            selectedCard = curCard;
-        } else if(curCard && selectedCard) {
-            if(curCard.card.isSelected) {
-                selectedCard.card.isSelected = false;
-                selectedCard = null;
-            } else {
-                selectedCard.card.isSelected = false;
-                selectedCard = null;
-                curCard.card.isSelected = true;
-                selectedCard = curCard;
+    if(deck.isActive) {
+        for(let i = 0; i < playAreas.length; i++) {
+            let p = playAreas[i];
+            if(!["northEastPile", "southEastPile", "southWestPile", "northWestPile"].includes(p.name)) {
+                if(p.cards.length === 0) {
+                    let card = deck.getCard();
+                    p.addTo(card);
+                    break;
+                }
             }
         }
-    } else if(selectedCard && !selectedPile) {
-        if(curPile) {
-            curPile.isSelected = true;
-            selectedPile = curPile;
-            
-            let card = selectedCard.card;
-            if(curPile.canPlace(selectedCard)) {
-                card.pile.removeFrom(selectedCard);
-                curPile.addTo(selectedCard);
-            } else {
-                card.setCoords(card.pile.x, card.pile.y);
+    } else {
+        if(!selectedCard && !selectedPile) {
+            if(curCard) {
+                curCard.card.isSelected = true;
+                selectedCard = curCard;
+            } else if(curCard && selectedCard) {
+                if(curCard.card.isSelected) {
+                    selectedCard.card.isSelected = false;
+                    selectedCard = null;
+                } else {
+                    selectedCard.card.isSelected = false;
+                    selectedCard = null;
+                    curCard.card.isSelected = true;
+                    selectedCard = curCard;
+                }
             }
-            
-            selectedCard.card.isSelected = false;
-            selectedCard = null;
-            selectedPile.isSelected = false;
-            selectedPile = null;   
-        } else if(curPile && selectedPile) {
-            if(curPile.isSelected) {
-                selectedPile.isSelected = false;
-                selectedPile = null;
-            } else {
+        } else if(selectedCard && !selectedPile) {
+            if(curPile) {
+                curPile.isSelected = true;
+                selectedPile = curPile;
+                
+                let card = selectedCard.card;
+                if(curPile.canPlace(selectedCard)) {
+                    card.pile.removeFrom(selectedCard);
+                    curPile.addTo(selectedCard);
+                } else {
+                    card.setCoords(card.pile.x, card.pile.y);
+                }
+                
+                selectedCard.card.isSelected = false;
+                selectedCard = null;
                 selectedPile.isSelected = false;
                 selectedPile = null;   
-                curPile.isSelected = true;
-                selectedPile = curPile;             
+            } else if(curPile && selectedPile) {
+                if(curPile.isSelected) {
+                    selectedPile.isSelected = false;
+                    selectedPile = null;
+                } else {
+                    selectedPile.isSelected = false;
+                    selectedPile = null;   
+                    curPile.isSelected = true;
+                    selectedPile = curPile;             
+                }
             }
         }
     }

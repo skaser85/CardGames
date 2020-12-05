@@ -58,21 +58,6 @@ class Card {
     update() {
         this.isActive = this.mouseIsOver();
     }
-    
-    // update() {
-    //     this.isActive = this.mouseIsOver();
-    //     if(this.isActive && mouseIsPressed) {
-    //         this.isDragging = (pmouseX !== mouseX) || (pmouseY !== mouseY);
-    //         if(this.isDragging) {
-    //             this.setCoords(this.x + mouseX - pmouseX, this.y + mouseY - pmouseY);
-    //             this.borderColor = color(0, 0, 255);
-    //         } else {
-    //             this.borderColor = color(255, 0, 200);
-    //         }
-    //     } else {
-    //         this.borderColor = color(0, 255, 0);
-    //     }
-    // }
 
     draw() {
         push();
@@ -81,7 +66,8 @@ class Card {
             stroke(this.borderColor);
             strokeWeight(4);
         } else {
-            noStroke();
+            stroke(0, 0, 0);
+            strokeWeight(1);
         }
         translate(this.x, this.y);
         rotate(this.rotateDeg);

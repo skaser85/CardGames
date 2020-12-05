@@ -1,5 +1,5 @@
 class Deck {
-    constructor(x, y, width, height, deckColor, borderColor) {
+    constructor(x, y, width, height, deckColor, borderColor, fillColor) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -10,9 +10,11 @@ class Deck {
         this.bottom = this.y + (this.height / 2);
         this.deckColor = deckColor;
         this.borderColor = borderColor;
+        this.fillColor = fillColor;
         this.isActive = false;
         this.cards = [];
         this.cardsInPlay = [];
+        this.isEmpty = false;
         
         this.backColors = ["blue", "gray", "green", "purple", "red", "yellow"];
         this.img = loadImage(`cards/${this.deckColor}_back.png`);
@@ -40,7 +42,7 @@ class Deck {
     draw() {
         push()
         if(this.isActive) {
-            fill(this.borderColor);
+            fill(this.fillColor);
         } else {
             noFill();
         }
@@ -48,7 +50,9 @@ class Deck {
         strokeWeight(2);
         translate(this.x, this.y)
         rect(0, 0, this.width + 10, this.height + 10);
-        image(this.img, 0, 0, this.width, this.height);
+        if(!this.isEmpty) {
+            image(this.img, 0, 0, this.width, this.height);
+        }
         pop();
     }
 }

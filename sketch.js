@@ -19,6 +19,9 @@ let playerHand;
 let yellow;
 let blue;
 let salmon;
+let yellowA;
+let blueA;
+let salmonA;
 let deck;
 let cards = [
     {
@@ -299,25 +302,28 @@ function setup() {
 
     // colors
     yellow = color(255, 255, 100);
+    yellowA = color(255, 255, 100, 125);
     blue = color(0, 255, 255);
+    blueA = color(0, 255, 255, 125);
     salmon = color(200, 100, 0);
+    salmonA = color(200, 100, 0, 125);
 
     // setup Play Areas
     let vCenter = (width / 2 - pileWidth / 2);
     let hCenter = (height / 2 - pileHeight / 2);
 
-    northPile = new PlayArea("northPile", vCenter, hCenter - pileHeight - 20, pileWidth, pileHeight, 0, yellow);
-    southPile = new PlayArea("southPile", vCenter, hCenter + pileHeight + 20, pileWidth, pileHeight, 0, yellow)
-    eastPile = new PlayArea("eastPile", vCenter + pileWidth + 30, hCenter, pileWidth, pileHeight, 90, yellow);
-    westPile = new PlayArea("westPile", vCenter - pileWidth - 30, hCenter, pileWidth, pileHeight, 90, yellow);
-    northEastPile = new PlayArea("northEastPile", vCenter + pileWidth + 50, hCenter - pileHeight - 25, pileWidth, pileHeight, 45, blue);
-    southEastPile = new PlayArea("southEastPile", vCenter + pileWidth + 50, hCenter + pileHeight + 25, pileWidth, pileHeight, 135, blue);
-    southWestPile = new PlayArea("southWestPile", vCenter - pileWidth - 50, hCenter + pileHeight + 25, pileWidth, pileHeight, 45, blue);
-    northWestPile = new PlayArea("northWestPile", vCenter - pileWidth - 50, hCenter - pileHeight - 25, pileWidth, pileHeight, 135, blue);
+    northPile = new PlayArea("northPile", vCenter, hCenter - pileHeight - 20, pileWidth, pileHeight, 0, yellow, yellow);
+    southPile = new PlayArea("southPile", vCenter, hCenter + pileHeight + 20, pileWidth, pileHeight, 0, yellow, yellow)
+    eastPile = new PlayArea("eastPile", vCenter + pileWidth + 30, hCenter, pileWidth, pileHeight, 90, yellow, yellow);
+    westPile = new PlayArea("westPile", vCenter - pileWidth - 30, hCenter, pileWidth, pileHeight, 90, yellow, yellow);
+    northEastPile = new PlayArea("northEastPile", vCenter + pileWidth + 50, hCenter - pileHeight - 25, pileWidth, pileHeight, 45, blue, blueA);
+    southEastPile = new PlayArea("southEastPile", vCenter + pileWidth + 50, hCenter + pileHeight + 25, pileWidth, pileHeight, 135, blue, blueA);
+    southWestPile = new PlayArea("southWestPile", vCenter - pileWidth - 50, hCenter + pileHeight + 25, pileWidth, pileHeight, 45, blue, blueA);
+    northWestPile = new PlayArea("northWestPile", vCenter - pileWidth - 50, hCenter - pileHeight - 25, pileWidth, pileHeight, 135, blue, blueA);
     
     playAreas.push(northPile, northEastPile, eastPile, southEastPile, southPile, southWestPile, westPile, northWestPile);
     
-    deck = new Deck(width / 2 - pileWidth / 2, height / 2 - pileHeight / 2, cardWidth, cardHeight, "purple", salmon);
+    deck = new Deck(width / 2 - pileWidth / 2, height / 2 - pileHeight / 2, cardWidth, cardHeight, "purple", salmon, salmonA);
     deck.cards = cards;
 
     playerHand = new Hand(width / 2, height - cardHeight + 30, width - 20, cardHeight + 10, 0);
@@ -383,8 +389,13 @@ function draw() {
 
 function mouseClicked() {
     if(deck.isActive) {
-        let card = deck.getCard();
-        playerHand.addTo(card);
+        if(!deck.isEmpty) {
+            let card = deck.getCard();
+            playerHand.addTo(card);
+            if(deck.cards.length === 0) {
+                deck.isEmpty = true;
+            }
+        }
     } else {
         if(!selectedCard && !selectedPile) {
             if(curCard) {

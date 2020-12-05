@@ -6,7 +6,6 @@ let selectedCard = null;
 let selectedPile = null;
 let pileWidth = cardWidth + 10;
 let pileHeight = cardHeight + 10;
-let deckPile;
 let northPile;
 let northEastPile;
 let eastPile;

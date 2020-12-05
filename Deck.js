@@ -47,7 +47,7 @@ class Deck {
         stroke(this.borderColor);
         strokeWeight(2);
         translate(this.x, this.y)
-        deckPile = rect(0, 0, this.width + 10, this.height + 10);
+        rect(0, 0, this.width + 10, this.height + 10);
         image(this.img, 0, 0, this.width, this.height);
         pop();
     }

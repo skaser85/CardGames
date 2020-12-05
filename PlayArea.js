@@ -52,6 +52,9 @@ class PlayArea {
         if(this.isRed(topCard.name) && this.isRed(playCard.name)) {
             return false;
         }
+        if(this.isBlack(topCard.name) && this.isBlack(playCard.name)) {
+            return false;
+        }
         let topCardValue = parseInt(topCard.name.slice(0, topCard.name.length - 1)) || topCard.name.slice(0, topCard.name.length - 1);
         let playCardValue = parseInt(playCard.name.slice(0, playCard.name.length - 1)) || playCard.name.slice(0, playCard.name.length - 1);
         if(isNaN(topCardValue)) {
@@ -130,13 +133,32 @@ class PlayArea {
                 }
                 if(i > 0 && i === this.cards.length - 1) {
                     // console.log(card);
-                    if((this.name === "north") || (this.name === "south")) {
-                        card.setCoords(this.x, this.y + 50);
-                        console.log(card);
-                    }
-                    if((this.name === "east") || (this.name === "west")) {
-                        card.setCoords(this.x + 50, this.y);
-                        console.log(card);
+                    let offset = 25;
+                    switch(this.name) {
+                        case "northPile":
+                            card.setCoords(this.x, this.y - offset);
+                            break;
+                        case "southPile":
+                            card.setCoords(this.x, this.y + offset);
+                            break;
+                        case "northEastPile":
+                            card.setCoords(this.x + offset, this.y - offset);
+                            break;
+                        case "southEastPile":
+                            card.setCoords(this.x + offset, this.y + offset);
+                            break;
+                        case "eastPile":
+                            card.setCoords(this.x + offset, this.y);
+                            break;
+                        case "northWestPile":
+                            card.setCoords(this.x - offset, this.y - offset);
+                            break;
+                        case "southWestPile":
+                            card.setCoords(this.x - offset, this.y + offset);
+                            break;
+                        case "westPile":
+                            card.setCoords(this.x - offset, this.y);
+                            break;
                     }
                     card.draw();
                 }

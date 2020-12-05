@@ -374,16 +374,8 @@ function draw() {
 
 function mouseClicked() {
     if(deck.isActive) {
-        for(let i = 0; i < playAreas.length; i++) {
-            let p = playAreas[i];
-            if(!["northEastPile", "southEastPile", "southWestPile", "northWestPile"].includes(p.name)) {
-                if(p.cards.length === 0) {
-                    let card = deck.getCard();
-                    p.addTo(card);
-                    break;
-                }
-            }
-        }
+        let card = deck.getCard();
+        playerHand.addTo(card);
     } else {
         if(!selectedCard && !selectedPile) {
             if(curCard) {
@@ -467,5 +459,18 @@ function dealCards() {
     for(let i = 0; i < 7; i++) {
         let card = deck.getCard();
         playerHand.addTo(card);
+    }
+}
+
+function addCardToEmptyPlayArea() {
+    for(let i = 0; i < playAreas.length; i++) {
+        let p = playAreas[i];
+        if(!["northEastPile", "southEastPile", "southWestPile", "northWestPile"].includes(p.name)) {
+            if(p.cards.length === 0) {
+                let card = deck.getCard();
+                p.addTo(card);
+                break;
+            }
+        }
     }
 }

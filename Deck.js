@@ -12,7 +12,8 @@ class Deck {
         this.borderColor = borderColor;
         this.fillColor = fillColor;
         this.isActive = false;
-        this.cards = [];
+        // this.cards = [];
+        this.cards = ["2C","3C","4C","5C","6C","7C","8C","9C","10C","JC","QC","KC","AC","2H","3H","4H","5H","6H","7H","8H","9H","10H","JH","QH","KH","AH","2S","3S","4S","5S","6S","7S","8S","9S","10S","JS","QS","KS","AS","2D","3D","4D","5D","6D","7D","8D","9D","10D","JD","QD","KD","AD"];
         this.cardsInPlay = [];
         this.isEmpty = false;
         
@@ -21,13 +22,16 @@ class Deck {
     }
 
     getCard() {
-        // TODO(steve): should this be where the card actually gets created?
-        // like, call loadImage here?
         let cardIndex = Math.floor((Math.random() * this.cards.length));
-        let card = this.cards[cardIndex];
-        this.cards.splice(cardIndex, 1);
-        this.cardsInPlay.push(card);
-        return card;
+        let cName = this.cards[cardIndex];
+        return new Promise((resolve, reject) => {
+            loadImage(`cards/${cName}.png`, img => {
+                let c = new Card(cName, img, cardWidth, cardHeight, 0, 0);
+                this.cards.splice(cardIndex, 1);
+                this.cardsInPlay.push(c);
+                resolve(c);
+            });
+        });
     }
 
     mouseIsOver() {

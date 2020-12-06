@@ -50,15 +50,17 @@ class KC {
     }
 
     dealCards() {
-        this.playAreas.forEach(p => {
+        this.playAreas.forEach(async p => {
             if(["northPile", "eastPile", "southPile", "westPile"].includes(p.name)) {
-                p.addTo(this.deck.getCard());
+                let c = await this.deck.getCard();
+                p.addTo(c);
             }
         });
     
-        this.players.forEach(p => {
+        this.players.forEach(async p => {
             for(let i = 0; i < 7; i++) {
-                p.addTo(this.deck.getCard());
+                let c = await this.deck.getCard();
+                p.addTo(c);
             }
         });
     }
@@ -121,10 +123,10 @@ class KC {
         this.players.forEach(p => p.draw());
     }
 
-    handleClick() {
+    async handleClick() {
         if(this.deck.isActive) {
             if(!this.deck.isEmpty) {
-                let card = this.deck.getCard();
+                let card = await this.deck.getCard();
                 this.curPlayer.addTo(card);
                 if(this.deck.cards.length === 0) {
                     this.deck.isEmpty = true;

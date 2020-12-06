@@ -1,28 +1,6 @@
 let cardWidth = 75;
 let cardHeight = 100;
-let curCard = null;
-let curPile = null;
-let selectedCard = null;
-let selectedPile = null;
-let pileWidth = cardWidth + 10;
-let pileHeight = cardHeight + 10;
-let northPile;
-let northEastPile;
-let eastPile;
-let southEastPile;
-let southPile;
-let southWestPile;
-let westPile;
-let northWestPile;
-let playAreas = [];
-let playerHand;
-let yellow;
-let blue;
-let salmon;
-let yellowA;
-let blueA;
-let salmonA;
-let deck;
+let game;
 let cards = [
     {
         name: "2C",
@@ -300,196 +278,19 @@ function setup() {
     imageMode(CENTER);
     angleMode(DEGREES);
 
-    // colors
-    yellow = color(255, 255, 100);
-    yellowA = color(255, 255, 100, 125);
-    blue = color(0, 255, 255);
-    blueA = color(0, 255, 255, 125);
-    salmon = color(200, 100, 0);
-    salmonA = color(200, 100, 0, 125);
-
-    // setup Play Areas
-    let vCenter = (width / 2 - pileWidth / 2);
-    let hCenter = (height / 2 - pileHeight / 2);
-
-    northPile = new PlayArea("northPile", vCenter, hCenter - pileHeight - 20, pileWidth, pileHeight, 0, yellow, yellow);
-    southPile = new PlayArea("southPile", vCenter, hCenter + pileHeight + 20, pileWidth, pileHeight, 0, yellow, yellow)
-    eastPile = new PlayArea("eastPile", vCenter + pileWidth + 30, hCenter, pileWidth, pileHeight, 90, yellow, yellow);
-    westPile = new PlayArea("westPile", vCenter - pileWidth - 30, hCenter, pileWidth, pileHeight, 90, yellow, yellow);
-    northEastPile = new PlayArea("northEastPile", vCenter + pileWidth + 50, hCenter - pileHeight - 25, pileWidth, pileHeight, 45, blue, blueA);
-    southEastPile = new PlayArea("southEastPile", vCenter + pileWidth + 50, hCenter + pileHeight + 25, pileWidth, pileHeight, 135, blue, blueA);
-    southWestPile = new PlayArea("southWestPile", vCenter - pileWidth - 50, hCenter + pileHeight + 25, pileWidth, pileHeight, 45, blue, blueA);
-    northWestPile = new PlayArea("northWestPile", vCenter - pileWidth - 50, hCenter - pileHeight - 25, pileWidth, pileHeight, 135, blue, blueA);
-    
-    playAreas.push(northPile, northEastPile, eastPile, southEastPile, southPile, southWestPile, westPile, northWestPile);
-    
-    deck = new Deck(width / 2 - pileWidth / 2, height / 2 - pileHeight / 2, cardWidth, cardHeight, "purple", salmon, salmonA);
-    deck.cards = cards;
-
-    playerHand = new Hand(width / 2, height - cardHeight + 30, width - 20, cardHeight + 10, 0);
-
-    dealCards();
-
-    // displayAllCards();
+    game = new KC(1, cardWidth, cardHeight);
+    game.deck.cards = cards;
+    game.dealCards();
 }
 
 function draw() {
     background(0, 100, 0);
 
-    deck.update();
-    deck.draw();
-
-    // update & draw Play Areas
-    for(let p of playAreas) {
-        p.update();
-        if(curPile === null) {
-            if(p.isActive) {
-                curPile = p;
-            }
-        } else {
-            if(curPile === p) {
-                if(!p.isActive) {
-                    curPile = null;
-                }
-            }
-        }
-        p.draw();
-    }
-
-    // figure out which cards have the mouse over them
-    let possibleCards = [];
-    for(let c of deck.cardsInPlay) {
-        c.card.update();
-        if(c.card.isActive) {
-            possibleCards.push(c);
-        }
-    }
-
-    // if no cards have the mouse over them, then curCard is nothing
-    // if only one card has the mouse over it, then curdCard is that card
-    // otherwise, loop over the array and set the isActive property to
-    // false except for the last one, because that's the card that we're
-    // going to set as the curCard
-    if(possibleCards.length === 0) {
-        curCard = null;
-     } else if(possibleCards.length === 1) {
-        curCard = possibleCards[0];
-    } else {
-        // minus 1 because we don't want to do this to the last
-        // card in this array
-        for(let i = 0; i < possibleCards.length - 1; i++) {
-            possibleCards[i].card.isActive = false;
-        }
-        curCard = possibleCards[possibleCards.length - 1];
-    }
-
-    playerHand.update();
-    playerHand.draw();
+    game.update();
+    game.draw();
 }
 
 function mouseClicked() {
-    if(deck.isActive) {
-        if(!deck.isEmpty) {
-            let card = deck.getCard();
-            playerHand.addTo(card);
-            if(deck.cards.length === 0) {
-                deck.isEmpty = true;
-            }
-        }
-    } else {
-        if(!selectedCard && !selectedPile) {
-            if(curCard) {
-                curCard.card.isSelected = true;
-                selectedCard = curCard;
-            } else if(curCard && selectedCard) {
-                if(curCard.card.isSelected) {
-                    selectedCard.card.isSelected = false;
-                    selectedCard = null;
-                } else {
-                    selectedCard.card.isSelected = false;
-                    selectedCard = null;
-                    curCard.card.isSelected = true;
-                    selectedCard = curCard;
-                }
-            }
-        } else if(selectedCard && !selectedPile) {
-            if(curPile) {
-                curPile.isSelected = true;
-                selectedPile = curPile;
-                
-                let card = selectedCard.card;
-                if(curPile.canPlace(selectedCard)) {
-                    curPile.addTo(selectedCard);
-                } else {
-                    card.setCoords(card.pile.x, card.pile.y);
-                }
-                
-                selectedCard.card.isSelected = false;
-                selectedCard = null;
-                selectedPile.isSelected = false;
-                selectedPile = null;   
-            } else if(curPile && selectedPile) {
-                if(curPile.isSelected) {
-                    selectedPile.isSelected = false;
-                    selectedPile = null;
-                } else {
-                    selectedPile.isSelected = false;
-                    selectedPile = null;   
-                    curPile.isSelected = true;
-                    selectedPile = curPile;             
-                }
-            }
-        }
-    }
+    game.handleClick();
     return false; // safety precaution for browser weirdness
-}
-
-function displayAllCards() {
-    let gutter = 10;
-    let cardsInRow = 0;
-    let rowTop = (cardHeight / 2) + 5;
-    let colStart = (cardWidth / 2) + 5
-    deck.cards.forEach(c => {
-        c.img = loadImage(`cards/${c.name}.png`, () => {
-            c.card = new Card(c.name, c.img, cardWidth, cardHeight, colStart, rowTop);
-            deck.cardsInPlay.push(c);
-            cardsInRow++;
-            if((cardWidth * cardsInRow) + (gutter * cardsInRow) + cardWidth > width) {
-                rowTop += cardHeight + gutter;
-                colStart = (cardWidth / 2) + 5;
-                cardsInRow = 0;
-            } else {
-                colStart += (cardWidth + gutter);
-            }
-        });
-    });
-}
-
-function dealCards() {
-    let north = deck.getCard();
-    northPile.addTo(north);
-    let south = deck.getCard();
-    southPile.addTo(south);
-    let east = deck.getCard();
-    eastPile.addTo(east);
-    let west = deck.getCard();
-    westPile.addTo(west);
-
-    for(let i = 0; i < 7; i++) {
-        let card = deck.getCard();
-        playerHand.addTo(card);
-    }
-}
-
-function addCardToEmptyPlayArea() {
-    for(let i = 0; i < playAreas.length; i++) {
-        let p = playAreas[i];
-        if(!["northEastPile", "southEastPile", "southWestPile", "northWestPile"].includes(p.name)) {
-            if(p.cards.length === 0) {
-                let card = deck.getCard();
-                p.addTo(card);
-                break;
-            }
-        }
-    }
 }

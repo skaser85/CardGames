@@ -76,7 +76,7 @@ class PlayArea {
         // check if corner spot
         if(["northEastPile", "southEastPile", "southWestPile", "northWestPile"].includes(this.name)) {
             if(this.cards.length === 0) {
-                return card.card.name.includes("K");
+                return card.name.includes("K");
             } else {
                 return this.checkCards(topCard, card);
             }
@@ -90,26 +90,26 @@ class PlayArea {
     }
 
     addTo(card) {
-        if(card.card.pile && 
-           card.card.pile instanceof PlayArea &&
-           card.card.pile.cards.length > 1) {
-            let takePile = card.card.pile;
+        if(card.pile && 
+           card.pile instanceof PlayArea &&
+           card.pile.cards.length > 1) {
+            let takePile = card.pile;
             let cards = [...takePile.cards];
             for(let i = 0; i < cards.length; i++) {
                 let c = cards[i];
                 takePile.removeFrom(c);
-                c.card.pile = this;
-                c.card.setCoords(this.x, this.y);
-                c.card.setRotation(this.rotateDeg);
+                c.pile = this;
+                c.setCoords(this.x, this.y);
+                c.setRotation(this.rotateDeg);
                 this.cards.push(c);
             };
         } else {
-            if(card.card.pile) {
-                card.card.pile.removeFrom(card);
+            if(card.pile) {
+                card.pile.removeFrom(card);
             }
-            card.card.pile = this;
-            card.card.setCoords(this.x, this.y);
-            card.card.setRotation(this.rotateDeg);
+            card.pile = this;
+            card.setCoords(this.x, this.y);
+            card.setRotation(this.rotateDeg);
             this.cards.push(card);
         }
     }
@@ -117,7 +117,7 @@ class PlayArea {
     removeFrom(card) {
         let cardIndex = this.cards.indexOf(card);
         this.cards.splice(cardIndex, 1);
-        card.card.pile = null;
+        card.pile = null;
     }
 
     mouseIsOver() {
@@ -177,7 +177,7 @@ class PlayArea {
         if(this.cards.length > 0) {
             this.offset = 25;
             for(let i = 0; i < this.cards.length; i++) {
-                let card = this.cards[i].card;
+                let card = this.cards[i];
                 if(i === 0) {
                     card.setCoords(this.x, this.y);
                 } else if(i === 1) {

@@ -87,8 +87,8 @@ class KC {
             // figure out which cards have the mouse over them
         let possibleCards = [];
         for(let c of this.deck.cardsInPlay) {
-            c.card.update();
-            if(c.card.isActive) {
+            c.update();
+            if(c.isActive) {
                 possibleCards.push(c);
             }
         }
@@ -106,7 +106,7 @@ class KC {
             // minus 1 because we don't want to do this to the last
             // card in this array
             for(let i = 0; i < possibleCards.length - 1; i++) {
-                possibleCards[i].card.isActive = false;
+                possibleCards[i].isActive = false;
             }
             this.curCard = possibleCards[possibleCards.length - 1];
         }
@@ -133,16 +133,16 @@ class KC {
         } else {
             if(!this.selectedCard && !this.selectedPile) {
                 if(this.curCard) {
-                    this.curCard.card.isSelected = true;
+                    this.curCard.isSelected = true;
                     this.selectedCard = this.curCard;
                 } else if(this.curCard && this.selectedCard) {
-                    if(this.curCard.card.isSelected) {
-                        this.selectedCard.card.isSelected = false;
+                    if(this.curCard.isSelected) {
+                        this.selectedCard.isSelected = false;
                         this.selectedCard = null;
                     } else {
-                        this.selectedCard.card.isSelected = false;
+                        this.selectedCard.isSelected = false;
                         this.selectedCard = null;
-                        this.curCard.card.isSelected = true;
+                        this.curCard.isSelected = true;
                         this.selectedCard = this.curCard;
                     }
                 }
@@ -151,14 +151,14 @@ class KC {
                     this.curPlayArea.isSelected = true;
                     this.selectedPile = this.curPlayArea;
                     
-                    let card = this.selectedCard.card;
+                    let card = this.selectedCard;
                     if(this.curPlayArea.canPlace(this.selectedCard)) {
                         this.curPlayArea.addTo(this.selectedCard);
                     } else {
                         card.setCoords(card.pile.x, card.pile.y);
                     }
                     
-                    this.selectedCard.card.isSelected = false;
+                    this.selectedCard.isSelected = false;
                     this.selectedCard = null;
                     this.selectedPile.isSelected = false;
                     this.selectedPile = null;   

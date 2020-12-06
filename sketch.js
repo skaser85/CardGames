@@ -1,7 +1,8 @@
 let cardWidth = 75;
 let cardHeight = 100;
 let game;
-let cards = [
+let cards = [];
+let cardsList = [
     {
         name: "2C",
         img: null,
@@ -265,9 +266,9 @@ let cards = [
 ];
 
 function preload() {
-    cards.forEach(c => {
-        c.img = loadImage(`cards/${c.name}.png`, () => {
-            c.card = new Card(c.name, c.img, cardWidth, cardHeight, 0, 0);
+    cardsList.forEach(c => {
+        loadImage(`cards/${c.name}.png`, img => {
+            cards.push(new Card(c.name, img, cardWidth, cardHeight, 0, 0));
         });
     });
 }

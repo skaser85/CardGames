@@ -27,12 +27,12 @@ class Hand {
     }
 
     addTo(card) {
-        if(card.card.pile) {
-            card.card.pile.removeFrom(card);
+        if(card.pile) {
+            card.pile.removeFrom(card);
         }
-        card.card.pile = this;
-        card.card.setCoords(this.x, this.y);
-        card.card.setRotation(this.rotateDeg);
+        card.pile = this;
+        card.setCoords(this.x, this.y);
+        card.setRotation(this.rotateDeg);
         this.cards.push(card);
     }
 
@@ -78,8 +78,8 @@ class Hand {
         if(this.cards.length > 0) {
             let newX = 0;
             this.cards.forEach(c => {
-                c.card.setCoords((this.left + cardWidth / 2 + 5) + newX, this.y);
-                c.card.draw();
+                c.setCoords((this.left + cardWidth / 2 + 5) + newX, this.y);
+                c.draw();
                 newX += offset;
             });
         }

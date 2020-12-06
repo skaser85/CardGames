@@ -9,6 +9,7 @@ class Hand {
         this.fillColor = color(100, 255, 200, 125);
         this.isActive = false;
         this.cards = [];
+        this.offset = 50;
         if(this.rotateDeg === 0) {
             this.left = this.x - (this.width / 2);
             this.right = this.x + (this.width / 2);
@@ -65,23 +66,16 @@ class Hand {
         rotate(this.rotateDeg);
         rect(0, 0, this.width, this.height);
         pop();
-        let offset;
-        if(this.cards.length > 12) {
-            offset = 30;
-        }
-        if(this.cards.length > 20) {
-            offset = 20;
-        }
-        if(!offset) {
-            offset = 50;
-        }
         if(this.cards.length > 0) {
             let newX = 0;
             this.cards.forEach(c => {
                 c.setCoords((this.left + cardWidth / 2 + 5) + newX, this.y);
                 c.draw();
-                newX += offset;
+                newX += this.offset;
             });
+            if(this.cards[this.cards.length - 1].right + this.offset > this.right) {
+                this.offset -= 3;
+            }
         }
     }
 }

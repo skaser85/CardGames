@@ -21,6 +21,8 @@ class Deck {
     }
 
     getCard() {
+        // TODO(steve): should this be where the card actually gets created?
+        // like, call loadImage here?
         let cardIndex = Math.floor((Math.random() * this.cards.length));
         let card = this.cards[cardIndex];
         this.cards.splice(cardIndex, 1);

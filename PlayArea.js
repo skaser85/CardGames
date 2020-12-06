@@ -29,66 +29,6 @@ class PlayArea {
         this.offset = 25;
     }
 
-    isRed(cardName) {
-        return (cardName.includes("D")) || (cardName.includes("H"));
-    }
-
-    isBlack(cardName) {
-        return (cardName.includes("S")) || (cardName.includes("C"));
-    }
-
-    makeNumeric(cardValue) {
-        switch(cardValue) {
-            case("A"):
-                return 1;
-            case("J"):
-                return 11
-            case("Q"):
-                return 12
-            case("K"):
-                return 13
-        }
-    }
-
-    checkCards(topCard, playCard) {
-        if(this.isRed(topCard.name) && this.isRed(playCard.name)) {
-            return false;
-        }
-        if(this.isBlack(topCard.name) && this.isBlack(playCard.name)) {
-            return false;
-        }
-        let topCardValue = parseInt(topCard.name.slice(0, topCard.name.length - 1)) || topCard.name.slice(0, topCard.name.length - 1);
-        let playCardValue = parseInt(playCard.name.slice(0, playCard.name.length - 1)) || playCard.name.slice(0, playCard.name.length - 1);
-        if(isNaN(topCardValue)) {
-            topCardValue = this.makeNumeric(topCardValue);
-        }
-        if(isNaN(playCardValue)) {
-            playCardValue = this.makeNumeric(playCardValue);
-        }
-        return topCardValue - playCardValue === 1
-    }
-
-    canPlace(card) {
-        let topCard;
-        if(this.cards.length > 0) {
-            topCard = this.cards[this.cards.length - 1];
-        }
-        // check if corner spot
-        if(["northEastPile", "southEastPile", "southWestPile", "northWestPile"].includes(this.name)) {
-            if(this.cards.length === 0) {
-                return card.name.includes("K");
-            } else {
-                return this.checkCards(topCard, card);
-            }
-        }
-        // not corner spot
-        if(this.cards.length === 0) {
-            return true;
-        } else {
-            return this.checkCards(topCard, card);
-        }
-    }
-
     addTo(card) {
         if(card.pile && 
            card.pile instanceof PlayArea &&

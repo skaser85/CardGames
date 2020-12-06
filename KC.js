@@ -152,7 +152,7 @@ class KC {
                     this.selectedPile = this.curPlayArea;
                     
                     let card = this.selectedCard;
-                    if(this.curPlayArea.canPlace(this.selectedCard)) {
+                    if(this.canPlace(this.selectedPile, this.selectedCard)) {
                         this.curPlayArea.addTo(this.selectedCard);
                     } else {
                         card.setCoords(card.pile.x, card.pile.y);
@@ -174,6 +174,68 @@ class KC {
                     }
                 }
             }
+        }
+    }
+
+    isRed(cardName) {
+        return (cardName.includes("D")) || (cardName.includes("H"));
+    }
+
+    isBlack(cardName) {
+        return (cardName.includes("S")) || (cardName.includes("C"));
+    }
+
+    makeNumeric(cardValue) {
+        switch(cardValue) {
+            case("A"):
+                return 1;
+            case("J"):
+                return 11
+            case("Q"):
+                return 12
+            case("K"):
+                return 13
+        }
+    }
+
+    checkCards(topCard, playCard) {
+        if(this.isRed(topCard.name) && this.isRed(playCard.name)) {
+            return false;
+        }
+        if(this.isBlack(topCard.name) && this.isBlack(playCard.name)) {
+            return false;
+        }
+        let topCardValue = parseInt(topCard.name.slice(0, topCard.name.length - 1)) || topCard.name.slice(0, topCard.name.length - 1);
+        let playCardValue = parseInt(playCard.name.slice(0, playCard.name.length - 1)) || playCard.name.slice(0, playCard.name.length - 1);
+        if(isNaN(topCardValue)) {
+            topCardValue = this.makeNumeric(topCardValue);
+        }
+        if(isNaN(playCardValue)) {
+            playCardValue = this.makeNumeric(playCardValue);
+        }
+        return topCardValue - playCardValue === 1
+    }
+
+    canPlace(playArea, card) {
+        let topCard;
+        if(playArea.cards.length > 0) {
+            topCard = playArea.cards[playArea.cards.length - 1];
+        }
+        // check if corner spot
+        if(["northEastPile", "southEastPile", "southWestPile", "northWestPile"].includes(playArea.name)) {
+            // return playArea.cards.length === 0 ? card.name.includes("K") : this.checkCards(topCard, card);
+            if(playArea.cards.length === 0) {
+                return card.name.includes("K");
+            } else {
+                return this.checkCards(topCard, card);
+            }
+        }
+        // not corner spot
+        // return playArea.cards.length === 0 ? true : this.checkCards(topCard, card);
+        if(playArea.cards.length === 0) {
+            return true;
+        } else {
+            return this.checkCards(topCard, card);
         }
     }
 

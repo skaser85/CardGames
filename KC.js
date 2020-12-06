@@ -223,20 +223,10 @@ class KC {
         }
         // check if corner spot
         if(["northEastPile", "southEastPile", "southWestPile", "northWestPile"].includes(playArea.name)) {
-            // return playArea.cards.length === 0 ? card.name.includes("K") : this.checkCards(topCard, card);
-            if(playArea.cards.length === 0) {
-                return card.name.includes("K");
-            } else {
-                return this.checkCards(topCard, card);
-            }
+            return playArea.cards.length === 0 ? card.name.includes("K") : this.checkCards(topCard, card);
         }
         // not corner spot
-        // return playArea.cards.length === 0 ? true : this.checkCards(topCard, card);
-        if(playArea.cards.length === 0) {
-            return true;
-        } else {
-            return this.checkCards(topCard, card);
-        }
+        return playArea.cards.length === 0 ? true : this.checkCards(topCard, card);
     }
 
 

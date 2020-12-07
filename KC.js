@@ -42,7 +42,7 @@ class KC {
         // setup player's hand
         for(let i = 0; i < this.numPlayers; i++) {
             this.players.push(
-                new Hand(width / 2, height - cardHeight + 30, width - 20, cardHeight + 10, 0)
+                new Hand(`Player${i + 1}`, width / 2, height - cardHeight + 30, width - 20, cardHeight + 10, 0)
             )
         }
 

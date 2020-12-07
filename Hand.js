@@ -68,14 +68,15 @@ class Hand {
         pop();
         if(this.cards.length > 0) {
             let newX = 0;
+            let stackRight = this.cards[this.cards.length - 1].right;
+            if(stackRight + this.offset > this.right) {
+                this.offset -= 3;
+            }
             this.cards.forEach(c => {
                 c.setCoords((this.left + cardWidth / 2 + 5) + newX, this.y);
                 c.draw();
                 newX += this.offset;
             });
-            if(this.cards[this.cards.length - 1].right + this.offset > this.right) {
-                this.offset -= 3;
-            }
         }
     }
 }

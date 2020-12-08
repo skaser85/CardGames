@@ -26,6 +26,14 @@ class Hand {
             this.top = rotY - (this.height / 2);
             this.bottom = rotY + (this.height / 2);
         }
+        this.textSize = 40;
+        this.textWidth = 0;
+        this.topOffset = 30;
+        this.leftOffset = 0;
+        textSize(this.textSize);
+        this.textWidth = textWidth(this.playerName);
+        this.leftOffset = this.textWidth / 2;
+        this.textRight = this.left + this.leftOffset + this.textWidth;
     }
 
     addTo(card) {
@@ -55,6 +63,7 @@ class Hand {
     }
 
     draw() {
+        // draw hand area box
         push();
         if(this.isActive) {
             fill(this.fillColor);
@@ -67,18 +76,13 @@ class Hand {
         rotate(this.rotateDeg);
         rect(0, 0, this.width, this.height);
         pop();
-        let topOffset = 30;
+        push();
+        // draw playerName
         stroke(0, 0, 0);
         strokeWeight(2);
         fill(this.borderColor);
-        let tSize = 40;
-        textSize(tSize);
-        let textW = textWidth(this.playerName);
-        let leftOffset = textW / 2;
-        text(this.playerName, this.left + leftOffset, this.top - topOffset);
-        noFill();
-        stroke(255, 255, 255);
-        rect(this.left + leftOffset, this.top - topOffset, textW, tSize);
+        text(this.playerName, this.left + this.leftOffset, this.top - this.topOffset);
+        // draw cards
         if(this.cards.length > 0) {
             let newX = 0;
             let stackRight = this.cards[this.cards.length - 1].right;
@@ -91,5 +95,6 @@ class Hand {
                 newX += this.offset;
             });
         }
+        pop();
     }
 }

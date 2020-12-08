@@ -1,15 +1,20 @@
 // King's Corner
 class KC {
-    constructor(numPlayers, cardWidth, cardHeight) {
+    constructor(numPlayers, cardWidth, cardHeight, cards) {
         this.numPlayers = numPlayers;
         this.players = [];
         this.curPlayer = null;
         this.turnStarted = false;
+        this.playerHasPulledFromDeck = false;
         this.playAreas = [];
         this.curPlayArea = null;
         this.curCard = null;
         this.selectedCard = null;
         this.selectedPile = null;
+        this.message = "";
+        this.messageType = "";
+        this.messageAlpha = 0;
+        this.initialMessageAlpha = 400;
 
         // colors
         let yellow = color(255, 255, 100);
@@ -38,7 +43,8 @@ class KC {
 
         // setup deck
         this.deck = new Deck(width / 2 - pileWidth / 2, height / 2 - pileHeight / 2, cardWidth, cardHeight, "purple", salmon, salmonA);
-        
+        this.deck.cards = cards;
+
         // setup player's hand
         for(let i = 0; i < this.numPlayers; i++) {
             this.players.push(
@@ -47,6 +53,15 @@ class KC {
         }
 
         this.curPlayer = this.players[0];
+
+        
+
+        button = createButton("Start Turn");
+        let p1 = this.players[0];
+        button.position(p1.textRight - 20, p1.top - p1.topOffset);
+        button.mousePressed(() => {
+            button.elt.innerText = this.handleButtonPress(button.elt.innerText);
+        });
     }
 
     dealCards() {
@@ -114,22 +129,59 @@ class KC {
         }
 
         // update Hands
-        this.players.forEach(p => p.update());
+        this.curPlayer.update();
     }
 
     draw() {
         this.deck.draw();
         this.playAreas.forEach(p => p.draw());
-        this.players.forEach(p => p.draw());
+        this.curPlayer.draw();
+
+        // display error
+        push();
+        if(this.message) {
+            switch(this.messageType) {
+                case "error":
+                    stroke(0, 0, 0, this.messageAlpha);
+                    fill(255, 0, 175, this.messageAlpha);
+                    break;
+                case "normal":
+                    stroke(0, 0, 0, this.messageAlpha);
+                    fill(255, 255, 255, this.messageAlpha);
+            }
+            textSize(32);
+            strokeWeight(2);
+            let eTextW = textWidth(this.message);
+            let eTextL = this.curPlayer.left + (eTextW / 2);
+            let eTextT = this.curPlayer.top - this.curPlayer.topOffset - this.curPlayer.textSize;
+            text(this.message, eTextL, eTextT);
+            if(this.messageAlpha > 0) {
+                this.messageAlpha -= 1;
+            } else {
+                this.messageAlpha = this.initialMessageAlpha;
+                this.message = "";
+            }
+        }
+        pop();
     }
 
     async handleClick() {
         if(this.deck.isActive) {
             if(!this.deck.isEmpty) {
-                let card = await this.deck.getCard();
-                this.curPlayer.addTo(card);
-                if(this.deck.cards.length === 0) {
-                    this.deck.isEmpty = true;
+                if(!this.turnStarted) {
+                    this.addMessage("error", "Turn has not started yet.");
+                } else {
+                    if(this.playerHasPulledFromDeck) {
+                        this.addMessage("error", "You can only select 1 card from the deck per turn.");
+                    } else {
+                        let card = await this.deck.getCard();
+                        this.curPlayer.addTo(card);
+                        if(this.deck.cards.length === 0) {
+                            this.deck.isEmpty = true;
+                        }
+                        this.playerHasPulledFromDeck = true;
+                        this.addMessage("normal", `Congrats on pulling the ${this.getValue(card.name)}!!!`);
+                    }
                 }
             }
         } else {
@@ -154,10 +206,15 @@ class KC {
                     this.selectedPile = this.curPlayArea;
                     
                     let card = this.selectedCard;
-                    if(this.canPlace(this.selectedPile, this.selectedCard)) {
-                        this.curPlayArea.addTo(this.selectedCard);
+                    if(!this.turnStarted) {
+                        this.addMessage("error", "Please start your turn before making any moves.");
                     } else {
-                        card.setCoords(card.pile.x, card.pile.y);
+                        if(this.canPlace(this.selectedPile, this.selectedCard)) {
+                            this.curPlayArea.addTo(this.selectedCard);
+                        } else {
+                            this.addMessage("error", `Cannot play the ${this.getValue(card.name)} card in the ${this.curPlayArea.name}.`);
+                            card.setCoords(card.pile.x, card.pile.y);
+                        }
                     }
                     
                     this.selectedCard.isSelected = false;
@@ -179,6 +236,40 @@ class KC {
         }
     }
 
+    handleButtonPress(btnText) {
+        if(this.turnStarted) {
+            if(!this.playerHasPulledFromDeck) {
+                this.addMessage("error", "You have not yet pulled a card from the deck.");
+            } else {
+                this.turnStarted = false;
+                this.playerHasPulledFromDeck = false;
+                this.addMessage("normal", `Great moves, ${this.curPlayer.playerName}!`);
+                this.nextPlayer();
+                btnText = "Start Turn";
+            }
+        } else {
+            this.turnStarted = true;
+            this.addMessage("normal", `Best of luck, ${this.curPlayer.playerName}!`);
+            btnText = "End Turn";
+        }
+        return btnText;
+    }
+
+    nextPlayer() {
+        let curPlayerIndex = this.players.findIndex(p => p.playerName === this.curPlayer.playerName);
+        if(curPlayerIndex === this.players.length - 1) {
+            this.curPlayer = this.players[0];
+        } else {
+            this.curPlayer = this.players[curPlayerIndex + 1];
+        }
+    }
+
+    addMessage(msgType, msgText) {
+        this.messageType = msgType;
+        this.message = msgText;
+        this.messageAlpha = this.initialMessageAlpha;
+    }
+
     isRed(cardName) {
         return (cardName.includes("D")) || (cardName.includes("H"));
     }
@@ -197,6 +288,48 @@ class KC {
                 return 12
             case("K"):
                 return 13
+        }
+    }
+
+    getValue(cardName) {
+        let cardValue = cardName.slice(0, cardName.length - 1);
+        let suite = cardName.slice(-1);
+        let cardValueText = "";
+        let suiteValueText = "";
+        switch(cardValue) {
+            case("A"):
+                cardValueText = "Ace";
+                break;
+            case("J"):
+                cardValueText = "Jack";
+                break;
+            case("Q"):
+                cardValueText = "Queen";
+                break;
+            case("K"):
+                cardValueText = "King";
+                break;
+            default:
+                cardValueText = cardValue;
+        }
+        switch(suite) {
+            case("C"):
+                suiteValueText = "Clubs";
+                break;
+            case("D"):
+                suiteValueText = "Diamonds";
+                break;
+            case("H"):
+                suiteValueText = "Hearts";
+                break;
+            case("S"):
+                suiteValueText = "Spades";
+                break;
+        }
+        if(cardValueText && suiteValueText) {
+            return cardValueText + " of " + suiteValueText;
+        } else {
+            return cardName;
         }
     }
 

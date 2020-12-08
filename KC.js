@@ -15,6 +15,10 @@ class KC {
         this.messageType = "";
         this.messageAlpha = 0;
         this.initialMessageAlpha = 400;
+        this.gameOver = false;
+        this.strobeCounter = 5;
+        this.initialStrobeCount = 5;
+        this.winnerColor = color(random(255), random(255), random(255));
 
         // colors
         let yellow = color(255, 255, 100);
@@ -43,7 +47,7 @@ class KC {
 
         // setup deck
         this.deck = new Deck(width / 2 - pileWidth / 2, height / 2 - pileHeight / 2, cardWidth, cardHeight, "purple", salmon, salmonA);
-        this.deck.cards = cards;
+        this.deck.cards = [...cards];
 
         // setup player's hand
         for(let i = 0; i < this.numPlayers; i++) {
@@ -64,176 +68,214 @@ class KC {
         });
     }
 
-    dealCards() {
-        this.playAreas.forEach(async p => {
+    restartGame(cards) {
+        this.deck.cards = [];
+        this.deck.cards = [...cards];
+        this.deck.cards.forEach(c => c.pile = null);
+        this.deck.cardsInPlay = [];
+        this.players.forEach(p => p.cards = []);
+        this.playAreas.forEach(p => p.cards = []);
+        this.curPlayer = this.players[0];
+        this.gameOver = false;
+        this.turnStarted = false;
+        this.playerHasPulledFromDeck = false;
+        this.dealCards();
+    }
+
+    async dealCards() {
+        for(let i = 0; i < this.playAreas.length; i++) {
+            let p = this.playAreas[i];
             if(["northPile", "eastPile", "southPile", "westPile"].includes(p.name)) {
                 let c = await this.deck.getCard();
                 c.visible = true;
                 p.addTo(c);
             }
-        });
+        }
     
-        this.players.forEach(async p => {
-            for(let i = 0; i < 7; i++) {
+        for(let i = 0; i < this.players.length; i++) {
+            let p = this.players[i];
+            for(let k = 0; k < 7; k++) {
                 let c = await this.deck.getCard();
                 c.visible = true;
                 p.addTo(c);
             }
-        });
+        }
     }
 
     update() {
-        // update deck
-        this.deck.update();
-        
-        // update playAreas
-        for(let p of this.playAreas) {
-            p.update();
-            if(this.curPlayArea === null) {
-                if(p.isActive) {
-                    this.curPlayArea = p;
-                }
-            } else {
-                if(this.curPlayArea === p) {
-                    if(!p.isActive) {
-                        this.curPlayArea = null;
+        if(!this.gameOver) {
+            // update deck
+            this.deck.update();
+            
+            // update playAreas
+            for(let p of this.playAreas) {
+                p.update();
+                if(this.curPlayArea === null) {
+                    if(p.isActive) {
+                        this.curPlayArea = p;
+                    }
+                } else {
+                    if(this.curPlayArea === p) {
+                        if(!p.isActive) {
+                            this.curPlayArea = null;
+                        }
                     }
                 }
             }
-        }
 
-        // update cards
-        // figure out which cards have the mouse over them
-        let possibleCards = [];
-        for(let c of this.deck.cardsInPlay) {
-            if(c.visible) {
-                c.update();
+            // update cards
+            // figure out which cards have the mouse over them
+            let possibleCards = [];
+            for(let c of this.deck.cardsInPlay) {
+                if(c.visible) {
+                    c.update();
+                }
+                if(c.isActive) {
+                    possibleCards.push(c);
+                }
             }
-            if(c.isActive) {
-                possibleCards.push(c);
-            }
-        }
 
-        // if no cards have the mouse over them, then curCard is nothing
-        // if only one card has the mouse over it, then curdCard is that card
-        // otherwise, loop over the array and set the isActive property to
-        // false except for the last one, because that's the card that we're
-        // going to set as the curCard
-        if(possibleCards.length === 0) {
-            this.curCard = null;
-         } else if(possibleCards.length === 1) {
-            this.curCard = possibleCards[0];
-        } else {
-            // minus 1 because we don't want to do this to the last
-            // card in this array
-            for(let i = 0; i < possibleCards.length - 1; i++) {
-                possibleCards[i].isActive = false;
+            // if no cards have the mouse over them, then curCard is nothing
+            // if only one card has the mouse over it, then curdCard is that card
+            // otherwise, loop over the array and set the isActive property to
+            // false except for the last one, because that's the card that we're
+            // going to set as the curCard
+            if(possibleCards.length === 0) {
+                this.curCard = null;
+            } else if(possibleCards.length === 1) {
+                this.curCard = possibleCards[0];
+            } else {
+                // minus 1 because we don't want to do this to the last
+                // card in this array
+                for(let i = 0; i < possibleCards.length - 1; i++) {
+                    possibleCards[i].isActive = false;
+                }
+                this.curCard = possibleCards[possibleCards.length - 1];
             }
-            this.curCard = possibleCards[possibleCards.length - 1];
-        }
 
-        // update Hands
-        this.curPlayer.update();
+            // update Hands
+            this.curPlayer.update();
+        }
     }
 
     draw() {
-        this.deck.draw();
-        this.playAreas.forEach(p => p.draw());
-        this.curPlayer.draw();
-
-        // display error
-        push();
-        if(this.message) {
-            switch(this.messageType) {
-                case "error":
-                    stroke(0, 0, 0, this.messageAlpha);
-                    fill(255, 0, 175, this.messageAlpha);
-                    break;
-                case "normal":
-                    stroke(0, 0, 0, this.messageAlpha);
-                    fill(255, 255, 255, this.messageAlpha);
-            }
-            textSize(32);
+        if(this.gameOver) {
+            push();
+            let ts = 64;
+            textSize(ts);
             strokeWeight(2);
-            let eTextW = textWidth(this.message);
-            let eTextL = this.curPlayer.left + (eTextW / 2);
-            let eTextT = this.curPlayer.top - this.curPlayer.topOffset - this.curPlayer.textSize;
-            text(this.message, eTextL, eTextT);
-            if(this.messageAlpha > 0) {
-                this.messageAlpha -= 1;
-            } else {
-                this.messageAlpha = this.initialMessageAlpha;
-                this.message = "";
+            this.strobeCounter -= 1;
+            if(this.strobeCounter === 0) {
+                this.winnerColor = color(random(255), random(255), random(255))
+                this.strobeCounter = this.initialStrobeCount;
             }
+            fill(this.winnerColor);
+            let t = `${this.curPlayer.playerName} is the winrar!!!`;
+            let tl = width / 2;
+            let tt = height / 2;
+            text(t, tl, tt);
+            pop();
+        } else {
+            this.deck.draw();
+            this.playAreas.forEach(p => p.draw());
+            this.curPlayer.draw();
+
+            // display error
+            push();
+            if(this.message) {
+                switch(this.messageType) {
+                    case "error":
+                        stroke(0, 0, 0, this.messageAlpha);
+                        fill(255, 0, 175, this.messageAlpha);
+                        break;
+                    case "normal":
+                        stroke(0, 0, 0, this.messageAlpha);
+                        fill(255, 255, 255, this.messageAlpha);
+                }
+                textSize(32);
+                strokeWeight(2);
+                let eTextW = textWidth(this.message);
+                let eTextL = this.curPlayer.left + (eTextW / 2);
+                let eTextT = this.curPlayer.top - this.curPlayer.topOffset - this.curPlayer.textSize;
+                text(this.message, eTextL, eTextT);
+                if(this.messageAlpha > 0) {
+                    this.messageAlpha -= 1;
+                } else {
+                    this.messageAlpha = this.initialMessageAlpha;
+                    this.message = "";
+                }
+            }
+            pop();
         }
-        pop();
     }
 
     async handleClick() {
-        if(this.deck.isActive) {
-            if(!this.deck.isEmpty) {
-                if(!this.turnStarted) {
-                    this.addMessage("error", "Turn has not started yet.");
-                } else {
-                    if(this.playerHasPulledFromDeck) {
-                        this.addMessage("error", "You can only select 1 card from the deck per turn.");
+        if(!this.gameOver) {
+            if(this.deck.isActive) {
+                if(!this.deck.isEmpty) {
+                    if(!this.turnStarted) {
+                        this.addMessage("error", "Turn has not started yet.");
                     } else {
-                        let card = await this.deck.getCard();
-                        this.curPlayer.addTo(card);
-                        if(this.deck.cards.length === 0) {
-                            this.deck.isEmpty = true;
+                        if(this.playerHasPulledFromDeck) {
+                            this.addMessage("error", "You can only select 1 card from the deck per turn.");
+                        } else {
+                            let card = await this.deck.getCard();
+                            this.curPlayer.addTo(card);
+                            if(this.deck.cards.length === 0) {
+                                this.deck.isEmpty = true;
+                            }
+                            this.playerHasPulledFromDeck = true;
+                            this.addMessage("normal", `Congrats on pulling the ${this.getValue(card.name)}!!!`);
                         }
-                        this.playerHasPulledFromDeck = true;
-                        this.addMessage("normal", `Congrats on pulling the ${this.getValue(card.name)}!!!`);
                     }
                 }
-            }
-        } else {
-            if(!this.selectedCard && !this.selectedPile) {
-                if(this.curCard) {
-                    this.curCard.isSelected = true;
-                    this.selectedCard = this.curCard;
-                } else if(this.curCard && this.selectedCard) {
-                    if(this.curCard.isSelected) {
-                        this.selectedCard.isSelected = false;
-                        this.selectedCard = null;
-                    } else {
-                        this.selectedCard.isSelected = false;
-                        this.selectedCard = null;
+            } else {
+                if(!this.selectedCard && !this.selectedPile) {
+                    if(this.curCard) {
                         this.curCard.isSelected = true;
                         this.selectedCard = this.curCard;
-                    }
-                }
-            } else if(this.selectedCard && !this.selectedPile) {
-                if(this.curPlayArea) {
-                    this.curPlayArea.isSelected = true;
-                    this.selectedPile = this.curPlayArea;
-                    
-                    let card = this.selectedCard;
-                    if(!this.turnStarted) {
-                        this.addMessage("error", "Please start your turn before making any moves.");
-                    } else {
-                        if(this.canPlace(this.selectedPile, this.selectedCard)) {
-                            this.curPlayArea.addTo(this.selectedCard);
+                    } else if(this.curCard && this.selectedCard) {
+                        if(this.curCard.isSelected) {
+                            this.selectedCard.isSelected = false;
+                            this.selectedCard = null;
                         } else {
-                            this.addMessage("error", `Cannot play the ${this.getValue(card.name)} card in the ${this.curPlayArea.name}.`);
-                            card.setCoords(card.pile.x, card.pile.y);
+                            this.selectedCard.isSelected = false;
+                            this.selectedCard = null;
+                            this.curCard.isSelected = true;
+                            this.selectedCard = this.curCard;
                         }
                     }
-                    
-                    this.selectedCard.isSelected = false;
-                    this.selectedCard = null;
-                    this.selectedPile.isSelected = false;
-                    this.selectedPile = null;   
-                } else if(this.curPlayArea && this.selectedPile) {
-                    if(this.curPlayArea.isSelected) {
-                        this.selectedPile.isSelected = false;
-                        this.selectedPile = null;
-                    } else {
+                } else if(this.selectedCard && !this.selectedPile) {
+                    if(this.curPlayArea) {
+                        this.curPlayArea.isSelected = true;
+                        this.selectedPile = this.curPlayArea;
+                        
+                        let card = this.selectedCard;
+                        if(!this.turnStarted) {
+                            this.addMessage("error", "Please start your turn before making any moves.");
+                        } else {
+                            if(this.canPlace(this.selectedPile, this.selectedCard)) {
+                                this.curPlayArea.addTo(this.selectedCard);
+                            } else {
+                                this.addMessage("error", `Cannot play the ${this.getValue(card.name)} card in the ${this.curPlayArea.name}.`);
+                                card.setCoords(card.pile.x, card.pile.y);
+                            }
+                        }
+                        
+                        this.selectedCard.isSelected = false;
+                        this.selectedCard = null;
                         this.selectedPile.isSelected = false;
                         this.selectedPile = null;   
-                        this.curPlayArea.isSelected = true;
-                        this.selectedPile = this.curPlayArea;             
+                    } else if(this.curPlayArea && this.selectedPile) {
+                        if(this.curPlayArea.isSelected) {
+                            this.selectedPile.isSelected = false;
+                            this.selectedPile = null;
+                        } else {
+                            this.selectedPile.isSelected = false;
+                            this.selectedPile = null;   
+                            this.curPlayArea.isSelected = true;
+                            this.selectedPile = this.curPlayArea;             
+                        }
                     }
                 }
             }
@@ -241,21 +283,28 @@ class KC {
     }
 
     handleButtonPress(btnText) {
-        if(this.turnStarted) {
-            if(!this.playerHasPulledFromDeck) {
-                this.addMessage("error", "You have not yet pulled a card from the deck.");
+        if(!this.gameOver) {
+            if(this.turnStarted) {
+                if(!this.playerHasPulledFromDeck) {
+                    this.addMessage("error", "You have not yet pulled a card from the deck.");
+                } else {
+                    if(this.curPlayer.cards.length === 0) {
+                        this.gameOver = true;
+                        button.elt.hidden = true;
+                    } else {
+                        this.turnStarted = false;
+                        this.playerHasPulledFromDeck = false;
+                        this.addMessage("normal", `Great moves, ${this.curPlayer.playerName}!`);
+                        this.curPlayer.setCardsToNotVisible();
+                        this.nextPlayer();
+                        btnText = "Start Turn";
+                    }
+                }
             } else {
-                this.turnStarted = false;
-                this.playerHasPulledFromDeck = false;
-                this.addMessage("normal", `Great moves, ${this.curPlayer.playerName}!`);
-                this.curPlayer.setCardsToNotVisible();
-                this.nextPlayer();
-                btnText = "Start Turn";
+                this.turnStarted = true;
+                this.addMessage("normal", `Best of luck, ${this.curPlayer.playerName}!`);
+                btnText = "End Turn";
             }
-        } else {
-            this.turnStarted = true;
-            this.addMessage("normal", `Best of luck, ${this.curPlayer.playerName}!`);
-            btnText = "End Turn";
         }
         return btnText;
     }

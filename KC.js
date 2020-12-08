@@ -68,6 +68,7 @@ class KC {
         this.playAreas.forEach(async p => {
             if(["northPile", "eastPile", "southPile", "westPile"].includes(p.name)) {
                 let c = await this.deck.getCard();
+                c.visible = true;
                 p.addTo(c);
             }
         });
@@ -75,6 +76,7 @@ class KC {
         this.players.forEach(async p => {
             for(let i = 0; i < 7; i++) {
                 let c = await this.deck.getCard();
+                c.visible = true;
                 p.addTo(c);
             }
         });
@@ -101,10 +103,12 @@ class KC {
         }
 
         // update cards
-            // figure out which cards have the mouse over them
+        // figure out which cards have the mouse over them
         let possibleCards = [];
         for(let c of this.deck.cardsInPlay) {
-            c.update();
+            if(c.visible) {
+                c.update();
+            }
             if(c.isActive) {
                 possibleCards.push(c);
             }
@@ -244,6 +248,7 @@ class KC {
                 this.turnStarted = false;
                 this.playerHasPulledFromDeck = false;
                 this.addMessage("normal", `Great moves, ${this.curPlayer.playerName}!`);
+                this.curPlayer.setCardsToNotVisible();
                 this.nextPlayer();
                 btnText = "Start Turn";
             }
@@ -262,6 +267,7 @@ class KC {
         } else {
             this.curPlayer = this.players[curPlayerIndex + 1];
         }
+        this.curPlayer.setCardsToVisible();
     }
 
     addMessage(msgType, msgText) {

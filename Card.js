@@ -16,6 +16,7 @@ class Card {
         this.right = 0;
         this.top = 0; 
         this.bottom = 0;
+        this.visible = false;
         this.updateDirs();
     }
 
@@ -56,7 +57,7 @@ class Card {
     }
     
     update() {
-        this.isActive = this.mouseIsOver();
+        this.isActive = this.visible && this.mouseIsOver();
     }
 
     draw() {

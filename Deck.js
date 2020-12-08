@@ -23,6 +23,7 @@ class Deck {
     getCard() {
         let cardIndex = Math.floor((Math.random() * this.cards.length));
         let c = this.cards[cardIndex];
+        c.visible = true;
         this.cards.splice(cardIndex, 1);
         this.cardsInPlay.push(c);
         return(c)

@@ -36,6 +36,14 @@ class Hand {
         this.textRight = this.left + this.leftOffset + this.textWidth;
     }
 
+    setCardsToVisible() {
+        this.cards.forEach(c => c.visible = true);
+    }
+
+    setCardsToNotVisible() {
+        this.cards.forEach(c => c.visible = false);
+    }
+
     addTo(card) {
         if(card.pile) {
             card.pile.removeFrom(card);

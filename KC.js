@@ -1,6 +1,6 @@
 // King's Corner
 class KC {
-    constructor(numPlayers, cardWidth, cardHeight, cards) {
+    constructor(numPlayers, cardWidth, cardHeight, cards, logger) {
         this.numPlayers = numPlayers;
         this.players = [];
         this.curPlayer = null;
@@ -19,6 +19,7 @@ class KC {
         this.strobeCounter = 5;
         this.initialStrobeCount = 5;
         this.winnerColor = color(random(255), random(255), random(255));
+        this.logger = logger;
 
         // colors
         let yellow = color(255, 255, 100);
@@ -58,7 +59,7 @@ class KC {
 
         this.curPlayer = this.players[0];
 
-        
+        this.logger.addTo(this.getGameState("game started"));
 
         button = createButton("Start Turn");
         let p1 = this.players[0];
@@ -66,6 +67,24 @@ class KC {
         button.mousePressed(() => {
             button.elt.innerText = this.handleButtonPress(button.elt.innerText);
         });
+    }
+
+    getGameState(stateName) {
+        return {
+            name: stateName,
+            player: this.curPlayer.playerName,
+            playerCards: [...this.curPlayer.cards],
+            playAreas: [...this.playAreas],
+            deckCards: [...this.deck.cards],
+            deckCardsInPlay: [...this.deck.cardsInPlay],
+            turnStarted: this.turnStarted,
+            playerHasPulledFromDeck: this.playerHasPulledFromDeck,
+            gameOver: this.gameOver
+        }
+    }
+
+    setGameState(state) {
+
     }
 
     restartGame(cards) {
@@ -80,6 +99,7 @@ class KC {
         this.turnStarted = false;
         this.playerHasPulledFromDeck = false;
         this.dealCards();
+        this.logger.addTo(this.getGameState("game restarted"));
     }
 
     async dealCards() {
@@ -226,6 +246,7 @@ class KC {
                             }
                             this.playerHasPulledFromDeck = true;
                             this.addMessage("normal", `Congrats on pulling the ${this.getValue(card.name)}!!!`);
+                            this.logger.addTo(this.getGameState(`${this.curPlayer.playerName} pulled the ${card.name} from the deck`));
                         }
                     }
                 }
@@ -256,6 +277,7 @@ class KC {
                         } else {
                             if(this.canPlace(this.selectedPile, this.selectedCard)) {
                                 this.curPlayArea.addTo(this.selectedCard);
+                                this.logger.addTo(this.getGameState(`${this.curPlayer.playerName} moved the ${this.selectedCard.name} to the ${this.selectedPile.name}`));
                             } else {
                                 this.addMessage("error", `Cannot play the ${this.getValue(card.name)} card in the ${this.curPlayArea.name}.`);
                                 card.setCoords(card.pile.x, card.pile.y);
@@ -291,11 +313,13 @@ class KC {
                     if(this.curPlayer.cards.length === 0) {
                         this.gameOver = true;
                         button.elt.hidden = true;
+                        this.logger.addTo(this.getGameState(`${this.curPlayer.playerName} wins`));
                     } else {
                         this.turnStarted = false;
                         this.playerHasPulledFromDeck = false;
                         this.addMessage("normal", `Great moves, ${this.curPlayer.playerName}!`);
                         this.curPlayer.setCardsToNotVisible();
+                        this.logger.addTo(this.getGameState(`${this.curPlayer.playerName} turn ended`));
                         this.nextPlayer();
                         btnText = "Start Turn";
                     }
@@ -303,6 +327,7 @@ class KC {
             } else {
                 this.turnStarted = true;
                 this.addMessage("normal", `Best of luck, ${this.curPlayer.playerName}!`);
+                this.logger.addTo(this.getGameState(`${this.curPlayer.playerName} turn started`));
                 btnText = "End Turn";
             }
         }

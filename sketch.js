@@ -30,13 +30,6 @@ function setup() {
     restart.mousePressed(() => {
         game.restartGame(cards);
     });
-
-    autoWin = createButton("Winner, winner, chicken dinner");
-    autoWin.position(100, 100);
-    autoWin.mousePressed(() => {
-        game.gameOver = true;
-        button.elt.hidden = true;
-    });
 }
 
 function draw() {

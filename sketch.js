@@ -7,6 +7,7 @@ let button;
 let restart;
 let logger;
 let undoBtn;
+let redoBtn;
 
 function preload() {
     cardsList.forEach(c => {
@@ -38,6 +39,12 @@ function setup() {
     undoBtn.position(15, restart.y + restart.height + 5);
     undoBtn.mousePressed(() => {
         game.undo();
+    });
+
+    redoBtn = createButton("Redo");
+    redoBtn.position(undoBtn.x + undoBtn.width + 5, restart.y + restart.height + 5);
+    redoBtn.mousePressed(() => {
+        game.redo();
     });
 }
 

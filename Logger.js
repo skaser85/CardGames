@@ -6,20 +6,26 @@ class Logger {
     constructor() {
         this.log = [];
         this.undoState = null;
+        this.redoPointer = 0;
         this.lastCardPulledFromDeck = null;
     }
 
     addTo(state) {
+        if(this.redoPointer) {
+            this.log.splice(this.log.length - this.redoPointer, this.redoPointer);
+        }
         this.log.push(state);
-        this.undoState = null;
+        this.redoPointer = 0;
         if(state.type === "pulled from deck") {
             this.lastCardPulledFromDeck = state.card;
         }
     }
 
-    removeLast() {
-        this.undoState = this.log[this.log.length - 1];
-        this.log.splice(this.log.length - 1, 1);
-        return this.undoState;
+    getUndoState() {
+        return this.log[this.log.length - 1 - this.redoPointer];
+    }
+
+    getRedoState() {
+        return this.log[this.log.length - this.redoPointer];
     }
 }

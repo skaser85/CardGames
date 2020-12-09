@@ -84,51 +84,91 @@ class KC {
             this.addMessage("error", "Cannot undo once the game has been won.");
             return;
         }
-        let lastState = this.logger.removeLast();
-        if(lastState.type) {
-            switch(lastState.type) {
-                case("card moved"):
-                    let card = this.deck.cardsInPlay.find(c => c.name === lastState.card);
+        let lastState = this.logger.getUndoState();
+        switch(lastState.type) {
+            case("card moved"):
+                let card = this.deck.cardsInPlay.find(c => c.name === lastState.card);
+                let pa;
+                pa = this.playAreas.find(p => p.name === lastState.from);
+                if(!pa) pa = this.players.find(p => p.name === lastState.from);
+                if(card.pile) card.pile.removeFrom(card);
+                pa.addTo(card);
+                break;
+            case("cards moved"):
+                lastState.cards.forEach(c => {
+                    // c is the Card object, not just the card name
                     let pa;
                     pa = this.playAreas.find(p => p.name === lastState.from);
                     if(!pa) pa = this.players.find(p => p.name === lastState.from);
-                    if(card.pile) card.pile.removeFrom(card);
-                    pa.addTo(card);
-                    break;
-                case("cards moved"):
-                    lastState.cards.forEach(c => {
-                        // c is the Card object, not just the card name
-                        let pa;
-                        pa = this.playAreas.find(p => p.name === lastState.from);
-                        if(!pa) pa = this.players.find(p => p.name === lastState.from);
-                        if(c.pile) c.pile.removeFrom(c.pile);
-                        pa.addTo(c);
-                    });
-                    break;
-                case("pulled from deck"):
-                    let cardPulled = this.deck.cardsInPlay.find(c => c.name === lastState.card);
-                    if(cardPulled.pile) cardPulled.pile.removeFrom(cardPulled);
-                    this.playerHasPulledFromDeck = false;
-                    break;
-                case("turn started"):
-                    this.turnStarted = false;
-                    this.btnText = "Start Turn";
-                    button.elt.innerText = this.btnText;
-                    break;
-                case("turn ended"):
-                    this.curPlayer = this.curPlayer.find(p => p.name === lastState.player);
-                    this.turnStarted = true;
-                    this.playerHasPulledFromDeck = lastState.playerHasPulledFromDeck;
-                    this.btnText = "End Turn";
-                    button.elt.innerText = this.btnText;
-                    break;
-            }
+                    if(c.pile) c.pile.removeFrom(c.pile);
+                    pa.addTo(c);
+                });
+                break;
+            case("pulled from deck"):
+                let cardPulled = this.deck.cardsInPlay.find(c => c.name === lastState.card);
+                if(cardPulled.pile) cardPulled.pile.removeFrom(cardPulled);
+                this.playerHasPulledFromDeck = false;
+                break;
+            case("turn started"):
+                this.turnStarted = false;
+                this.btnText = "Start Turn";
+                button.elt.innerText = this.btnText;
+                break;
+            case("turn ended"):
+                this.curPlayer = this.players.find(p => p.name === lastState.player);
+                this.turnStarted = true;
+                // always true because we've already checked that this has happened by the time we get to the undo
+                this.playerHasPulledFromDeck = true;
+                this.btnText = "End Turn";
+                button.elt.innerText = this.btnText;
+                break;
         }
-        this.logger.undoState = null;
+        this.logger.redoPointer++;
     }
 
     redo() {
-
+        let redoState = this.logger.getRedoState();
+        switch(redoState.type) {
+            case("card moved"):
+                let card = this.deck.cardsInPlay.find(c => c.name === redoState.card);
+                let pa;
+                pa = this.playAreas.find(p => p.name === redoState.to);
+                if(!pa) pa = this.players.find(p => p.name === redoState.to);
+                if(card.pile) card.pile.removeFrom(card);
+                pa.addTo(card);
+                break;
+            case("cards moved"):
+                redoState.cards.forEach(c => {
+                    // c is the Card object, not just the card name
+                    let pa;
+                    pa = this.playAreas.find(p => p.name === redoState.to);
+                    if(!pa) pa = this.players.find(p => p.name === redoState.to);
+                    if(c.pile) c.pile.removeFrom(c.pile);
+                    pa.addTo(c);
+                });
+                break;
+            case("pulled from deck"):
+                let cardPulled = this.deck.cardsInPlay.find(c => c.name === redoState.card);
+                if(cardPulled.pile) cardPulled.pile.removeFrom(cardPulled);
+                this.curPlayer.addTo(cardPulled);
+                this.playerHasPulledFromDeck = false;
+                break;
+            case("turn started"):
+                this.turnStarted = true;
+                this.btnText = "End Turn";
+                button.elt.innerText = this.btnText;
+                break;
+            case("turn ended"):
+                this.curPlayer.setCardsToNotVisible();
+                this.curPlayer = this.nextPlayer();
+                this.curPlayer.setCardsToVisible();
+                this.turnStarted = false;
+                this.playerHasPulledFromDeck = redoState.playerHasPulledFromDeck;
+                this.btnText = "Start Turn";
+                button.elt.innerText = this.btnText;
+                break;
+        }
+        this.logger.redoPointer--;
     }
 
     getGameState(stateName) {
@@ -253,6 +293,8 @@ class KC {
 
             // update Hands
             this.curPlayer.update();
+
+            redoBtn.elt.disabled = this.logger.redoPointer === 0;
         }
     }
 
@@ -277,6 +319,21 @@ class KC {
             this.deck.draw();
             this.playAreas.forEach(p => p.draw());
             this.curPlayer.draw();
+
+            if(this.logger.redoPointer) {
+                push();
+                let textS = 16;
+                textSize(textS);
+                fill(255, 255, 255);
+                stroke(0, 0, 0);
+                strokeWeight(1);
+                let redoText = `Available: ${this.logger.redoPointer}`
+                let textW = textWidth(redoText);
+                let textL = (textW / 2) + redoBtn.x + redoBtn.width;
+                let textT = redoBtn.y + 4;
+                text(redoText, textL, textT);
+                pop();
+            }
         }
 
         // display error
@@ -434,17 +491,18 @@ class KC {
                             player: this.curPlayer.name
                         });
                     } else {
-                        this.turnStarted = false;
-                        this.playerHasPulledFromDeck = false;
-                        this.addMessage("normal", `Great moves, ${this.curPlayer.name}!`);
-                        this.curPlayer.setCardsToNotVisible();
-                        this.btnText = "Start Turn";
                         this.logger.addTo({
                             type: "turn ended",
                             player: this.curPlayer.name,
                             playerHasPulledFromDeck: this.playerHasPulledFromDeck
                         });
-                        this.nextPlayer();
+                        this.turnStarted = false;
+                        this.playerHasPulledFromDeck = false;
+                        this.addMessage("normal", `Great moves, ${this.curPlayer.name}!`);
+                        this.curPlayer.setCardsToNotVisible();
+                        this.btnText = "Start Turn";
+                        this.curPlayer = this.nextPlayer();
+                        this.curPlayer.setCardsToVisible();
                     }
                 }
             } else {
@@ -457,13 +515,14 @@ class KC {
     }
 
     nextPlayer() {
+        let player = null;
         let curPlayerIndex = this.players.findIndex(p => p.name === this.curPlayer.name);
         if(curPlayerIndex === this.players.length - 1) {
-            this.curPlayer = this.players[0];
+            player = this.players[0];
         } else {
-            this.curPlayer = this.players[curPlayerIndex + 1];
+            player = this.players[curPlayerIndex + 1];
         }
-        this.curPlayer.setCardsToVisible();
+        return player;
     }
 
     addMessage(msgType, msgText) {

@@ -5,21 +5,21 @@
 class Logger {
     constructor() {
         this.log = [];
+        this.undoState = null;
     }
 
     addTo(state) {
         this.log.push(state);
+        this.undoState = null;
         console.log("state added to logger: ", this.log);
     }
 
-    undo() {
-        let idx = this.log.length - 1;
-        console.log("undo performed: ");
-        console.log("removed: ", this.log(idx));
-        
-        this.log.slice(idx - 1, 1);
-
-        console.log("new last: ", this.log(this.log.length - 1));
-        return this.log.length - 1;
+    removeLast() {
+        this.undoState = this.log[this.log.length - 1];
+        if(this.undoState.name.includes("pulled")) {
+            this.undoState.deckCardsInPlay[this.undoState.deckCardsInPlay.length - 1].pile = null;
+        }
+        this.log.splice(this.log.length - 1, 1);
+        return this.log[this.log.length - 1];
     }
 }

@@ -55,7 +55,10 @@ class Hand {
     }
 
     removeFrom(card) {
-        let cardIndex = this.cards.indexOf(card);
+        let cardIndex = this.cards.findIndex(c => c.name === card.name);
+        if(this.cards[cardIndex].pile) {
+            this.cards[cardIndex].pile = null;
+        }
         this.cards.splice(cardIndex, 1);
     }
 

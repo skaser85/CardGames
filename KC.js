@@ -20,6 +20,7 @@ class KC {
         this.initialStrobeCount = 5;
         this.winnerColor = color(random(255), random(255), random(255));
         this.logger = logger;
+        this.btnText = "Start Turn";
 
         // colors
         let yellow = color(255, 255, 100);
@@ -59,14 +60,23 @@ class KC {
 
         this.curPlayer = this.players[0];
 
-        this.logger.addTo(this.getGameState("game started"));
-
-        button = createButton("Start Turn");
+        button = createButton(this.btnText);
         let p1 = this.players[0];
         button.position(p1.textRight - 20, p1.top - p1.topOffset);
         button.mousePressed(() => {
-            button.elt.innerText = this.handleButtonPress(button.elt.innerText);
+            this.handleButtonPress();
+            button.elt.innerText = this.btnText;
         });
+    }
+
+    undo() {
+        let lastState = this.logger.removeLast();
+        this.setGameState(lastState);
+        console.log(this.logger.log);
+    }
+
+    redo() {
+
     }
 
     getGameState(stateName) {
@@ -79,12 +89,27 @@ class KC {
             deckCardsInPlay: [...this.deck.cardsInPlay],
             turnStarted: this.turnStarted,
             playerHasPulledFromDeck: this.playerHasPulledFromDeck,
-            gameOver: this.gameOver
+            gameOver: this.gameOver,
+            btnText: this.btnText
         }
     }
 
     setGameState(state) {
-
+        console.log(state);
+        this.deck.cards = [];
+        this.deck.cards = [...state.deckCards];
+        this.cardsInPlay = [];
+        this.cardsInPlay = [...state.deckCardsInPlay];
+        let playerIndex = this.players.findIndex(p => p.playerName === state.player);
+        this.curPlayer = this.players[playerIndex];
+        this.curPlayer.cards = [];
+        this.curPlayer.cards = [...state.playerCards];
+        this.playAreas = [];
+        this.playAreas = [...state.playAreas];
+        this.gameOver = state.gameOver;
+        this.turnStarted = state.turnStarted;
+        this.playerHasPulledFromDeck = state.playerHasPulledFromDeck;
+        button.elt.innerText = state.btnText;
     }
 
     restartGame(cards) {
@@ -120,6 +145,8 @@ class KC {
                 p.addTo(c);
             }
         }
+
+        this.logger.addTo(this.getGameState("game started"));
     }
 
     update() {
@@ -239,7 +266,14 @@ class KC {
                         if(this.playerHasPulledFromDeck) {
                             this.addMessage("error", "You can only select 1 card from the deck per turn.");
                         } else {
-                            let card = await this.deck.getCard();
+                            let card;
+                            if(this.logger.undoState) {
+                                let undoCard = this.logger.undoState.deckCardsInPlay[this.logger.undoState.deckCardsInPlay.length - 1];
+                                let cardIndex = this.deck.cardsInPlay.findIndex(c => c.name === undoCard.name);
+                                card = this.deck.cardsInPlay[cardIndex];
+                            } else {
+                                card = await this.deck.getCard();
+                            }
                             this.curPlayer.addTo(card);
                             if(this.deck.cards.length === 0) {
                                 this.deck.isEmpty = true;
@@ -304,7 +338,7 @@ class KC {
         }
     }
 
-    handleButtonPress(btnText) {
+    handleButtonPress() {
         if(!this.gameOver) {
             if(this.turnStarted) {
                 if(!this.playerHasPulledFromDeck) {
@@ -319,19 +353,18 @@ class KC {
                         this.playerHasPulledFromDeck = false;
                         this.addMessage("normal", `Great moves, ${this.curPlayer.playerName}!`);
                         this.curPlayer.setCardsToNotVisible();
+                        this.btnText = "Start Turn";
                         this.logger.addTo(this.getGameState(`${this.curPlayer.playerName} turn ended`));
                         this.nextPlayer();
-                        btnText = "Start Turn";
                     }
                 }
             } else {
                 this.turnStarted = true;
                 this.addMessage("normal", `Best of luck, ${this.curPlayer.playerName}!`);
+                this.btnText = "End Turn";
                 this.logger.addTo(this.getGameState(`${this.curPlayer.playerName} turn started`));
-                btnText = "End Turn";
             }
         }
-        return btnText;
     }
 
     nextPlayer() {

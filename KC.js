@@ -67,12 +67,64 @@ class KC {
             this.handleButtonPress();
             button.elt.innerText = this.btnText;
         });
+
+        this.logger.addTo({ type: "game started" });
     }
 
     undo() {
+        if(this.logger.log.length === 1) {
+            this.addMessage("error", "Cannot undo past start of game.");
+            return;
+        }
+        if(this.logger.log[this.logger.log.length - 1].type === "game restarted") {
+            this.addMessage("error", "Cannot undo past the restart of a game.");
+            return;
+        }
+        if(this.logger.log[this.logger.log.length - 1].type === "game won") {
+            this.addMessage("error", "Cannot undo once the game has been won.");
+            return;
+        }
         let lastState = this.logger.removeLast();
-        this.setGameState(lastState);
-        console.log(this.logger.log);
+        if(lastState.type) {
+            switch(lastState.type) {
+                case("card moved"):
+                    let card = this.deck.cardsInPlay.find(c => c.name === lastState.card);
+                    let pa;
+                    pa = this.playAreas.find(p => p.name === lastState.from);
+                    if(!pa) pa = this.players.find(p => p.name === lastState.from);
+                    if(card.pile) card.pile.removeFrom(card);
+                    pa.addTo(card);
+                    break;
+                case("cards moved"):
+                    lastState.cards.forEach(c => {
+                        // c is the Card object, not just the card name
+                        let pa;
+                        pa = this.playAreas.find(p => p.name === lastState.from);
+                        if(!pa) pa = this.players.find(p => p.name === lastState.from);
+                        if(c.pile) c.pile.removeFrom(c.pile);
+                        pa.addTo(c);
+                    });
+                    break;
+                case("pulled from deck"):
+                    let cardPulled = this.deck.cardsInPlay.find(c => c.name === lastState.card);
+                    if(cardPulled.pile) cardPulled.pile.removeFrom(cardPulled);
+                    this.playerHasPulledFromDeck = false;
+                    break;
+                case("turn started"):
+                    this.turnStarted = false;
+                    this.btnText = "Start Turn";
+                    button.elt.innerText = this.btnText;
+                    break;
+                case("turn ended"):
+                    this.curPlayer = this.curPlayer.find(p => p.name === lastState.player);
+                    this.turnStarted = true;
+                    this.playerHasPulledFromDeck = lastState.playerHasPulledFromDeck;
+                    this.btnText = "End Turn";
+                    button.elt.innerText = this.btnText;
+                    break;
+            }
+        }
+        this.logger.undoState = null;
     }
 
     redo() {
@@ -82,7 +134,7 @@ class KC {
     getGameState(stateName) {
         return {
             name: stateName,
-            player: this.curPlayer.playerName,
+            player: this.curPlayer.name,
             playerCards: [...this.curPlayer.cards],
             playAreas: [...this.playAreas],
             deckCards: [...this.deck.cards],
@@ -100,12 +152,13 @@ class KC {
         this.deck.cards = [...state.deckCards];
         this.cardsInPlay = [];
         this.cardsInPlay = [...state.deckCardsInPlay];
-        let playerIndex = this.players.findIndex(p => p.playerName === state.player);
+        let playerIndex = this.players.findIndex(p => p.name === state.player);
         this.curPlayer = this.players[playerIndex];
         this.curPlayer.cards = [];
         this.curPlayer.cards = [...state.playerCards];
         this.playAreas = [];
         this.playAreas = [...state.playAreas];
+        this.playAreas.forEach(p => { p.pile = p });
         this.gameOver = state.gameOver;
         this.turnStarted = state.turnStarted;
         this.playerHasPulledFromDeck = state.playerHasPulledFromDeck;
@@ -124,7 +177,7 @@ class KC {
         this.turnStarted = false;
         this.playerHasPulledFromDeck = false;
         this.dealCards();
-        this.logger.addTo(this.getGameState("game restarted"));
+        this.logger.addTo({ type: "game restarted"});
     }
 
     async dealCards() {
@@ -145,8 +198,6 @@ class KC {
                 p.addTo(c);
             }
         }
-
-        this.logger.addTo(this.getGameState("game started"));
     }
 
     update() {
@@ -217,7 +268,7 @@ class KC {
                 this.strobeCounter = this.initialStrobeCount;
             }
             fill(this.winnerColor);
-            let t = `${this.curPlayer.playerName} is the winrar!!!`;
+            let t = `${this.curPlayer.name} is the winrar!!!`;
             let tl = width / 2;
             let tt = height / 2;
             text(t, tl, tt);
@@ -226,34 +277,34 @@ class KC {
             this.deck.draw();
             this.playAreas.forEach(p => p.draw());
             this.curPlayer.draw();
-
-            // display error
-            push();
-            if(this.message) {
-                switch(this.messageType) {
-                    case "error":
-                        stroke(0, 0, 0, this.messageAlpha);
-                        fill(255, 0, 175, this.messageAlpha);
-                        break;
-                    case "normal":
-                        stroke(0, 0, 0, this.messageAlpha);
-                        fill(255, 255, 255, this.messageAlpha);
-                }
-                textSize(32);
-                strokeWeight(2);
-                let eTextW = textWidth(this.message);
-                let eTextL = this.curPlayer.left + (eTextW / 2);
-                let eTextT = this.curPlayer.top - this.curPlayer.topOffset - this.curPlayer.textSize;
-                text(this.message, eTextL, eTextT);
-                if(this.messageAlpha > 0) {
-                    this.messageAlpha -= 1;
-                } else {
-                    this.messageAlpha = this.initialMessageAlpha;
-                    this.message = "";
-                }
-            }
-            pop();
         }
+
+        // display error
+        push();
+        if(this.message) {
+            switch(this.messageType) {
+                case "error":
+                    stroke(0, 0, 0, this.messageAlpha);
+                    fill(255, 0, 175, this.messageAlpha);
+                    break;
+                case "normal":
+                    stroke(0, 0, 0, this.messageAlpha);
+                    fill(255, 255, 255, this.messageAlpha);
+            }
+            textSize(32);
+            strokeWeight(2);
+            let eTextW = textWidth(this.message);
+            let eTextL = this.curPlayer.left + (eTextW / 2);
+            let eTextT = this.curPlayer.top - this.curPlayer.topOffset - this.curPlayer.textSize;
+            text(this.message, eTextL, eTextT);
+            if(this.messageAlpha > 0) {
+                this.messageAlpha -= 1;
+            } else {
+                this.messageAlpha = this.initialMessageAlpha;
+                this.message = "";
+            }
+        }
+        pop();
     }
 
     async handleClick() {
@@ -267,10 +318,9 @@ class KC {
                             this.addMessage("error", "You can only select 1 card from the deck per turn.");
                         } else {
                             let card;
-                            if(this.logger.undoState) {
-                                let undoCard = this.logger.undoState.deckCardsInPlay[this.logger.undoState.deckCardsInPlay.length - 1];
-                                let cardIndex = this.deck.cardsInPlay.findIndex(c => c.name === undoCard.name);
-                                card = this.deck.cardsInPlay[cardIndex];
+                            if(this.logger.lastCardPulledFromDeck) {
+                                card = this.deck.cardsInPlay.find(c => c.name === this.logger.lastCardPulledFromDeck)
+                                this.logger.lastCardPulledFromDeck = null;
                             } else {
                                 card = await this.deck.getCard();
                             }
@@ -280,7 +330,11 @@ class KC {
                             }
                             this.playerHasPulledFromDeck = true;
                             this.addMessage("normal", `Congrats on pulling the ${this.getValue(card.name)}!!!`);
-                            this.logger.addTo(this.getGameState(`${this.curPlayer.playerName} pulled the ${card.name} from the deck`));
+                            this.logger.addTo({
+                                type: "pulled from deck",
+                                player: this.curPlayer.name,
+                                card: card.name
+                            });
                         }
                     }
                 }
@@ -310,8 +364,36 @@ class KC {
                             this.addMessage("error", "Please start your turn before making any moves.");
                         } else {
                             if(this.canPlace(this.selectedPile, this.selectedCard)) {
-                                this.curPlayArea.addTo(this.selectedCard);
-                                this.logger.addTo(this.getGameState(`${this.curPlayer.playerName} moved the ${this.selectedCard.name} to the ${this.selectedPile.name}`));
+                                if(this.selectedCard.pile instanceof PlayArea && this.selectedCard.pile.cards.length > 1) {
+                                    let loggerData = {
+                                        type: "cards moved",
+                                        cards: null,
+                                        from: this.selectedCard.pile.name,
+                                        to: this.selectedPile.name
+                                    };
+                                    let cardsToMove = [];
+                                    let selectedCardFound = false;
+                                    let cards = [...this.selectedCard.pile.cards];
+                                    cards.forEach(c => {
+                                        if(!selectedCardFound && c === this.selectedCard) {
+                                            selectedCardFound = true;
+                                        }
+                                        if(selectedCardFound) {
+                                            cardsToMove.push(c);
+                                            this.curPlayArea.addTo(c);
+                                        }
+                                    });
+                                    loggerData.cards = cardsToMove;
+                                    this.logger.addTo(loggerData);
+                                } else {
+                                    this.logger.addTo({
+                                        type: "card moved",
+                                        card: this.selectedCard.name,
+                                        from: this.selectedCard.pile.name,
+                                        to: this.selectedPile.name,
+                                    });
+                                    this.curPlayArea.addTo(this.selectedCard);
+                                }
                             } else {
                                 this.addMessage("error", `Cannot play the ${this.getValue(card.name)} card in the ${this.curPlayArea.name}.`);
                                 card.setCoords(card.pile.x, card.pile.y);
@@ -347,28 +429,35 @@ class KC {
                     if(this.curPlayer.cards.length === 0) {
                         this.gameOver = true;
                         button.elt.hidden = true;
-                        this.logger.addTo(this.getGameState(`${this.curPlayer.playerName} wins`));
+                        this.logger.addTo({
+                            type: "game won",
+                            player: this.curPlayer.name
+                        });
                     } else {
                         this.turnStarted = false;
                         this.playerHasPulledFromDeck = false;
-                        this.addMessage("normal", `Great moves, ${this.curPlayer.playerName}!`);
+                        this.addMessage("normal", `Great moves, ${this.curPlayer.name}!`);
                         this.curPlayer.setCardsToNotVisible();
                         this.btnText = "Start Turn";
-                        this.logger.addTo(this.getGameState(`${this.curPlayer.playerName} turn ended`));
+                        this.logger.addTo({
+                            type: "turn ended",
+                            player: this.curPlayer.name,
+                            playerHasPulledFromDeck: this.playerHasPulledFromDeck
+                        });
                         this.nextPlayer();
                     }
                 }
             } else {
                 this.turnStarted = true;
-                this.addMessage("normal", `Best of luck, ${this.curPlayer.playerName}!`);
+                this.addMessage("normal", `Best of luck, ${this.curPlayer.name}!`);
                 this.btnText = "End Turn";
-                this.logger.addTo(this.getGameState(`${this.curPlayer.playerName} turn started`));
+                this.logger.addTo({ type: "turn started", });
             }
         }
     }
 
     nextPlayer() {
-        let curPlayerIndex = this.players.findIndex(p => p.playerName === this.curPlayer.playerName);
+        let curPlayerIndex = this.players.findIndex(p => p.name === this.curPlayer.name);
         if(curPlayerIndex === this.players.length - 1) {
             this.curPlayer = this.players[0];
         } else {

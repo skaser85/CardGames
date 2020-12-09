@@ -30,28 +30,13 @@ class PlayArea {
     }
 
     addTo(card) {
-        if(card.pile && 
-           card.pile instanceof PlayArea &&
-           card.pile.cards.length > 1) {
-            let takePile = card.pile;
-            let cards = [...takePile.cards];
-            for(let i = 0; i < cards.length; i++) {
-                let c = cards[i];
-                takePile.removeFrom(c);
-                c.pile = this;
-                c.setCoords(this.x, this.y);
-                c.setRotation(this.rotateDeg);
-                this.cards.push(c);
-            };
-        } else {
-            if(card.pile) {
-                card.pile.removeFrom(card);
-            }
-            card.pile = this;
-            card.setCoords(this.x, this.y);
-            card.setRotation(this.rotateDeg);
-            this.cards.push(card);
+        if(card.pile) {
+            card.pile.removeFrom(card);
         }
+        card.pile = this;
+        card.setCoords(this.x, this.y);
+        card.setRotation(this.rotateDeg);
+        this.cards.push(card);
     }
 
     removeFrom(card) {

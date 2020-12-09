@@ -6,20 +6,20 @@ class Logger {
     constructor() {
         this.log = [];
         this.undoState = null;
+        this.lastCardPulledFromDeck = null;
     }
 
     addTo(state) {
         this.log.push(state);
         this.undoState = null;
-        console.log("state added to logger: ", this.log);
+        if(state.type === "pulled from deck") {
+            this.lastCardPulledFromDeck = state.card;
+        }
     }
 
     removeLast() {
         this.undoState = this.log[this.log.length - 1];
-        if(this.undoState.name.includes("pulled")) {
-            this.undoState.deckCardsInPlay[this.undoState.deckCardsInPlay.length - 1].pile = null;
-        }
         this.log.splice(this.log.length - 1, 1);
-        return this.log[this.log.length - 1];
+        return this.undoState;
     }
 }

@@ -50,6 +50,7 @@ class KC {
         // setup deck
         this.deck = new Deck(width / 2 - pileWidth / 2, height / 2 - pileHeight / 2, cardWidth, cardHeight, "purple", salmon, salmonA);
         this.deck.cards = [...cards];
+        this.deck.shuffle();
 
         // setup player's hand
         for(let i = 0; i < this.numPlayers; i++) {
@@ -107,6 +108,7 @@ class KC {
             case("pulled from deck"):
                 let cardPulled = this.deck.cardsInPlay.find(c => c.name === lastState.card);
                 if(cardPulled.pile) cardPulled.pile.removeFrom(cardPulled);
+                this.deck.cards.push(cardPulled);
                 this.playerHasPulledFromDeck = false;
                 break;
             case("turn started"):
@@ -151,7 +153,11 @@ class KC {
                 let cardPulled = this.deck.cardsInPlay.find(c => c.name === redoState.card);
                 if(cardPulled.pile) cardPulled.pile.removeFrom(cardPulled);
                 this.curPlayer.addTo(cardPulled);
-                this.playerHasPulledFromDeck = false;
+                if(this.deck.cards.includes(cardPulled)) {
+                    let c = this.deck.cards.pop();
+                    if(!this.deck.cardsInPlay.includes(cardPulled)) this.deck.cardsInPlay.push(c);
+                }
+                this.playerHasPulledFromDeck = true;
                 break;
             case("turn started"):
                 this.turnStarted = true;
@@ -220,11 +226,11 @@ class KC {
         this.logger.addTo({ type: "game restarted"});
     }
 
-    async dealCards() {
+    dealCards() {
         for(let i = 0; i < this.playAreas.length; i++) {
             let p = this.playAreas[i];
             if(["northPile", "eastPile", "southPile", "westPile"].includes(p.name)) {
-                let c = await this.deck.getCard();
+                let c = this.deck.getCard();
                 c.visible = true;
                 p.addTo(c);
             }
@@ -233,7 +239,7 @@ class KC {
         for(let i = 0; i < this.players.length; i++) {
             let p = this.players[i];
             for(let k = 0; k < 7; k++) {
-                let c = await this.deck.getCard();
+                let c = this.deck.getCard();
                 c.visible = true;
                 p.addTo(c);
             }
@@ -364,7 +370,7 @@ class KC {
         pop();
     }
 
-    async handleClick() {
+    handleClick() {
         if(!this.gameOver) {
             if(this.deck.isActive) {
                 if(!this.deck.isEmpty) {
@@ -375,12 +381,12 @@ class KC {
                             this.addMessage("error", "You can only select 1 card from the deck per turn.");
                         } else {
                             let card;
-                            if(this.logger.lastCardPulledFromDeck) {
-                                card = this.deck.cardsInPlay.find(c => c.name === this.logger.lastCardPulledFromDeck)
-                                this.logger.lastCardPulledFromDeck = null;
-                            } else {
-                                card = await this.deck.getCard();
-                            }
+                            // if(this.logger.lastCardPulledFromDeck) {
+                            //     card = this.deck.cardsInPlay.find(c => c.name === this.logger.lastCardPulledFromDeck)
+                            //     this.logger.lastCardPulledFromDeck = null;
+                            // } else {
+                                card = this.deck.getCard();
+                            // }
                             this.curPlayer.addTo(card);
                             if(this.deck.cards.length === 0) {
                                 this.deck.isEmpty = true;

@@ -20,11 +20,18 @@ class Deck {
         this.img = loadImage(`cards/${this.deckColor}_back.png`);
     }
 
+    shuffle() {
+        for(let i = this.cards.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            let temp = this.cards[i];
+            this.cards[i] = this.cards[j];
+            this.cards[j] = temp;
+        }
+    }
+
     getCard() {
-        let cardIndex = Math.floor((Math.random() * this.cards.length));
-        let c = this.cards[cardIndex];
+        let c = this.cards.pop();
         c.visible = true;
-        this.cards.splice(cardIndex, 1);
         this.cardsInPlay.push(c);
         return(c)
     }

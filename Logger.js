@@ -7,7 +7,7 @@ class Logger {
         this.log = [];
         this.undoState = null;
         this.redoPointer = 0;
-        this.lastCardPulledFromDeck = null;
+        // this.lastCardPulledFromDeck = null;
     }
 
     addTo(state) {
@@ -16,9 +16,9 @@ class Logger {
         }
         this.log.push(state);
         this.redoPointer = 0;
-        if(state.type === "pulled from deck") {
-            this.lastCardPulledFromDeck = state.card;
-        }
+        // if(state.type === "pulled from deck") {
+        //     this.lastCardPulledFromDeck = state.card;
+        // }
     }
 
     getUndoState() {

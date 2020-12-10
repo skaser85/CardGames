@@ -1,6 +1,6 @@
 // King's Corner
 class KC {
-    constructor(numPlayers, cardWidth, cardHeight, cards, logger) {
+    constructor(numPlayers, cardWidth, cardHeight, cards, colors, logger) {
         this.numPlayers = numPlayers;
         this.players = [];
         this.curPlayer = null;
@@ -11,6 +11,7 @@ class KC {
         this.curCard = null;
         this.selectedCard = null;
         this.selectedPile = null;
+        this.colors = colors
         this.message = "";
         this.messageType = "";
         this.messageAlpha = 0;
@@ -22,14 +23,6 @@ class KC {
         this.logger = logger;
         this.btnText = "Start Turn";
 
-        // colors
-        let yellow = color(255, 255, 100);
-        let yellowA = color(255, 255, 100, 125);
-        let blue = color(0, 255, 255);
-        let blueA = color(0, 255, 255, 125);
-        let salmon = color(200, 100, 0);
-        let salmonA = color(200, 100, 0, 125);
-
         // setup Play Areas
         let pileWidth = cardWidth + 10;
         let pileHeight = cardHeight + 10;  
@@ -37,18 +30,18 @@ class KC {
         let hCenter = (height / 2 - pileHeight / 2);
         
         this.playAreas.push(
-            new PlayArea("northPile", vCenter, hCenter - pileHeight - 20, pileWidth, pileHeight, 0, yellow, yellowA),
-            new PlayArea("southPile", vCenter, hCenter + pileHeight + 20, pileWidth, pileHeight, 0, yellow, yellowA),
-            new PlayArea("eastPile", vCenter + pileWidth + 30, hCenter, pileWidth, pileHeight, 90, yellow, yellowA),
-            new PlayArea("westPile", vCenter - pileWidth - 30, hCenter, pileWidth, pileHeight, 90, yellow, yellowA),
-            new PlayArea("northEastPile", vCenter + pileWidth + 50, hCenter - pileHeight - 25, pileWidth, pileHeight, 45, blue, blueA),
-            new PlayArea("southEastPile", vCenter + pileWidth + 50, hCenter + pileHeight + 25, pileWidth, pileHeight, 135, blue, blueA),
-            new PlayArea("southWestPile", vCenter - pileWidth - 50, hCenter + pileHeight + 25, pileWidth, pileHeight, 45, blue, blueA),
-            new PlayArea("northWestPile", vCenter - pileWidth - 50, hCenter - pileHeight - 25, pileWidth, pileHeight, 135, blue, blueA)
+            new PlayArea("northPile", vCenter, hCenter - pileHeight - 20, pileWidth, pileHeight, 0, this.colors.yellow, this.colors.yellowA),
+            new PlayArea("southPile", vCenter, hCenter + pileHeight + 20, pileWidth, pileHeight, 0, this.colors.yellow, this.colors.yellowA),
+            new PlayArea("eastPile", vCenter + pileWidth + 30, hCenter, pileWidth, pileHeight, 90, this.colors.yellow, this.colors.yellowA),
+            new PlayArea("westPile", vCenter - pileWidth - 30, hCenter, pileWidth, pileHeight, 90, this.colors.yellow, this.colors.yellowA),
+            new PlayArea("northEastPile", vCenter + pileWidth + 50, hCenter - pileHeight - 25, pileWidth, pileHeight, 45, this.colors.blue, this.colors.blueA),
+            new PlayArea("southEastPile", vCenter + pileWidth + 50, hCenter + pileHeight + 25, pileWidth, pileHeight, 135, this.colors.blue, this.colors.blueA),
+            new PlayArea("southWestPile", vCenter - pileWidth - 50, hCenter + pileHeight + 25, pileWidth, pileHeight, 45, this.colors.blue, this.colors.blueA),
+            new PlayArea("northWestPile", vCenter - pileWidth - 50, hCenter - pileHeight - 25, pileWidth, pileHeight, 135, this.colors.blue, this.colors.blueA)
         );
 
         // setup deck
-        this.deck = new Deck(width / 2 - pileWidth / 2, height / 2 - pileHeight / 2, cardWidth, cardHeight, "purple", salmon, salmonA);
+        this.deck = new Deck(width / 2 - pileWidth / 2, height / 2 - pileHeight / 2, pileWidth, pileHeight, "purple", this.colors.salmon, this.colors.salmonA);
         this.deck.cards = [...cards];
         this.deck.shuffle();
 
@@ -231,7 +224,6 @@ class KC {
             let p = this.playAreas[i];
             if(["northPile", "eastPile", "southPile", "westPile"].includes(p.name)) {
                 let c = this.deck.getCard();
-                c.visible = true;
                 p.addTo(c);
             }
         }
@@ -240,9 +232,37 @@ class KC {
             let p = this.players[i];
             for(let k = 0; k < 7; k++) {
                 let c = this.deck.getCard();
-                c.visible = true;
                 p.addTo(c);
             }
+        }
+    }
+
+    setOffset(card, pa, offset) {
+        switch(pa.name) {
+            case "northPile":
+                card.setCoords(pa.x, pa.y - offset);
+                break;
+            case "southPile":
+                card.setCoords(pa.x, pa.y + offset);
+                break;
+            case "northEastPile":
+                card.setCoords(pa.x + offset, pa.y - offset);
+                break;
+            case "southEastPile":
+                card.setCoords(pa.x + offset, pa.y + offset);
+                break;
+            case "eastPile":
+                card.setCoords(pa.x + offset, pa.y);
+                break;
+            case "northWestPile":
+                card.setCoords(pa.x - offset, pa.y - offset);
+                break;
+            case "southWestPile":
+                card.setCoords(pa.x - offset, pa.y + offset);
+                break;
+            case "westPile":
+                card.setCoords(pa.x - offset, pa.y);
+                break;
         }
     }
 
@@ -254,6 +274,22 @@ class KC {
             // update playAreas
             for(let p of this.playAreas) {
                 p.update();
+
+                if(p.cards.length > 1) {
+                    let offset = 25
+                    for(let i = 0; i < p.cards.length; i++) {
+                        let card = p.cards[i];
+                        if(i === 0) {
+                            card.setCoords(p.x, p.y);
+                        } else if(i === 1) {
+                            this.setOffset(card, p, offset);
+                        } else {
+                            offset += 10;
+                            this.setOffset(card, p, offset);
+                        }
+                    }
+                }
+
                 if(this.curPlayArea === null) {
                     if(p.isActive) {
                         this.curPlayArea = p;

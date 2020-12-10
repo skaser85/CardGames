@@ -1,6 +1,7 @@
 class Hand {
     constructor(name, x, y, width, height, rotateDeg) {
         this.name = name;
+        this.showName = true;
         this.x = x;
         this.y = y;
         this.width = width;
@@ -89,10 +90,12 @@ class Hand {
         pop();
         push();
         // draw name
-        stroke(0, 0, 0);
-        strokeWeight(2);
-        fill(this.borderColor);
-        text(this.name, this.left + this.leftOffset, this.top - this.topOffset);
+        if(this.showName) {
+            stroke(0, 0, 0);
+            strokeWeight(2);
+            fill(this.borderColor);
+            text(this.name, this.left + this.leftOffset, this.top - this.topOffset);
+        }
         // draw cards
         if(this.cards.length > 0) {
             let newX = 0;

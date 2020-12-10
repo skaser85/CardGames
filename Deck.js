@@ -70,9 +70,9 @@ class Deck {
         stroke(this.borderColor);
         strokeWeight(2);
         translate(this.x, this.y)
-        rect(0, 0, this.width + 10, this.height + 10);
+        rect(0, 0, this.width, this.height);
         if(!this.isEmpty) {
-            image(this.img, 0, 0, this.width, this.height);
+            image(this.img, 0, 0, cardWidth, cardHeight);
         }
         pop();
     }

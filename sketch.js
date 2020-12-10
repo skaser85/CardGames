@@ -8,6 +8,7 @@ let restart;
 let logger;
 let undoBtn;
 let redoBtn;
+let colors = {};
 
 function preload() {
     cardsList.forEach(c => {
@@ -24,10 +25,20 @@ function setup() {
     angleMode(DEGREES);
     textAlign(CENTER, CENTER);
 
+    colors.yellow = color(255, 255, 100);
+    colors.yellowA = color(255, 255, 100, 125);
+    colors.blue = color(0, 255, 255);
+    colors.blueA = color(0, 255, 255, 125);
+    colors.salmon = color(200, 100, 0);
+    colors.salmonA = color(200, 100, 0, 125);
+
     logger = new Logger();
 
-    game = new KC(4, cardWidth, cardHeight, cards, logger);
+    game = new Solitaire(7, cardWidth, cardHeight, cards, colors, logger);
     game.dealCards();
+
+    // game = new KC(4, cardWidth, cardHeight, cards, colors, logger);
+    // game.dealCards();
 
     restart = createButton("Restart Game");
     restart.position(15, 15);

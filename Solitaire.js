@@ -330,6 +330,7 @@ class Solitaire {
                 let cardPulled = this.deck.cardsInPlay.find(c => c.name === lastState.card);
                 if(cardPulled.pile) cardPulled.pile.removeFrom(cardPulled);
                 this.deck.cards.unshift(cardPulled);
+                if(this.deck.cards.length && this.deck.isEmpty) this.deck.isEmpty = false; 
                 break;
             case("card flipped"):
                 let card = this.deck.cardsInPlay.find(c => c.name === lastState.card);
@@ -340,7 +341,33 @@ class Solitaire {
     }
 
     redo() {
-
+        let lastState = this.logger.getRedoState();
+        switch(lastState.type) {
+            case("cards moved"):
+                lastState.cards.forEach(c => {
+                    // c is the Card object, not just the card name
+                    let pa;
+                    if(lastState.to === this.playerPile.name) {
+                        pa = this.playerPile;
+                    } else {
+                        pa = this.playAreas.find(p => p.name === lastState.to);
+                    }
+                    if(c.pile) c.pile.removeFrom(c);
+                    pa.addTo(c);
+                });
+                break;
+            case("pulled from deck"):
+                let cardPulled = this.deck.cardsInPlay.find(c => c.name === lastState.card);
+                if(cardPulled.pile) cardPulled.pile.removeFrom(cardPulled);
+                this.playerPile.addTo(cardPulled);
+                if(!this.deck.cards.length && !this.deck.isEmpty) this.deck.isEmpty = true;
+                break;
+            case("card flipped"):
+                let card = this.deck.cardsInPlay.find(c => c.name === lastState.card);
+                card.backShowing = false;
+                break;
+        }
+        this.logger.redoPointer--;
     }
 
     update() {

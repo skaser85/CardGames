@@ -66,7 +66,7 @@ class KC {
     }
 
     undo() {
-        if(this.logger.log.length === 1) {
+        if(this.logger.log.length === 1 || this.logger.log.length - this.logger.redoPointer === 1) {
             this.addMessage("error", "Cannot undo past start of game.");
             return;
         }

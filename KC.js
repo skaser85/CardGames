@@ -305,32 +305,16 @@ class KC {
 
             // update cards
             // figure out which cards have the mouse over them
-            let possibleCards = [];
+            let prevCur = null;
             for(let c of this.deck.cardsInPlay) {
                 if(c.visible) {
                     c.update();
                 }
                 if(c.isActive) {
-                    possibleCards.push(c);
+                    if(prevCur) prevCur.isActive = false;
+                    prevCur = c;
+                    this.curCard = c;
                 }
-            }
-
-            // if no cards have the mouse over them, then curCard is nothing
-            // if only one card has the mouse over it, then curdCard is that card
-            // otherwise, loop over the array and set the isActive property to
-            // false except for the last one, because that's the card that we're
-            // going to set as the curCard
-            if(possibleCards.length === 0) {
-                this.curCard = null;
-            } else if(possibleCards.length === 1) {
-                this.curCard = possibleCards[0];
-            } else {
-                // minus 1 because we don't want to do this to the last
-                // card in this array
-                for(let i = 0; i < possibleCards.length - 1; i++) {
-                    possibleCards[i].isActive = false;
-                }
-                this.curCard = possibleCards[possibleCards.length - 1];
             }
 
             // update Hands

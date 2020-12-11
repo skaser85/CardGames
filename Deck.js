@@ -32,6 +32,7 @@ class Deck {
     getCard() {
         let c = this.cards.pop();
         c.visible = true;
+        c.backImg = this.img;
         this.cardsInPlay.push(c);
         return(c)
     }

@@ -4,6 +4,9 @@ class Solitaire {
         this.playAreas = [];
 
         this.curCard = null;
+        this.curPlayArea = null;
+        this.selectedCard = null;
+        this.selectedPile = null;
 
         this.logger = logger;
 
@@ -117,13 +120,11 @@ class Solitaire {
         }
     }
 
-    checkCards(topCard, playCard) {
-        if(this.isRed(topCard.name) && this.isRed(playCard.name)) {
-            return false;
-        }
-        if(this.isBlack(topCard.name) && this.isBlack(playCard.name)) {
-            return false;
-        }
+    checkCards(topCard, playCard, pa) {
+        if(pa.name.startsWith("Pile") && this.isRed(topCard.name) && this.isRed(playCard.name)) return false;
+        if(pa.name.startsWith("Pile") && this.isBlack(topCard.name) && this.isBlack(playCard.name)) return false;
+        if(pa.name.startsWith("Suite") && !this.isRed(topCard.name) && !this.isRed(playCard.name)) return false;
+        if(pa.name.startsWith("Suite") && !this.isBlack(topCard.name) && !this.isBlack(playCard.name)) return false;
         let topCardValue = parseInt(topCard.name.slice(0, topCard.name.length - 1)) || topCard.name.slice(0, topCard.name.length - 1);
         let playCardValue = parseInt(playCard.name.slice(0, playCard.name.length - 1)) || playCard.name.slice(0, playCard.name.length - 1);
         if(isNaN(topCardValue)) {
@@ -140,8 +141,12 @@ class Solitaire {
         if(playArea.cards.length > 0) {
             topCard = playArea.cards[playArea.cards.length - 1];
         }
-        
-        return this.checkCards(topCard, card);
+        // check if it's a Suite PlayArea
+        if(playArea.name.startsWith("Suite")) {
+            return playArea.cards.length === 0 ? card.name.includes("K") : this.checkCards(topCard, card, playArea);
+        }
+        // regular PlayArea
+        return playArea.cards.length === 0 ? true : this.checkCards(topCard, card, playArea);
     }
 
     dealCards() {
@@ -152,14 +157,115 @@ class Solitaire {
                 pa.addTo(this.deck.getCard());
             } else {
                 for(let k = 0; k < pileNum; k++) {
-                    pa.addTo(this.deck.getCard());
+                    let card = this.deck.getCard();
+                    if(k < pileNum - 1) card.backShowing = true;
+                    pa.addTo(card);
                 }
             }
         }
     }
 
     handleClick() {
-
+        if(!this.gameOver) {
+            if(this.deck.isActive) {
+                if(this.deck.isEmpty) {
+                    this.deck.cards = [...this.playerPile.cards];
+                    this.deck.isEmpty = false;
+                    this.playerPile.cards.forEach(c => c.pile = null);
+                    this.playerPile.cards = [];
+                } else {
+                    let card = this.deck.getCard();
+                    this.playerPile.addTo(card);
+                    if(this.deck.cards.length === 0) {
+                        this.deck.isEmpty = true;
+                    }
+                    this.addMessage("normal", `Congrats on pulling the ${this.getValue(card.name)}!!!`);
+                    this.logger.addTo({
+                        type: "pulled from deck",
+                        card: card.name
+                    });
+                }
+            } else {
+                if(!this.selectedCard && !this.selectedPile) {
+                    if(this.curCard) {
+                        if(this.curCard.backShowing && 
+                           this.curCard.name === this.curCard.pile.cards[this.curCard.pile.cards.length - 1].name) {
+                            this.curCard.backShowing = false;
+                        } else {
+                            this.curCard.isSelected = true;
+                            this.selectedCard = this.curCard;
+                        }
+                    } else if(this.curCard && this.selectedCard) {
+                        if(this.curCard.isSelected) {
+                            this.selectedCard.isSelected = false;
+                            this.selectedCard = null;
+                        } else {
+                            this.selectedCard.isSelected = false;
+                            this.selectedCard = null;
+                            this.curCard.isSelected = true;
+                            this.selectedCard = this.curCard;
+                        }
+                    }
+                } else if(this.selectedCard && !this.selectedPile) {
+                    if(this.curPlayArea) {
+                        this.curPlayArea.isSelected = true;
+                        this.selectedPile = this.curPlayArea;
+                        
+                        let card = this.selectedCard;
+                        if(this.canPlace(this.selectedPile, this.selectedCard)) {
+                            if(this.selectedCard.pile instanceof PlayArea && this.selectedCard.pile.cards.length > 1) {
+                                let loggerData = {
+                                    type: "cards moved",
+                                    cards: null,
+                                    from: this.selectedCard.pile.name,
+                                    to: this.selectedPile.name
+                                };
+                                let cardsToMove = [];
+                                let selectedCardFound = false;
+                                let cards = [...this.selectedCard.pile.cards];
+                                cards.forEach(c => {
+                                    if(!selectedCardFound && c === this.selectedCard) {
+                                        selectedCardFound = true;
+                                    }
+                                    if(selectedCardFound) {
+                                        cardsToMove.push(c);
+                                        this.curPlayArea.addTo(c);
+                                    }
+                                });
+                                loggerData.cards = cardsToMove;
+                                this.logger.addTo(loggerData);
+                            } else {
+                                this.logger.addTo({
+                                    type: "card moved",
+                                    card: this.selectedCard.name,
+                                    from: this.selectedCard.pile.name,
+                                    to: this.selectedPile.name,
+                                });
+                                this.curPlayArea.addTo(this.selectedCard);
+                            }
+                        } else {
+                            this.addMessage("error", `Cannot play the ${this.getValue(card.name)} card in the ${this.curPlayArea.name}.`);
+                            card.setCoords(card.pile.x, card.pile.y);
+                        }
+                        
+                        this.selectedCard.isSelected = false;
+                        this.selectedCard = null;
+                        this.selectedPile.isSelected = false;
+                        this.selectedPile = null;   
+                    } else if(this.curPlayArea && this.selectedPile) {
+                        if(this.curPlayArea.isSelected) {
+                            this.selectedPile.isSelected = false;
+                            this.selectedPile = null;
+                        } else {
+                            this.selectedPile.isSelected = false;
+                            this.selectedPile = null;   
+                            this.curPlayArea.isSelected = true;
+                            this.selectedPile = this.curPlayArea;             
+                        }
+                    }
+                }
+            }
+        }
     }
 
     restartGame() {

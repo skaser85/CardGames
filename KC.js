@@ -336,6 +336,19 @@ class KC {
             // update Hands
             this.curPlayer.update();
 
+            
+            if(this.curPlayer.cards.length > 0) {
+                let newX = 0;
+                let stackRight = this.curPlayer.cards[this.curPlayer.cards.length - 1].right;
+                if(stackRight + this.curPlayer.offset > this.curPlayer.right) {
+                    this.curPlayer.offset -= 3;
+                }
+                this.curPlayer.cards.forEach(c => {
+                    c.setCoords((this.curPlayer.left + cardWidth / 2 + 5) + newX, this.curPlayer.y);
+                    newX += this.curPlayer.offset;
+                });
+            }
+
             redoBtn.elt.disabled = this.logger.redoPointer === 0;
         }
     }
@@ -416,13 +429,7 @@ class KC {
                         if(this.playerHasPulledFromDeck) {
                             this.addMessage("error", "You can only select 1 card from the deck per turn.");
                         } else {
-                            let card;
-                            // if(this.logger.lastCardPulledFromDeck) {
-                            //     card = this.deck.cardsInPlay.find(c => c.name === this.logger.lastCardPulledFromDeck)
-                            //     this.logger.lastCardPulledFromDeck = null;
-                            // } else {
-                                card = this.deck.getCard();
-                            // }
+                            let card = this.deck.getCard();
                             this.curPlayer.addTo(card);
                             if(this.deck.cards.length === 0) {
                                 this.deck.isEmpty = true;

@@ -17,7 +17,9 @@ class Card {
         this.top = 0; 
         this.bottom = 0;
         this.visible = false;
+        this.backShowing = false;
         this.updateDirs();
+        this.backImg = null;
     }
 
     setRotation(deg) {
@@ -72,7 +74,11 @@ class Card {
         }
         translate(this.x, this.y);
         rotate(this.rotateDeg);
-        image(this.img, 0, 0, this.width, this.height);
+        if(this.backShowing) {
+            image(this.backImg, 0, 0, this.width, this.height);
+        } else {
+            image(this.img, 0, 0, this.width, this.height);
+        }
         rect(0, 0, this.width, this.height);
         pop();
     }

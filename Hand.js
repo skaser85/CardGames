@@ -57,10 +57,8 @@ class Hand {
 
     removeFrom(card) {
         let cardIndex = this.cards.findIndex(c => c.name === card.name);
-        if(this.cards[cardIndex].pile) {
-            this.cards[cardIndex].pile = null;
-        }
         this.cards.splice(cardIndex, 1);
+        if(card.pile) card.pile = null;
     }
 
     mouseIsOver() {
@@ -97,18 +95,7 @@ class Hand {
             text(this.name, this.left + this.leftOffset, this.top - this.topOffset);
         }
         // draw cards
-        if(this.cards.length > 0) {
-            let newX = 0;
-            let stackRight = this.cards[this.cards.length - 1].right;
-            if(stackRight + this.offset > this.right) {
-                this.offset -= 3;
-            }
-            this.cards.forEach(c => {
-                c.setCoords((this.left + cardWidth / 2 + 5) + newX, this.y);
-                c.draw();
-                newX += this.offset;
-            });
-        }
+        this.cards.forEach(c => c.draw());
         pop();
     }
 }

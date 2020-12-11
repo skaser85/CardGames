@@ -218,16 +218,21 @@ class Solitaire {
                         this.curCard.isSelected = false;
                         this.selectedCard = null;
                     } else {
-                        if(this.curCard) {
-                            if(this.curCard.pile) {
-                                this.curPlayArea = this.curCard.pile;
-                                this.curPlayArea.isActive = true;
+                        if(this.curPlayArea) {
+                            if(!this.selectedPile) {
                                 this.selectedPile = this.curPlayArea;
                             }
                         } else {
-                            if(this.curPlayArea) {
-                                this.curPlayArea.isActive = true;
-                                this.selectedPile = this.curPlayArea;
+                            if(this.curCard) {
+                                if(this.curCard.pile) {
+                                    this.curPlayArea = this.curCard.pile;
+                                    this.selectedPile = this.curPlayArea;
+                                }
+                            } else {
+                                if(this.curPlayArea) {
+                                    this.curPlayArea.isActive = true;
+                                    this.selectedPile = this.curPlayArea;
+                                }
                             }
                         }
                         if(this.selectedPile) {
@@ -337,11 +342,14 @@ class Solitaire {
         // update cards
         // figure out which cards have the mouse over them
         let possibleCards = [];
-        for(let c of this.deck.cardsInPlay) {
+        for(let i = 0; i < this.deck.cardsInPlay.length; i++) {
+            let c = this.deck.cardsInPlay[i];
             if(c.visible) {
                 c.update();
             }
             if(c.isActive) {
+                if(i > 0 && possibleCards.length) possibleCards[possibleCards.length - 1].isActive = false;
+                this.curCard = c;
                 possibleCards.push(c);
             }
         }
@@ -351,18 +359,18 @@ class Solitaire {
         // otherwise, loop over the array and set the isActive property to
         // false except for the last one, because that's the card that we're
         // going to set as the curCard
-        if(possibleCards.length === 0) {
-            this.curCard = null;
-        } else if(possibleCards.length === 1) {
-            this.curCard = possibleCards[0];
-        } else {
-            // minus 1 because we don't want to do this to the last
-            // card in this array
-            for(let i = 0; i < possibleCards.length - 1; i++) {
-                possibleCards[i].isActive = false;
-            }
-            this.curCard = possibleCards[possibleCards.length - 1];
-        }
+        // if(possibleCards.length === 0) {
+        //     this.curCard = null;
+        // } else if(possibleCards.length === 1) {
+        //     this.curCard = possibleCards[0];
+        // } else {
+        //     // minus 1 because we don't want to do this to the last
+        //     // card in this array
+        //     for(let i = 0; i < possibleCards.length - 1; i++) {
+        //         possibleCards[i].isActive = false;
+        //     }
+        //     this.curCard = possibleCards[possibleCards.length - 1];
+        // }
     }
 
     draw() {

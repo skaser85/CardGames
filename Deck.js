@@ -30,24 +30,12 @@ class Deck {
     }
 
     getCard() {
-        let c = this.cards.pop();
+        let c = this.cards[0];
+        this.cards.splice(0, 1);
         c.visible = true;
         c.backImg = this.img;
         this.cardsInPlay.push(c);
         return(c)
-    }
-
-    checkForDups() {
-        let found = false;
-        for(let i = 0; i < this.cardsInPlay.length; i++) {
-            let c1 = this.cardsInPlay[i];
-            let test = this.cardsInPlay.filter(c => c.name === c1.name);
-            if(test.length > 1) {
-                found = true;
-                break;
-            }
-        }
-        return found;
     }
 
     mouseIsOver() {

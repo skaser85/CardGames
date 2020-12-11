@@ -203,86 +203,79 @@ class Solitaire {
                     });
                 }
             } else {
-                if(!this.selectedCard && !this.selectedPile) {
+                if(!this.selectedCard) {
                     if(this.curCard) {
-                        if(this.selectedCard) {
-                            if(this.curCard.isSelected) {
-                                this.selectedCard.isSelected = false;
-                                this.selectedCard = null;
-                            } else {
-                                this.selectedCard.isSelected = false;
-                                this.selectedCard = null;
-                                this.curCard.isSelected = true;
-                                this.selectedCard = this.curCard;
-                            }
-                        }
                         if(this.curCard.backShowing && 
                            this.curCard.name === this.curCard.pile.cards[this.curCard.pile.cards.length - 1].name) {
                             this.curCard.backShowing = false;
                         } else {
                             this.curCard.isSelected = true;
-                            this.selectedCard = this.curCard;
+                            this.selectedCard = this.curCard
                         }
                     }
-                } else if(this.selectedCard && !this.selectedPile) {
-                    if(this.curPlayArea) {
-                        this.curPlayArea.isSelected = true;
-                        this.selectedPile = this.curPlayArea;
-                        
-                        let card = this.selectedCard;
-                        if(this.canPlace(this.selectedPile, this.selectedCard)) {
-                            if(this.selectedCard.pile instanceof PlayArea && this.selectedCard.pile.cards.length > 1) {
-                                let loggerData = {
-                                    type: "cards moved",
-                                    cards: null,
-                                    from: this.selectedCard.pile.name,
-                                    to: this.selectedPile.name
-                                };
-                                let cardsToMove = [];
-                                let selectedCardFound = false;
-                                let cards = [...this.selectedCard.pile.cards];
-                                cards.forEach(c => {
-                                    if(!selectedCardFound && c === this.selectedCard) {
-                                        selectedCardFound = true;
-                                    }
-                                    if(selectedCardFound) {
-                                        cardsToMove.push(c);
-                                        this.curPlayArea.addTo(c);
-                                    }
-                                });
-                                loggerData.cards = cardsToMove;
-                                this.logger.addTo(loggerData);
-                            } else {
-                                this.logger.addTo({
-                                    type: "card moved",
-                                    card: this.selectedCard.name,
-                                    from: this.selectedCard.pile.name,
-                                    to: this.selectedPile.name,
-                                });
-                                this.curPlayArea.addTo(this.selectedCard);
-                                // set the card under the last one laid down to be not visible so that it doesn't draw
-                                if(this.curPlayArea.name.startsWith("Suit") && this.curPlayArea.cards.length > 1) {
-                                    this.curPlayArea.cards[this.curPlayArea.cards.length - 2].visible = false;
-                                }
+                } else {
+                    if(this.selectedCard === this.curCard) {
+                        this.curCard.isSelected = false;
+                        this.selectedCard = null;
+                    } else {
+                        if(this.curCard) {
+                            if(this.curCard.pile) {
+                                this.curPlayArea = this.curCard.pile;
+                                this.curPlayArea.isActive = true;
+                                this.selectedPile = this.curPlayArea;
                             }
                         } else {
-                            this.addMessage("error", `Cannot play the ${this.getValue(card.name)} card in the ${this.curPlayArea.name}.`);
-                            card.setCoords(card.pile.x, card.pile.y);
+                            if(this.curPlayArea) {
+                                this.curPlayArea.isActive = true;
+                                this.selectedPile = this.curPlayArea;
+                            }
                         }
-                        
-                        this.selectedCard.isSelected = false;
-                        this.selectedCard = null;
-                        this.selectedPile.isSelected = false;
-                        this.selectedPile = null;   
-                    } else if(this.curPlayArea && this.selectedPile) {
-                        if(this.curPlayArea.isSelected) {
+                        if(this.selectedPile) {
+                            let card = this.selectedCard;
+                            if(this.canPlace(this.selectedPile, this.selectedCard)) {
+                                if(this.selectedCard.pile instanceof PlayArea && this.selectedCard.pile.cards.length > 1) {
+                                    let loggerData = {
+                                        type: "cards moved",
+                                        cards: null,
+                                        from: this.selectedCard.pile.name,
+                                        to: this.selectedPile.name
+                                    };
+                                    let cardsToMove = [];
+                                    let selectedCardFound = false;
+                                    let cards = [...this.selectedCard.pile.cards];
+                                    cards.forEach(c => {
+                                        if(!selectedCardFound && c === this.selectedCard) {
+                                            selectedCardFound = true;
+                                        }
+                                        if(selectedCardFound) {
+                                            cardsToMove.push(c);
+                                            this.selectedPile.addTo(c);
+                                        }
+                                    });
+                                    loggerData.cards = cardsToMove;
+                                    this.logger.addTo(loggerData);
+                                } else {
+                                    this.logger.addTo({
+                                        type: "card moved",
+                                        card: this.selectedCard.name,
+                                        from: this.selectedCard.pile.name,
+                                        to: this.selectedPile.name,
+                                    });
+                                    this.selectedPile.addTo(this.selectedCard);
+                                    // set the card under the last one laid down to be not visible so that it doesn't draw
+                                    if(this.selectedPile.name.startsWith("Suit") && this.selectedPile.cards.length > 1) {
+                                        this.selectedPile.cards[this.selectedPile.cards.length - 2].visible = false;
+                                    }
+                                }
+                            } else {
+                                this.addMessage("error", `Cannot play the ${this.getValue(card.name)} card in the ${this.curPlayArea.name}.`);
+                                card.setCoords(card.pile.x, card.pile.y);
+                            }
+                            
+                            this.selectedCard.isSelected = false;
+                            this.selectedCard = null;
                             this.selectedPile.isSelected = false;
-                            this.selectedPile = null;
-                        } else {
-                            this.selectedPile.isSelected = false;
-                            this.selectedPile = null;   
-                            this.curPlayArea.isSelected = true;
-                            this.selectedPile = this.curPlayArea;             
+                            this.selectedPile = null;                              
                         }
                     }
                 }
@@ -368,7 +361,7 @@ class Solitaire {
             for(let i = 0; i < possibleCards.length - 1; i++) {
                 possibleCards[i].isActive = false;
             }
-            this.curCard = possibleCards[0];
+            this.curCard = possibleCards[possibleCards.length - 1];
         }
     }
 

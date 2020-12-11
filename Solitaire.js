@@ -341,16 +341,16 @@ class Solitaire {
 
         // update cards
         // figure out which cards have the mouse over them
-        let possibleCards = [];
+        let prevCur = null;
         for(let i = 0; i < this.deck.cardsInPlay.length; i++) {
             let c = this.deck.cardsInPlay[i];
             if(c.visible) {
                 c.update();
             }
             if(c.isActive) {
-                if(i > 0 && possibleCards.length) possibleCards[possibleCards.length - 1].isActive = false;
+                if(prevCur) prevCur.isActive = false;
+                prevCur = c;
                 this.curCard = c;
-                possibleCards.push(c);
             }
         }
     }

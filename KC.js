@@ -94,7 +94,7 @@ class KC {
                     let pa;
                     pa = this.playAreas.find(p => p.name === lastState.from);
                     if(!pa) pa = this.players.find(p => p.name === lastState.from);
-                    if(c.pile) c.pile.removeFrom(c.pile);
+                    if(c.pile) c.pile.removeFrom(c);
                     pa.addTo(c);
                 });
                 break;
@@ -305,6 +305,7 @@ class KC {
 
             // update cards
             // figure out which cards have the mouse over them
+            this.curCard = null;
             let prevCur = null;
             for(let c of this.deck.cardsInPlay) {
                 if(c.visible) {

@@ -43,11 +43,13 @@ class Solitaire {
         }
 
         this.deck = new Deck(pileWidth / 2 + 50, 150, pileWidth, pileHeight, "purple", this.colors.salmon, this.colors.salmonA);
-        this.deck.cards = cards;
+        this.deck.cards = [...cards];
         this.deck.shuffle();
 
         this.playerPile = new Hand("Player1", this.deck.right + 60, 150, pileWidth, pileHeight, 0);
         this.playerPile.showName = false;
+
+        this.logger.addTo({ type: "game started" });
 
     }
 
@@ -208,6 +210,10 @@ class Solitaire {
                         if(this.curCard.backShowing && 
                            this.curCard.name === this.curCard.pile.cards[this.curCard.pile.cards.length - 1].name) {
                             this.curCard.backShowing = false;
+                            this.logger.addTo({
+                                type: "card flipped",
+                                card: this.curCard.name
+                            });
                         } else {
                             this.curCard.isSelected = true;
                             this.selectedCard = this.curCard
@@ -238,39 +244,29 @@ class Solitaire {
                         if(this.selectedPile) {
                             let card = this.selectedCard;
                             if(this.canPlace(this.selectedPile, this.selectedCard)) {
-                                if(this.selectedCard.pile instanceof PlayArea && this.selectedCard.pile.cards.length > 1) {
-                                    let loggerData = {
-                                        type: "cards moved",
-                                        cards: null,
-                                        from: this.selectedCard.pile.name,
-                                        to: this.selectedPile.name
-                                    };
-                                    let cardsToMove = [];
-                                    let selectedCardFound = false;
-                                    let cards = [...this.selectedCard.pile.cards];
-                                    cards.forEach(c => {
-                                        if(!selectedCardFound && c === this.selectedCard) {
-                                            selectedCardFound = true;
-                                        }
-                                        if(selectedCardFound) {
-                                            cardsToMove.push(c);
-                                            this.selectedPile.addTo(c);
-                                        }
-                                    });
-                                    loggerData.cards = cardsToMove;
-                                    this.logger.addTo(loggerData);
-                                } else {
-                                    this.logger.addTo({
-                                        type: "card moved",
-                                        card: this.selectedCard.name,
-                                        from: this.selectedCard.pile.name,
-                                        to: this.selectedPile.name,
-                                    });
-                                    this.selectedPile.addTo(this.selectedCard);
-                                    // set the card under the last one laid down to be not visible so that it doesn't draw
-                                    if(this.selectedPile.name.startsWith("Suit") && this.selectedPile.cards.length > 1) {
-                                        this.selectedPile.cards[this.selectedPile.cards.length - 2].visible = false;
+                                let loggerData = {
+                                    type: "cards moved",
+                                    cards: null,
+                                    from: this.selectedCard.pile.name,
+                                    to: this.selectedPile.name
+                                };
+                                let cardsToMove = [];
+                                let selectedCardFound = false;
+                                let cards = [...this.selectedCard.pile.cards];
+                                cards.forEach(c => {
+                                    if(!selectedCardFound && c === this.selectedCard) {
+                                        selectedCardFound = true;
                                     }
+                                    if(selectedCardFound) {
+                                        cardsToMove.push(c);
+                                        this.selectedPile.addTo(c);
+                                    }
+                                });
+                                loggerData.cards = cardsToMove;
+                                this.logger.addTo(loggerData);
+                                // set the card under the last one laid down to be not visible so that it doesn't draw
+                                if(this.selectedPile.name.startsWith("Suit") && this.selectedPile.cards.length > 1) {
+                                    this.selectedPile.cards[this.selectedPile.cards.length - 2].visible = false;
                                 }
                             } else {
                                 this.addMessage("error", `Cannot play the ${this.getValue(card.name)} card in the ${this.curPlayArea.name}.`);
@@ -289,11 +285,58 @@ class Solitaire {
     }
 
     restartGame() {
-
+        this.deck.cards = [];
+        this.deck.cards = [...cards];
+        this.deck.shuffle();
+        this.deck.cardsInPlay.forEach(c => {
+            c.pile.removeFrom(c)
+            c.backShowing = false;
+        });
+        this.deck.cardsInPlay = [];
+        this.dealCards();
+        this.logger.addTo({ type: "game restarted"});
     }
 
     undo() {
-
+        let nextUndo = this.logger.log[this.logger.log.length - 1 - this.logger.redoPointer]
+        if(nextUndo.type === "game started") {
+            this.addMessage("error", "Cannot undo past start of game.");
+            return;
+        }
+        if(nextUndo.type === "game restarted") {
+            this.addMessage("error", "Cannot undo past the restart of a game.");
+            return;
+        }
+        if(nextUndo.type === "game won") {
+            this.addMessage("error", "Cannot undo once the game has been won.");
+            return;
+        }
+        let lastState = this.logger.getUndoState();
+        switch(lastState.type) {
+            case("cards moved"):
+                lastState.cards.forEach(c => {
+                    // c is the Card object, not just the card name
+                    let pa;
+                    if(lastState.from === this.playerPile.name) {
+                        pa = this.playerPile;
+                    } else {
+                        pa = this.playAreas.find(p => p.name === lastState.from);
+                    }
+                    if(c.pile) c.pile.removeFrom(c);
+                    pa.addTo(c);
+                });
+                break;
+            case("pulled from deck"):
+                let cardPulled = this.deck.cardsInPlay.find(c => c.name === lastState.card);
+                if(cardPulled.pile) cardPulled.pile.removeFrom(cardPulled);
+                this.deck.cards.unshift(cardPulled);
+                break;
+            case("card flipped"):
+                let card = this.deck.cardsInPlay.find(c => c.name === lastState.card);
+                card.backShowing = true;
+                break;
+        }
+        this.logger.redoPointer++;
     }
 
     redo() {
@@ -341,6 +384,7 @@ class Solitaire {
 
         // update cards
         // figure out which cards have the mouse over them
+        this.curCard = null;
         let prevCur = null;
         for(let i = 0; i < this.deck.cardsInPlay.length; i++) {
             let c = this.deck.cardsInPlay[i];
@@ -353,13 +397,75 @@ class Solitaire {
                 this.curCard = c;
             }
         }
+
+        redoBtn.elt.disabled = this.logger.redoPointer === 0;
     }
 
     draw() {
-        this.playAreas.forEach(p => p.draw());
+        if(this.gameOver) {
+            push();
+            let ts = 64;
+            textSize(ts);
+            strokeWeight(2);
+            this.strobeCounter -= 1;
+            if(this.strobeCounter === 0) {
+                this.winnerColor = color(random(255), random(255), random(255))
+                this.strobeCounter = this.initialStrobeCount;
+            }
+            fill(this.winnerColor);
+            let t = `You is the winrar!!!`;
+            let tl = width / 2;
+            let tt = height / 2;
+            text(t, tl, tt);
+            pop();
+        } else {
+            this.playAreas.forEach(p => p.draw());
 
-        this.deck.draw();
-        this.playerPile.draw();
+            this.deck.draw();
+            this.playerPile.draw();
+
+            if(this.logger.redoPointer) {
+                push();
+                let textS = 16;
+                textSize(textS);
+                fill(255, 255, 255);
+                stroke(0, 0, 0);
+                strokeWeight(1);
+                let redoText = `Available: ${this.logger.redoPointer}`
+                let textW = textWidth(redoText);
+                let textL = (textW / 2) + redoBtn.x + redoBtn.width;
+                let textT = redoBtn.y + 4;
+                text(redoText, textL, textT);
+                pop();
+            }
+        }
+
+        // display error
+        push();
+        if(this.message) {
+            switch(this.messageType) {
+                case "error":
+                    stroke(0, 0, 0, this.messageAlpha);
+                    fill(255, 0, 175, this.messageAlpha);
+                    break;
+                case "normal":
+                    stroke(0, 0, 0, this.messageAlpha);
+                    fill(255, 255, 255, this.messageAlpha);
+            }
+            textSize(32);
+            strokeWeight(2);
+            let eTextW = textWidth(this.message);
+            let eTextL = this.playAreas[0].left + (eTextW / 2);
+            let eTextT = height - (height / 4);
+            text(this.message, eTextL, eTextT);
+            if(this.messageAlpha > 0) {
+                this.messageAlpha -= 1;
+            } else {
+                this.messageAlpha = this.initialMessageAlpha;
+                this.message = "";
+            }
+        }
+        pop();
     }
 
 

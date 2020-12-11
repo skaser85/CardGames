@@ -70,6 +70,8 @@ class PlayArea {
         rect(0, 0, this.width, this.height);
         pop();
 
-        this.cards.forEach(c => c.draw());
+        this.cards.forEach(c => {
+            if(c.visible) c.draw()
+        });
     }
 }

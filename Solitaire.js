@@ -34,12 +34,12 @@ class Solitaire {
         }
 
         let gutter = 20;
-        let totalSuiteWidth = (gutter * 4) + (pileWidth * 4);
-        let suiteX = width - totalSuiteWidth + (pileWidth / 2);
+        let totalSuitWidth = (gutter * 4) + (pileWidth * 4);
+        let suitX = width - totalSuitWidth + (pileWidth / 2);
         for(let i = 0; i < 4; i++) {
-            let suiteArea = new PlayArea(`Suite${i + 1}`, suiteX, pileHeight / 2 + gutter, pileWidth, pileHeight, 0, this.colors.blue, this.colors.blueA);
-            this.playAreas.push(suiteArea);
-            suiteX += gutter + pileWidth;
+            let suitArea = new PlayArea(`Suit${i + 1}`, suitX, pileHeight / 2 + gutter, pileWidth, pileHeight, 0, this.colors.blue, this.colors.blueA);
+            this.playAreas.push(suitArea);
+            suitX += gutter + pileWidth;
         }
 
         this.deck = new Deck(pileWidth / 2 + 50, 150, pileWidth, pileHeight, "purple", this.colors.salmon, this.colors.salmonA);
@@ -78,11 +78,30 @@ class Solitaire {
         }
     }
 
+    getSuit(cardName) {
+        let suit = cardName.slice(-1);
+        let suitValueText = "";        
+        switch(suit) {
+            case("C"):
+                suitValueText = "Clubs";
+                break;
+            case("D"):
+                suitValueText = "Diamonds";
+                break;
+            case("H"):
+                suitValueText = "Hearts";
+                break;
+            case("S"):
+                suitValueText = "Spades";
+                break;
+        }
+        return suitValueText;
+    }
+
     getValue(cardName) {
+        let suitValueText = this.getSuit(cardName);
         let cardValue = cardName.slice(0, cardName.length - 1);
-        let suite = cardName.slice(-1);
         let cardValueText = "";
-        let suiteValueText = "";
         switch(cardValue) {
             case("A"):
                 cardValueText = "Ace";
@@ -99,22 +118,8 @@ class Solitaire {
             default:
                 cardValueText = cardValue;
         }
-        switch(suite) {
-            case("C"):
-                suiteValueText = "Clubs";
-                break;
-            case("D"):
-                suiteValueText = "Diamonds";
-                break;
-            case("H"):
-                suiteValueText = "Hearts";
-                break;
-            case("S"):
-                suiteValueText = "Spades";
-                break;
-        }
-        if(cardValueText && suiteValueText) {
-            return cardValueText + " of " + suiteValueText;
+        if(cardValueText && suitValueText) {
+            return cardValueText + " of " + suitValueText;
         } else {
             return cardName;
         }
@@ -123,8 +128,16 @@ class Solitaire {
     checkCards(topCard, playCard, pa) {
         if(pa.name.startsWith("Pile") && this.isRed(topCard.name) && this.isRed(playCard.name)) return false;
         if(pa.name.startsWith("Pile") && this.isBlack(topCard.name) && this.isBlack(playCard.name)) return false;
-        if(pa.name.startsWith("Suite") && !this.isRed(topCard.name) && !this.isRed(playCard.name)) return false;
-        if(pa.name.startsWith("Suite") && !this.isBlack(topCard.name) && !this.isBlack(playCard.name)) return false;
+        if(pa.name.startsWith("Suit")) {
+            if(this.isRed(topCard.name)) {
+                if(!this.isRed(playCard.name)) return false;
+            } else {
+                if(this.isBlack(topCard.name)) {
+                    if(!this.isBlack(playCard.name)) return false;
+                }
+            }
+            if(this.getSuit(topCard.name) !== this.getSuit(playCard.name)) return false;
+        }
         let topCardValue = parseInt(topCard.name.slice(0, topCard.name.length - 1)) || topCard.name.slice(0, topCard.name.length - 1);
         let playCardValue = parseInt(playCard.name.slice(0, playCard.name.length - 1)) || playCard.name.slice(0, playCard.name.length - 1);
         if(isNaN(topCardValue)) {
@@ -133,7 +146,11 @@ class Solitaire {
         if(isNaN(playCardValue)) {
             playCardValue = this.makeNumeric(playCardValue);
         }
-        return topCardValue - playCardValue === 1
+        if(pa.name.startsWith("Pile")) {
+            return topCardValue - playCardValue === 1;
+        } else {
+            return playCardValue - topCardValue === 1;
+        }
     }
 
     canPlace(playArea, card) {
@@ -141,9 +158,9 @@ class Solitaire {
         if(playArea.cards.length > 0) {
             topCard = playArea.cards[playArea.cards.length - 1];
         }
-        // check if it's a Suite PlayArea
-        if(playArea.name.startsWith("Suite")) {
-            return playArea.cards.length === 0 ? card.name.includes("K") : this.checkCards(topCard, card, playArea);
+        // check if it's a suit PlayArea
+        if(playArea.name.startsWith("Suit")) {
+            return playArea.cards.length === 0 ? card.name.includes("A") : this.checkCards(topCard, card, playArea);
         }
         // regular PlayArea
         return playArea.cards.length === 0 ? true : this.checkCards(topCard, card, playArea);
@@ -188,20 +205,21 @@ class Solitaire {
             } else {
                 if(!this.selectedCard && !this.selectedPile) {
                     if(this.curCard) {
+                        if(this.selectedCard) {
+                            if(this.curCard.isSelected) {
+                                this.selectedCard.isSelected = false;
+                                this.selectedCard = null;
+                            } else {
+                                this.selectedCard.isSelected = false;
+                                this.selectedCard = null;
+                                this.curCard.isSelected = true;
+                                this.selectedCard = this.curCard;
+                            }
+                        }
                         if(this.curCard.backShowing && 
                            this.curCard.name === this.curCard.pile.cards[this.curCard.pile.cards.length - 1].name) {
                             this.curCard.backShowing = false;
                         } else {
-                            this.curCard.isSelected = true;
-                            this.selectedCard = this.curCard;
-                        }
-                    } else if(this.curCard && this.selectedCard) {
-                        if(this.curCard.isSelected) {
-                            this.selectedCard.isSelected = false;
-                            this.selectedCard = null;
-                        } else {
-                            this.selectedCard.isSelected = false;
-                            this.selectedCard = null;
                             this.curCard.isSelected = true;
                             this.selectedCard = this.curCard;
                         }
@@ -242,6 +260,10 @@ class Solitaire {
                                     to: this.selectedPile.name,
                                 });
                                 this.curPlayArea.addTo(this.selectedCard);
+                                // set the card under the last one laid down to be not visible so that it doesn't draw
+                                if(this.curPlayArea.name.startsWith("Suit") && this.curPlayArea.cards.length > 1) {
+                                    this.curPlayArea.cards[this.curPlayArea.cards.length - 2].visible = false;
+                                }
                             }
                         } else {
                             this.addMessage("error", `Cannot play the ${this.getValue(card.name)} card in the ${this.curPlayArea.name}.`);
@@ -290,17 +312,19 @@ class Solitaire {
         for(let p of this.playAreas) {
             p.update();
 
-            if(p.cards.length > 1) {
-                let offset = 0;
-                for(let i = 0; i < p.cards.length; i++) {
-                    let card = p.cards[i];
-                    if(i === 0) {
-                        card.setCoords(p.x, p.y);
-                    } else {
-                        offset += 25;
-                        card.setCoords(p.x, p.y + offset)
+            if(p.name.startsWith("Pile")) {
+                if(p.cards.length > 1) {
+                    let offset = 0;
+                    for(let i = 0; i < p.cards.length; i++) {
+                        let card = p.cards[i];
+                        if(i === 0) {
+                            card.setCoords(p.x, p.y);
+                        } else {
+                            offset += 25;
+                            card.setCoords(p.x, p.y + offset)
+                        }
+                        
                     }
-                    
                 }
             }
 
@@ -344,7 +368,7 @@ class Solitaire {
             for(let i = 0; i < possibleCards.length - 1; i++) {
                 possibleCards[i].isActive = false;
             }
-            this.curCard = possibleCards[possibleCards.length - 1];
+            this.curCard = possibleCards[0];
         }
     }
 

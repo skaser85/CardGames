@@ -1,5 +1,5 @@
-let cardWidth = 75;
-let cardHeight = 100;
+let cardWidth = 100;
+let cardHeight = 130;
 let game;
 let suits = ["C", "D", "H", "S"];
 let honors = {1: "A", 11: "J", 12: "Q", 13: "K"};
@@ -38,11 +38,11 @@ function setup() {
 
     logger = new Logger();
 
-    game = new Solitaire(7, cardWidth, cardHeight, cards, colors, logger);
-    game.dealCards();
-
-    // game = new KC(4, cardWidth, cardHeight, cards, colors, logger);
+    // game = new Solitaire(7, cardWidth, cardHeight, cards, colors, logger);
     // game.dealCards();
+
+    game = new KC(4, cardWidth, cardHeight, cards, colors, logger);
+    game.dealCards();
 
     restart = createButton("Restart Game");
     restart.position(15, 15);

@@ -26,7 +26,7 @@ class KC {
         // setup Play Areas
         let pileWidth = cardWidth + 10;
         let pileHeight = cardHeight + 10;  
-        let vCenter = (width / 2 - pileWidth / 2);
+        let vCenter = width / 2;
         let hCenter = (height / 2 - pileHeight / 2);
         
         this.playAreas.push(
@@ -41,7 +41,7 @@ class KC {
         );
 
         // setup deck
-        this.deck = new Deck(width / 2 - pileWidth / 2, height / 2 - pileHeight / 2, pileWidth, pileHeight, "purple", this.colors.salmon, this.colors.salmonA);
+        this.deck = new Deck(width / 2, height / 2 - pileHeight / 2, pileWidth, pileHeight, "purple", this.colors.salmon, this.colors.salmonA);
         this.deck.cards = [...cards];
         this.deck.shuffle();
 

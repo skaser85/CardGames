@@ -337,8 +337,11 @@ class Solitaire {
                     } else {
                         pa = this.playAreas.find(p => p.name === lastState.from);
                     }
-                    if(c.pile) c.pile.removeFrom(c);
                     pa.addTo(c);
+                    if(lastState.to.startsWith("Suit")) {
+                        let sa = this.playAreas.find(p => p.name === lastState.to);
+                        sa.cards[sa.cards.length - 1].visible = true;
+                    }
                 });
                 break;
             case("pulled from deck"):
@@ -367,8 +370,11 @@ class Solitaire {
                     } else {
                         pa = this.playAreas.find(p => p.name === lastState.to);
                     }
-                    if(c.pile) c.pile.removeFrom(c);
                     pa.addTo(c);
+                    if(lastState.to.startsWith("Suit")) {
+                        let sa = this.playAreas.find(p => p.name === lastState.to);
+                        sa.cards[sa.cards.length - 2].visible = false;
+                    }
                 });
                 break;
             case("pulled from deck"):

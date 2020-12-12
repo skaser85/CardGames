@@ -30,9 +30,7 @@ class PlayArea {
     }
 
     addTo(card) {
-        if(card.pile) {
-            card.pile.removeFrom(card);
-        }
+        if(card.pile) card.pile.removeFrom(card);
         card.pile = this;
         card.setCoords(this.x, this.y);
         card.setRotation(this.rotateDeg);

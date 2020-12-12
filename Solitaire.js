@@ -11,6 +11,7 @@ class Solitaire {
         this.logger = logger;
 
         this.colors = colors;
+        // this.colors2 = new Color();
         
         this.message = "";
         this.messageType = "";
@@ -77,6 +78,8 @@ class Solitaire {
                 return 12
             case("K"):
                 return 13
+            default:
+                return null;
         }
     }
 

@@ -1,7 +1,8 @@
 let cardWidth = 75;
 let cardHeight = 100;
 let game;
-let cardsList = ["2C","3C","4C","5C","6C","7C","8C","9C","10C","JC","QC","KC","AC","2H","3H","4H","5H","6H","7H","8H","9H","10H","JH","QH","KH","AH","2S","3S","4S","5S","6S","7S","8S","9S","10S","JS","QS","KS","AS","2D","3D","4D","5D","6D","7D","8D","9D","10D","JD","QD","KD","AD"];
+let suits = ["C", "D", "H", "S"];
+let honors = {1: "A", 11: "J", 12: "Q", 13: "K"};
 let cards = [];
 let button;
 let restart;
@@ -11,10 +12,13 @@ let redoBtn;
 let colors = {};
 
 function preload() {
-    cardsList.forEach(c => {
-        loadImage(`cards/${c}.png`, img => {
-            cards.push(new Card(c, img, cardWidth, cardHeight, 0, 0));
-        });
+    suits.forEach(s => {
+        for(let i = 1; i < 14; i++) {
+            let v = i > 10 || i === 1 ? honors[i] : i;
+            loadImage(`cards/${v}${s}.png`, img => {
+                cards.push(new Card(`${v}${s}`, img, cardWidth, cardHeight, 0, 0));
+            });
+        }
     });
 }
 

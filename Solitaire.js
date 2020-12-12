@@ -11,12 +11,8 @@ class Solitaire {
         this.logger = logger;
 
         this.colors = colors;
-        // this.colors2 = new Color();
         
-        this.message = "";
-        this.messageType = "";
-        this.messageAlpha = 0;
-        this.initialMessageAlpha = 400;
+        this.message = new Message();
 
         this.gameOver = false;
         this.strobeCounter = 5;
@@ -52,12 +48,6 @@ class Solitaire {
 
         this.logger.addTo({ type: "game started" });
 
-    }
-
-    addMessage(msgType, msgText) {
-        this.messageType = msgType;
-        this.message = msgText;
-        this.messageAlpha = this.initialMessageAlpha;
     }
 
     isRed(cardName) {
@@ -201,7 +191,7 @@ class Solitaire {
                     if(this.deck.cards.length === 0) {
                         this.deck.isEmpty = true;
                     }
-                    this.addMessage("normal", `Congrats on pulling the ${this.getValue(card.name)}!!!`);
+                    this.message.set("normal", `Congrats on pulling the ${this.getValue(card.name)}!!!`);
                     this.logger.addTo({
                         type: "pulled from deck",
                         card: card.name
@@ -286,7 +276,7 @@ class Solitaire {
                                     }
                                 }
                             } else {
-                                this.addMessage("error", `Cannot play the ${this.getValue(card.name)} card in the ${this.curPlayArea.name}.`);
+                                this.message.set("error", `Cannot play the ${this.getValue(card.name)} card in the ${this.curPlayArea.name}.`);
                                 card.setCoords(card.pile.x, card.pile.y);
                             }
                             
@@ -318,15 +308,15 @@ class Solitaire {
     undo() {
         let nextUndo = this.logger.log[this.logger.log.length - 1 - this.logger.redoPointer]
         if(nextUndo.type === "game started") {
-            this.addMessage("error", "Cannot undo past start of game.");
+            this.message.set("error", "Cannot undo past start of game.");
             return;
         }
         if(nextUndo.type === "game restarted") {
-            this.addMessage("error", "Cannot undo past the restart of a game.");
+            this.message.set("error", "Cannot undo past the restart of a game.");
             return;
         }
         if(nextUndo.type === "game won") {
-            this.addMessage("error", "Cannot undo once the game has been won.");
+            this.message.set("error", "Cannot undo once the game has been won.");
             return;
         }
         let lastState = this.logger.getUndoState();
@@ -488,48 +478,10 @@ class Solitaire {
             this.deck.draw();
             this.playerPile.draw();
 
-            if(this.logger.redoPointer) {
-                push();
-                let textS = 16;
-                textSize(textS);
-                fill(255, 255, 255);
-                stroke(0, 0, 0);
-                strokeWeight(1);
-                let redoText = `Available: ${this.logger.redoPointer}`
-                let textW = textWidth(redoText);
-                let textL = (textW / 2) + redoBtn.x + redoBtn.width;
-                let textT = redoBtn.y + 4;
-                text(redoText, textL, textT);
-                pop();
-            }
+            this.logger.draw();
         }
 
-        // display error
-        push();
-        if(this.message) {
-            switch(this.messageType) {
-                case "error":
-                    stroke(0, 0, 0, this.messageAlpha);
-                    fill(255, 0, 175, this.messageAlpha);
-                    break;
-                case "normal":
-                    stroke(0, 0, 0, this.messageAlpha);
-                    fill(255, 255, 255, this.messageAlpha);
-            }
-            textSize(32);
-            strokeWeight(2);
-            let eTextW = textWidth(this.message);
-            let eTextL = this.playAreas[0].left + (eTextW / 2);
-            let eTextT = height - (height / 4);
-            text(this.message, eTextL, eTextT);
-            if(this.messageAlpha > 0) {
-                this.messageAlpha -= 1;
-            } else {
-                this.messageAlpha = this.initialMessageAlpha;
-                this.message = "";
-            }
-        }
-        pop();
+        this.message.draw({ leftOffset: this.playAreas[0].left });
     }
 
 

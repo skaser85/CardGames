@@ -12,11 +12,8 @@ class KC {
         this.selectedCard = null;
         this.selectedPile = null;
         this.colors = colors
-        this.message = "";
-        this.messageType = "";
-        this.messageAlpha = 0;
-        this.initialMessageAlpha = 400;
         this.gameOver = false;
+        this.message = new Message();
         this.strobeCounter = 5;
         this.initialStrobeCount = 5;
         this.winnerColor = color(random(255), random(255), random(255));
@@ -67,15 +64,15 @@ class KC {
 
     undo() {
         if(this.logger.log.length === 1 || this.logger.log.length - this.logger.redoPointer === 1) {
-            this.addMessage("error", "Cannot undo past start of game.");
+            this.message.set("error", "Cannot undo past start of game.");
             return;
         }
         if(this.logger.log[this.logger.log.length - 1].type === "game restarted") {
-            this.addMessage("error", "Cannot undo past the restart of a game.");
+            this.message.set("error", "Cannot undo past the restart of a game.");
             return;
         }
         if(this.logger.log[this.logger.log.length - 1].type === "game won") {
-            this.addMessage("error", "Cannot undo once the game has been won.");
+            this.message.set("error", "Cannot undo once the game has been won.");
             return;
         }
         let lastState = this.logger.getUndoState();
@@ -374,48 +371,40 @@ class KC {
             this.playAreas.forEach(p => p.draw());
             this.curPlayer.draw();
 
-            if(this.logger.redoPointer) {
-                push();
-                let textS = 16;
-                textSize(textS);
-                fill(255, 255, 255);
-                stroke(0, 0, 0);
-                strokeWeight(1);
-                let redoText = `Available: ${this.logger.redoPointer}`
-                let textW = textWidth(redoText);
-                let textL = (textW / 2) + redoBtn.x + redoBtn.width;
-                let textT = redoBtn.y + 4;
-                text(redoText, textL, textT);
-                pop();
-            }
+            this.logger.draw();
         }
 
+        this.message.draw({
+            leftOffset: this.curPlayer.left,
+            top: this.curPlayer.top - this.curPlayer.topOffset - this.curPlayer.textSize
+        });
+
         // display error
-        push();
-        if(this.message) {
-            switch(this.messageType) {
-                case "error":
-                    stroke(0, 0, 0, this.messageAlpha);
-                    fill(255, 0, 175, this.messageAlpha);
-                    break;
-                case "normal":
-                    stroke(0, 0, 0, this.messageAlpha);
-                    fill(255, 255, 255, this.messageAlpha);
-            }
-            textSize(32);
-            strokeWeight(2);
-            let eTextW = textWidth(this.message);
-            let eTextL = this.curPlayer.left + (eTextW / 2);
-            let eTextT = this.curPlayer.top - this.curPlayer.topOffset - this.curPlayer.textSize;
-            text(this.message, eTextL, eTextT);
-            if(this.messageAlpha > 0) {
-                this.messageAlpha -= 1;
-            } else {
-                this.messageAlpha = this.initialMessageAlpha;
-                this.message = "";
-            }
-        }
-        pop();
+        // push();
+        // if(this.message) {
+        //     switch(this.messageType) {
+        //         case "error":
+        //             stroke(0, 0, 0, this.messageAlpha);
+        //             fill(255, 0, 175, this.messageAlpha);
+        //             break;
+        //         case "normal":
+        //             stroke(0, 0, 0, this.messageAlpha);
+        //             fill(255, 255, 255, this.messageAlpha);
+        //     }
+        //     textSize(32);
+        //     strokeWeight(2);
+        //     let eTextW = textWidth(this.message);
+        //     let eTextL = this.curPlayer.left + (eTextW / 2);
+        //     let eTextT = ;
+        //     text(this.message, eTextL, eTextT);
+        //     if(this.messageAlpha > 0) {
+        //         this.messageAlpha -= 1;
+        //     } else {
+        //         this.messageAlpha = this.initialMessageAlpha;
+        //         this.message = "";
+        //     }
+        // }
+        // pop();
     }
 
     handleClick() {
@@ -423,10 +412,10 @@ class KC {
             if(this.deck.isActive) {
                 if(!this.deck.isEmpty) {
                     if(!this.turnStarted) {
-                        this.addMessage("error", "Turn has not started yet.");
+                        this.message.set("error", "Turn has not started yet.");
                     } else {
                         if(this.playerHasPulledFromDeck) {
-                            this.addMessage("error", "You can only select 1 card from the deck per turn.");
+                            this.message.set("error", "You can only select 1 card from the deck per turn.");
                         } else {
                             let card = this.deck.getCard();
                             this.curPlayer.addTo(card);
@@ -434,7 +423,7 @@ class KC {
                                 this.deck.isEmpty = true;
                             }
                             this.playerHasPulledFromDeck = true;
-                            this.addMessage("normal", `Congrats on pulling the ${this.getValue(card.name)}!!!`);
+                            this.message.set("normal", `Congrats on pulling the ${this.getValue(card.name)}!!!`);
                             this.logger.addTo({
                                 type: "pulled from deck",
                                 player: this.curPlayer.name,
@@ -466,7 +455,7 @@ class KC {
                         
                         let card = this.selectedCard;
                         if(!this.turnStarted) {
-                            this.addMessage("error", "Please start your turn before making any moves.");
+                            this.message.set("error", "Please start your turn before making any moves.");
                         } else {
                             if(this.canPlace(this.selectedPile, this.selectedCard)) {
                                 if(this.selectedCard.pile instanceof PlayArea && this.selectedCard.pile.cards.length > 1) {
@@ -500,7 +489,7 @@ class KC {
                                     this.curPlayArea.addTo(this.selectedCard);
                                 }
                             } else {
-                                this.addMessage("error", `Cannot play the ${this.getValue(card.name)} card in the ${this.curPlayArea.name}.`);
+                                this.message.set("error", `Cannot play the ${this.getValue(card.name)} card in the ${this.curPlayArea.name}.`);
                                 card.setCoords(card.pile.x, card.pile.y);
                             }
                         }
@@ -529,7 +518,7 @@ class KC {
         if(!this.gameOver) {
             if(this.turnStarted) {
                 if(!this.playerHasPulledFromDeck) {
-                    this.addMessage("error", "You have not yet pulled a card from the deck.");
+                    this.message.set("error", "You have not yet pulled a card from the deck.");
                 } else {
                     if(this.curPlayer.cards.length === 0) {
                         this.gameOver = true;
@@ -546,7 +535,7 @@ class KC {
                         });
                         this.turnStarted = false;
                         this.playerHasPulledFromDeck = false;
-                        this.addMessage("normal", `Great moves, ${this.curPlayer.name}!`);
+                        this.message.set("normal", `Great moves, ${this.curPlayer.name}!`);
                         this.curPlayer.setCardsToNotVisible();
                         this.btnText = "Start Turn";
                         this.curPlayer = this.nextPlayer();
@@ -555,7 +544,7 @@ class KC {
                 }
             } else {
                 this.turnStarted = true;
-                this.addMessage("normal", `Best of luck, ${this.curPlayer.name}!`);
+                this.message.set("normal", `Best of luck, ${this.curPlayer.name}!`);
                 this.btnText = "End Turn";
                 this.logger.addTo({ type: "turn started", });
             }
@@ -571,12 +560,6 @@ class KC {
             player = this.players[curPlayerIndex + 1];
         }
         return player;
-    }
-
-    addMessage(msgType, msgText) {
-        this.messageType = msgType;
-        this.message = msgText;
-        this.messageAlpha = this.initialMessageAlpha;
     }
 
     isRed(cardName) {

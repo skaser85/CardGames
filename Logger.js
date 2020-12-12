@@ -18,4 +18,21 @@ class Logger {
     getRedoState() {
         return this.log[this.log.length - this.redoPointer];
     }
+
+    draw() {
+        if(this.redoPointer) {
+            push();
+            let textS = 16;
+            textSize(textS);
+            fill(255, 255, 255);
+            stroke(0, 0, 0);
+            strokeWeight(1);
+            let redoText = `Available: ${this.redoPointer}`
+            let textW = textWidth(redoText);
+            let textL = (textW / 2) + redoBtn.x + redoBtn.width;
+            let textT = redoBtn.y + 4;
+            text(redoText, textL, textT);
+            pop();
+        }
+    }
 }

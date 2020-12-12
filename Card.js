@@ -65,7 +65,11 @@ class Card {
     draw() {
         push();
         noFill();
-        if(this.isActive || this.isSelected) {
+        if(this.isSelected) {
+            let c = this.isActive ? color(255, 50, 0) : color(255, 50, 0, 175);
+            stroke(c);
+            strokeWeight(4);
+        } else if(this.isActive) {
             stroke(this.borderColor);
             strokeWeight(4);
         } else {

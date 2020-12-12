@@ -306,15 +306,29 @@ class KC {
             // update cards
             // figure out which cards have the mouse over them
             this.curCard = null;
-            let prevCur = null;
-            for(let c of this.deck.cardsInPlay) {
+            let possibleCards = [];
+            let pileCheck = null;
+            for(let i = 0; i < this.deck.cardsInPlay.length; i++) {
+                let c = this.deck.cardsInPlay[i];
                 if(c.visible) {
                     c.update();
+                    if(c.isActive) {
+                        if(!pileCheck) pileCheck = c.pile;
+                        possibleCards.push(c);
+                    }
                 }
-                if(c.isActive) {
-                    if(prevCur) prevCur.isActive = false;
-                    prevCur = c;
-                    this.curCard = c;
+            }
+
+            if(pileCheck) {
+                for(let i = pileCheck.cards.length - 1; i >= 0; i--) {
+                    let c = pileCheck.cards[i];
+                    if(!this.curCard) {
+                        if(c.isActive && possibleCards.includes(c)) {
+                            this.curCard = c;
+                        }
+                    } else {
+                        c.isActive = false;
+                    }
                 }
             }
 

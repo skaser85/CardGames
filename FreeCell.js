@@ -30,21 +30,27 @@ class FreeCell {
             this.playAreas.push(pa);
         }
 
-        let gutter = 20;
-        let totalSuitWidth = (gutter * 4) + (pileWidth * 4);
-        let suitX = width - totalSuitWidth + (pileWidth / 2);
-        for(let i = 0; i < 4; i++) {
-            let suitArea = new PlayArea(`Suit${i + 1}`, suitX, pileHeight / 2 + gutter, pileWidth, pileHeight, 0, this.colors.blue, this.colors.blueA);
-            this.playAreas.push(suitArea);
-            suitX += gutter + pileWidth;
+        // set up cells & suits
+        for(let i = 0; i < 8; i++) {
+            let name;
+            let bc;
+            let fc;
+            if(i < 4) {
+                name = `Cell${i + 1}`
+                bc = this.colors.salmon;
+                fc = this.colors.salmonA;
+            } else {
+                name = i === 7 ? "Suit4" : `Suit${(i + 1) % 4}`
+                bc = this.colors.blue;
+                fc = this.colors.blueA;
+            }
+            let area = new PlayArea(name, spacing * i + (spacing / 2), 150, pileWidth, pileHeight, 0, bc, fc);
+            this.playAreas.push(area);
         }
 
-        this.deck = new Deck(0, 0, 0, 0, 0, 0, "purple", this.colors.salmon, this.colors.salmonA);
+        this.deck = new Deck(0, 0, 0, 0, cardWidth, cardHeight, "purple", this.colors.salmon, this.colors.salmonA);
         this.deck.cards = [...cards];
         this.deck.shuffle();
-
-        this.playerPile = new Hand("Player1", this.deck.right + 60, 150, pileWidth, pileHeight, 0);
-        this.playerPile.showName = false;
 
         this.logger.addTo({ type: Logger.type.gameStarted });
 
@@ -162,19 +168,14 @@ class FreeCell {
     }
 
     dealCards() {
-        for(let i = 0; i < 7; i++) {
-            let pileNum = i + 1;
-            let pa = this.playAreas.find(p => p.name === `Pile${pileNum}`);
-            if(pileNum === 1) {
+        for(let i = 0; i < this.numPlayAreas; i++) {
+            let pileAmt = i < 4 ? 7 : 6;
+            let pa = this.playAreas.find(p => p.name === `Pile${i + 1}`);
+            for(let k = 0; k < pileAmt; k++) {
                 pa.addTo(this.deck.getCard());
-            } else {
-                for(let k = 0; k < pileNum; k++) {
-                    let card = this.deck.getCard();
-                    if(k < pileNum - 1) card.backShowing = true;
-                    pa.addTo(card);
-                }
             }
         }
+        this.deck.isEmpty = true;
     }
 
     handleClick() {
@@ -385,7 +386,6 @@ class FreeCell {
         this.playAreas.forEach(p => p.update());
         
         this.deck.update();
-        this.playerPile.update();
 
         // update playAreas
         for(let p of this.playAreas) {
@@ -473,7 +473,6 @@ class FreeCell {
             this.playAreas.forEach(p => p.draw());
 
             this.deck.draw();
-            this.playerPile.draw();
 
             this.logger.draw();
         }

@@ -38,8 +38,11 @@ function setup() {
 
     logger = new Logger();
 
-    game = new Solitaire(9, cW, cH, cards, colors, logger);
+    game = new FreeCell(cW, cH, cards, colors, logger);
     game.dealCards();
+
+    // game = new Solitaire(9, cW, cH, cards, colors, logger);
+    // game.dealCards();
 
     // game = new KC(4, cW, cH, cards, colors, logger);
     // game.dealCards();

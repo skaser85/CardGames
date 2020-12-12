@@ -1,6 +1,6 @@
-class Solitaire {
-    constructor(numPlayAreas, cardWidth, cardHeight, cards, colors, logger) {
-        this.numPlayAreas = numPlayAreas;
+class FreeCell {
+    constructor(cardWidth, cardHeight, cards, colors, logger) {
+        this.numPlayAreas = 8;
         this.playAreas = [];
 
         this.curCard = null;
@@ -23,7 +23,6 @@ class Solitaire {
         let pileWidth = cardWidth + 10;
         let pileHeight = cardHeight + 10;
         let spacing = (width / this.numPlayAreas);
-        if(spacing < cardWidth) alert(`Spacing requires cardWidth to be ${spacing}, but it is currently ${cardWidth}.  Please lower cardWidth to accomodate the number of piles you need.`);
         let paY = height / 3;
 
         for(let i = 0; i < this.numPlayAreas; i++) {
@@ -40,7 +39,7 @@ class Solitaire {
             suitX += gutter + pileWidth;
         }
 
-        this.deck = new Deck(pileWidth / 2 + 50, 150, pileWidth, pileHeight, cardWidth, cardHeight, "purple", this.colors.salmon, this.colors.salmonA);
+        this.deck = new Deck(0, 0, 0, 0, 0, 0, "purple", this.colors.salmon, this.colors.salmonA);
         this.deck.cards = [...cards];
         this.deck.shuffle();
 
@@ -163,7 +162,7 @@ class Solitaire {
     }
 
     dealCards() {
-        for(let i = 0; i < this.numPlayAreas; i++) {
+        for(let i = 0; i < 7; i++) {
             let pileNum = i + 1;
             let pa = this.playAreas.find(p => p.name === `Pile${pileNum}`);
             if(pileNum === 1) {

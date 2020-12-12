@@ -1,5 +1,5 @@
 class Deck {
-    constructor(x, y, width, height, deckColor, borderColor, fillColor) {
+    constructor(x, y, width, height, cardWidth, cardHeight, deckColor, borderColor, fillColor) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -8,6 +8,8 @@ class Deck {
         this.right = this.x + (this.width / 2);
         this.top = this.y - (this.height / 2);
         this.bottom = this.y + (this.height / 2);
+        this.cardWidth = cardWidth;
+        this.cardHeight = cardHeight;
         this.deckColor = deckColor;
         this.borderColor = borderColor;
         this.fillColor = fillColor;
@@ -61,7 +63,7 @@ class Deck {
         translate(this.x, this.y)
         rect(0, 0, this.width, this.height);
         if(!this.isEmpty) {
-            image(this.img, 0, 0, cardWidth, cardHeight);
+            image(this.img, 0, 0, this.cardWidth, this.cardHeight);
         }
         pop();
     }

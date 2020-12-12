@@ -38,7 +38,7 @@ class KC {
         );
 
         // setup deck
-        this.deck = new Deck(width / 2, height / 2 - pileHeight / 2, pileWidth, pileHeight, "purple", this.colors.salmon, this.colors.salmonA);
+        this.deck = new Deck(width / 2, height / 2 - pileHeight / 2, pileWidth, pileHeight, cardWidth, cardHeight, "purple", this.colors.salmon, this.colors.salmonA);
         this.deck.cards = [...cards];
         this.deck.shuffle();
 

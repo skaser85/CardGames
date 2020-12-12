@@ -1,5 +1,5 @@
-let cardWidth = 100;
-let cardHeight = 130;
+let cW = 100;
+let cH = 130;
 let game;
 let suits = ["C", "D", "H", "S"];
 let honors = {1: "A", 11: "J", 12: "Q", 13: "K"};
@@ -16,14 +16,14 @@ function preload() {
         for(let i = 1; i < 14; i++) {
             let v = i > 10 || i === 1 ? honors[i] : i;
             loadImage(`cards/${v}${s}.png`, img => {
-                cards.push(new Card(`${v}${s}`, img, cardWidth, cardHeight, 0, 0));
+                cards.push(new Card(`${v}${s}`, img, cW, cH, 0, 0));
             });
         }
     });
 }
 
 function setup() {
-    createCanvas(960, 960);
+    createCanvas(1200, 960);
     rectMode(CENTER);
     imageMode(CENTER);
     angleMode(DEGREES);
@@ -38,10 +38,10 @@ function setup() {
 
     logger = new Logger();
 
-    game = new Solitaire(7, cardWidth, cardHeight, cards, colors, logger);
+    game = new Solitaire(9, cW, cH, cards, colors, logger);
     game.dealCards();
 
-    // game = new KC(4, cardWidth, cardHeight, cards, colors, logger);
+    // game = new KC(4, cW, cH, cards, colors, logger);
     // game.dealCards();
 
     restart = createButton("Restart Game");

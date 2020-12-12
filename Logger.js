@@ -1,4 +1,16 @@
 class Logger {
+    static type = {
+        "gameStarted": 0,
+        "gameRestarted": 1,
+        "cardMoved": 2,
+        "cardsMoved": 3,
+        "pulledFromDeck": 4,
+        "gameWon": 5,
+        "turnStarted": 6,
+        "turnEnded": 7,
+        "cardFlipped": 8
+    }
+
     constructor() {
         this.log = [];
         this.undoState = null;

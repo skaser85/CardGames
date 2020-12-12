@@ -38,11 +38,11 @@ function setup() {
 
     logger = new Logger();
 
-    // game = new Solitaire(7, cardWidth, cardHeight, cards, colors, logger);
-    // game.dealCards();
-
-    game = new KC(4, cardWidth, cardHeight, cards, colors, logger);
+    game = new Solitaire(7, cardWidth, cardHeight, cards, colors, logger);
     game.dealCards();
+
+    // game = new KC(4, cardWidth, cardHeight, cards, colors, logger);
+    // game.dealCards();
 
     restart = createButton("Restart Game");
     restart.position(15, 15);

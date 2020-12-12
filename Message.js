@@ -1,4 +1,9 @@
 class Message {
+    static type = {
+        "normal": 0,
+        "error": 1
+    }
+
     constructor() {
         this.messageType = null;
         this.message = "";
@@ -16,13 +21,14 @@ class Message {
         push();
         if(this.message) {
             switch(this.messageType) {
-                case "error":
+                case Message.type.normal:
+                    stroke(0, 0, 0, this.messageAlpha);
+                    fill(255, 255, 255, this.messageAlpha);
+                    break;
+                case Message.type.error:
                     stroke(0, 0, 0, this.messageAlpha);
                     fill(255, 0, 175, this.messageAlpha);
                     break;
-                case "normal":
-                    stroke(0, 0, 0, this.messageAlpha);
-                    fill(255, 255, 255, this.messageAlpha);
             }
             textSize(32);
             strokeWeight(2);

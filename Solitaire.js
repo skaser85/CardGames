@@ -46,7 +46,7 @@ class Solitaire {
         this.playerPile = new Hand("Player1", this.deck.right + 60, 150, pileWidth, pileHeight, 0);
         this.playerPile.showName = false;
 
-        this.logger.addTo({ type: "game started" });
+        this.logger.addTo({ type: Logger.type.gameStarted });
 
     }
 
@@ -191,9 +191,9 @@ class Solitaire {
                     if(this.deck.cards.length === 0) {
                         this.deck.isEmpty = true;
                     }
-                    this.message.set("normal", `Congrats on pulling the ${this.getValue(card.name)}!!!`);
+                    this.message.set(Message.type.normal, `Congrats on pulling the ${this.getValue(card.name)}!!!`);
                     this.logger.addTo({
-                        type: "pulled from deck",
+                        type: Logger.type.pulledFromDeck,
                         card: card.name
                     });
                 }
@@ -204,7 +204,7 @@ class Solitaire {
                            this.curCard.name === this.curCard.pile.cards[this.curCard.pile.cards.length - 1].name) {
                             this.curCard.backShowing = false;
                             this.logger.addTo({
-                                type: "card flipped",
+                                type: Logger.type.cardFlipped,
                                 card: this.curCard.name
                             });
                         } else {
@@ -272,11 +272,11 @@ class Solitaire {
                                     }
                                     if(!pileExists) {
                                         this.gameOver = true;
-                                        this.logger.addTo({ type: "game won" });
+                                        this.logger.addTo({ type: Logger.type.gameWon });
                                     }
                                 }
                             } else {
-                                this.message.set("error", `Cannot play the ${this.getValue(card.name)} card in the ${this.curPlayArea.name}.`);
+                                this.message.set(Message.type.error, `Cannot play the ${this.getValue(card.name)} card in the ${this.curPlayArea.name}.`);
                                 card.setCoords(card.pile.x, card.pile.y);
                             }
                             
@@ -302,26 +302,26 @@ class Solitaire {
         this.deck.cardsInPlay = [];
         this.dealCards();
         this.gameOver = false;
-        this.logger.addTo({ type: "game restarted"});
+        this.logger.addTo({ type: Logger.type.gameRestarted });
     }
 
     undo() {
         let nextUndo = this.logger.log[this.logger.log.length - 1 - this.logger.redoPointer]
-        if(nextUndo.type === "game started") {
-            this.message.set("error", "Cannot undo past start of game.");
+        if(nextUndo.type === Logger.type.gameStarted) {
+            this.message.set(Message.type.error, "Cannot undo past start of game.");
             return;
         }
-        if(nextUndo.type === "game restarted") {
-            this.message.set("error", "Cannot undo past the restart of a game.");
+        if(nextUndo.type === Logger.type.gameRestarted) {
+            this.message.set(Message.type.error, "Cannot undo past the restart of a game.");
             return;
         }
-        if(nextUndo.type === "game won") {
-            this.message.set("error", "Cannot undo once the game has been won.");
+        if(nextUndo.type === Logger.type.gameWon) {
+            this.message.set(Message.type.error, "Cannot undo once the game has been won.");
             return;
         }
         let lastState = this.logger.getUndoState();
         switch(lastState.type) {
-            case("cards moved"):
+            case(Logger.type.cardsMoved):
                 lastState.cards.forEach(c => {
                     // c is the Card object, not just the card name
                     let pa;
@@ -337,13 +337,13 @@ class Solitaire {
                     }
                 });
                 break;
-            case("pulled from deck"):
+            case(Logger.type.pulledFromDeck):
                 let cardPulled = this.deck.cardsInPlay.find(c => c.name === lastState.card);
                 if(cardPulled.pile) cardPulled.pile.removeFrom(cardPulled);
                 this.deck.cards.unshift(cardPulled);
                 if(this.deck.cards.length && this.deck.isEmpty) this.deck.isEmpty = false; 
                 break;
-            case("card flipped"):
+            case(Logger.type.cardFlipped):
                 let card = this.deck.cardsInPlay.find(c => c.name === lastState.card);
                 card.backShowing = true;
                 break;
@@ -354,7 +354,7 @@ class Solitaire {
     redo() {
         let lastState = this.logger.getRedoState();
         switch(lastState.type) {
-            case("cards moved"):
+            case(Logger.type.cardsMoved):
                 lastState.cards.forEach(c => {
                     // c is the Card object, not just the card name
                     let pa;
@@ -370,13 +370,13 @@ class Solitaire {
                     }
                 });
                 break;
-            case("pulled from deck"):
+            case(Logger.type.pulledFromDeck):
                 let cardPulled = this.deck.cardsInPlay.find(c => c.name === lastState.card);
                 if(cardPulled.pile) cardPulled.pile.removeFrom(cardPulled);
                 this.playerPile.addTo(cardPulled);
                 if(!this.deck.cards.length && !this.deck.isEmpty) this.deck.isEmpty = true;
                 break;
-            case("card flipped"):
+            case(Logger.type.cardFlipped):
                 let card = this.deck.cardsInPlay.find(c => c.name === lastState.card);
                 card.backShowing = false;
                 break;

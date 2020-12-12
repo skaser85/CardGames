@@ -188,9 +188,7 @@ class Solitaire {
                 } else {
                     let card = this.deck.getCard();
                     this.playerPile.addTo(card);
-                    if(this.deck.cards.length === 0) {
-                        this.deck.isEmpty = true;
-                    }
+                    if(this.deck.cards.length === 0) this.deck.isEmpty = true;
                     this.message.set(Message.type.normal, `Congrats on pulling the ${this.getValue(card.name)}!!!`);
                     this.logger.addTo({
                         type: Logger.type.pulledFromDeck,
@@ -238,7 +236,7 @@ class Solitaire {
                             let card = this.selectedCard;
                             if(this.canPlace(this.selectedPile, this.selectedCard)) {
                                 let loggerData = {
-                                    type: "cards moved",
+                                    type: Logger.type.cardsMoved,
                                     cards: null,
                                     from: this.selectedCard.pile.name,
                                     to: this.selectedPile.name
@@ -333,7 +331,7 @@ class Solitaire {
                     pa.addTo(c);
                     if(lastState.to.startsWith("Suit")) {
                         let sa = this.playAreas.find(p => p.name === lastState.to);
-                        sa.cards[sa.cards.length - 1].visible = true;
+                        if(sa.cards.length) sa.cards[sa.cards.length - 1].visible = true;
                     }
                 });
                 break;
@@ -366,15 +364,14 @@ class Solitaire {
                     pa.addTo(c);
                     if(lastState.to.startsWith("Suit")) {
                         let sa = this.playAreas.find(p => p.name === lastState.to);
-                        sa.cards[sa.cards.length - 2].visible = false;
+                        if(sa.cards.length) sa.cards[sa.cards.length - 2].visible = false;
                     }
                 });
                 break;
             case(Logger.type.pulledFromDeck):
-                let cardPulled = this.deck.cardsInPlay.find(c => c.name === lastState.card);
-                if(cardPulled.pile) cardPulled.pile.removeFrom(cardPulled);
-                this.playerPile.addTo(cardPulled);
-                if(!this.deck.cards.length && !this.deck.isEmpty) this.deck.isEmpty = true;
+                let theCard = this.deck.getCard()
+                this.playerPile.addTo(theCard);
+                if(!this.deck.cards.length) this.deck.isEmpty = true;
                 break;
             case(Logger.type.cardFlipped):
                 let card = this.deck.cardsInPlay.find(c => c.name === lastState.card);

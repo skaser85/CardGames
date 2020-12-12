@@ -268,6 +268,20 @@ class Solitaire {
                                 if(this.selectedPile.name.startsWith("Suit") && this.selectedPile.cards.length > 1) {
                                     this.selectedPile.cards[this.selectedPile.cards.length - 2].visible = false;
                                 }
+                                if(this.deck.isEmpty) {
+                                    let pileExists = false;
+                                    for(let i = 0; i < this.playAreas.length; i++) {
+                                        let pa = this.playAreas[i];
+                                        if(pa.name.startsWith("Pile") && pa.cards.length) {
+                                            pileExists = true;
+                                            break;
+                                        }
+                                    }
+                                    if(!pileExists) {
+                                        this.gameOver = true;
+                                        this.logger.addTo({ type: "game won" });
+                                    }
+                                }
                             } else {
                                 this.addMessage("error", `Cannot play the ${this.getValue(card.name)} card in the ${this.curPlayArea.name}.`);
                                 card.setCoords(card.pile.x, card.pile.y);
@@ -294,6 +308,7 @@ class Solitaire {
         });
         this.deck.cardsInPlay = [];
         this.dealCards();
+        this.gameOver = false;
         this.logger.addTo({ type: "game restarted"});
     }
 

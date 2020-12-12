@@ -1,3 +1,8 @@
+// ToDo:
+// need to add the ability to drop cards in the Cells
+// need to add win condition
+// need to work on undo/redo
+
 class FreeCell {
     constructor(cardWidth, cardHeight, cards, colors, logger) {
         this.numPlayAreas = 8;

@@ -359,7 +359,7 @@ class FreeCell {
             case(Logger.type.cardsMoved):
                 lastState.cards.forEach(c => {
                     // c is the Card object, not just the card name
-                    let pa = this.playAreas.find(p => p.name === lastState.from);
+                    let pa = this.playAreas.find(p => p.name === lastState.to);
                     pa.addTo(c);
                     if(lastState.to.startsWith("Suit")) {
                         let sa = this.playAreas.find(p => p.name === lastState.to);

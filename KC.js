@@ -27,14 +27,14 @@ class KC {
         let hCenter = (height / 2 - pileHeight / 2);
         
         this.playAreas.push(
-            new PlayArea("northPile", vCenter, hCenter - pileHeight - 20, pileWidth, pileHeight, 0, this.colors.yellow, this.colors.yellowA),
-            new PlayArea("southPile", vCenter, hCenter + pileHeight + 20, pileWidth, pileHeight, 0, this.colors.yellow, this.colors.yellowA),
-            new PlayArea("eastPile", vCenter + pileWidth + 30, hCenter, pileWidth, pileHeight, 90, this.colors.yellow, this.colors.yellowA),
-            new PlayArea("westPile", vCenter - pileWidth - 30, hCenter, pileWidth, pileHeight, 90, this.colors.yellow, this.colors.yellowA),
-            new PlayArea("northEastPile", vCenter + pileWidth + 50, hCenter - pileHeight - 25, pileWidth, pileHeight, 45, this.colors.blue, this.colors.blueA),
-            new PlayArea("southEastPile", vCenter + pileWidth + 50, hCenter + pileHeight + 25, pileWidth, pileHeight, 135, this.colors.blue, this.colors.blueA),
-            new PlayArea("southWestPile", vCenter - pileWidth - 50, hCenter + pileHeight + 25, pileWidth, pileHeight, 45, this.colors.blue, this.colors.blueA),
-            new PlayArea("northWestPile", vCenter - pileWidth - 50, hCenter - pileHeight - 25, pileWidth, pileHeight, 135, this.colors.blue, this.colors.blueA)
+            new PlayArea(PlayArea.type.Pile, "northPile", vCenter, hCenter - pileHeight - 20, pileWidth, pileHeight, 0, this.colors.yellow, this.colors.yellowA),
+            new PlayArea(PlayArea.type.Pile, "southPile", vCenter, hCenter + pileHeight + 20, pileWidth, pileHeight, 0, this.colors.yellow, this.colors.yellowA),
+            new PlayArea(PlayArea.type.Pile, "eastPile", vCenter + pileWidth + 30, hCenter, pileWidth, pileHeight, 90, this.colors.yellow, this.colors.yellowA),
+            new PlayArea(PlayArea.type.Pile, "westPile", vCenter - pileWidth - 30, hCenter, pileWidth, pileHeight, 90, this.colors.yellow, this.colors.yellowA),
+            new PlayArea(PlayArea.type.Pile, "northEastPile", vCenter + pileWidth + 50, hCenter - pileHeight - 25, pileWidth, pileHeight, 45, this.colors.blue, this.colors.blueA),
+            new PlayArea(PlayArea.type.Pile, "southEastPile", vCenter + pileWidth + 50, hCenter + pileHeight + 25, pileWidth, pileHeight, 135, this.colors.blue, this.colors.blueA),
+            new PlayArea(PlayArea.type.Pile, "southWestPile", vCenter - pileWidth - 50, hCenter + pileHeight + 25, pileWidth, pileHeight, 45, this.colors.blue, this.colors.blueA),
+            new PlayArea(PlayArea.type.Pile, "northWestPile", vCenter - pileWidth - 50, hCenter - pileHeight - 25, pileWidth, pileHeight, 135, this.colors.blue, this.colors.blueA)
         );
 
         // setup deck
@@ -378,33 +378,6 @@ class KC {
             leftOffset: this.curPlayer.left,
             top: this.curPlayer.top - this.curPlayer.topOffset - this.curPlayer.textSize
         });
-
-        // display error
-        // push();
-        // if(this.message) {
-        //     switch(this.messageType) {
-        //         case "error":
-        //             stroke(0, 0, 0, this.messageAlpha);
-        //             fill(255, 0, 175, this.messageAlpha);
-        //             break;
-        //         case "normal":
-        //             stroke(0, 0, 0, this.messageAlpha);
-        //             fill(255, 255, 255, this.messageAlpha);
-        //     }
-        //     textSize(32);
-        //     strokeWeight(2);
-        //     let eTextW = textWidth(this.message);
-        //     let eTextL = this.curPlayer.left + (eTextW / 2);
-        //     let eTextT = ;
-        //     text(this.message, eTextL, eTextT);
-        //     if(this.messageAlpha > 0) {
-        //         this.messageAlpha -= 1;
-        //     } else {
-        //         this.messageAlpha = this.initialMessageAlpha;
-        //         this.message = "";
-        //     }
-        // }
-        // pop();
     }
 
     handleClick() {

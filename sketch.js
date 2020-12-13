@@ -9,6 +9,8 @@ let restart;
 let logger;
 let undoBtn;
 let redoBtn;
+let gameSel;
+let gameP;
 let colors = {};
 
 function preload() {
@@ -38,14 +40,7 @@ function setup() {
 
     logger = new Logger();
 
-    // game = new FreeCell(cW, cH, cards, colors, logger);
-    // game.dealCards();
-
-    game = new Solitaire(9, cW, cH, cards, colors, logger);
-    game.dealCards();
-
-    // game = new KC(4, cW, cH, cards, colors, logger);
-    // game.dealCards();
+    game = null;
 
     restart = createButton("Restart Game");
     restart.position(15, 15);
@@ -64,16 +59,51 @@ function setup() {
     redoBtn.mousePressed(() => {
         game.redo();
     });
+
+    gameP = createP("Select Game");
+    gameP.position(restart.x + restart.width + 15, - 5);
+    gameP.style("color", "white");
+    gameP.style("font-size", "18px");
+    gameSel = createSelect()
+    gameSel.style("padding", "2px");
+    gameSel.position(restart.x + restart.width + 15, restart.y + restart.height + 5);
+    gameSel.option("");
+    gameSel.option("Solitaire");
+    gameSel.option("FreeCell");
+    gameSel.option("Kings Corner");
+    gameSel.selected("");
+    gameSel.changed(() => {
+        switch(gameSel.value()) {
+            case "":
+                game = null;
+                break;
+            case "Solitaire":
+                game = new Solitaire(7, cW, cH, cards, colors, logger);
+                game.dealCards();
+                break;
+            case "FreeCell":
+                game = new FreeCell(cW, cH, cards, colors, logger);
+                game.dealCards();
+                break;
+            case "Kings Corner":
+                game = new KC(4, cW, cH, cards, colors, logger);
+                game.dealCards();
+                break;
+        }
+    });
+
 }
 
 function draw() {
     background(0, 100, 0);
 
-    game.update();
-    game.draw();
+    if(game) {
+        game.update();
+        game.draw();
+    }
 }
 
 function mouseClicked() {
-    game.handleClick();
+    if(game) game.handleClick();
     return false; // safety precaution for browser weirdness
 }

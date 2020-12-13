@@ -2,6 +2,8 @@
 class KC {
     constructor(numPlayers, cardWidth, cardHeight, cards, colors, logger) {
         this.numPlayers = numPlayers;
+        this.cardWidth = cardWidth;
+        this.cardHeight = cardHeight;
         this.players = [];
         this.curPlayer = null;
         this.turnStarted = false;
@@ -340,7 +342,7 @@ class KC {
                     this.curPlayer.offset -= 3;
                 }
                 this.curPlayer.cards.forEach(c => {
-                    c.setCoords((this.curPlayer.left + cardWidth / 2 + 5) + newX, this.curPlayer.y);
+                    c.setCoords((this.curPlayer.left + this.cardWidth / 2 + 5) + newX, this.curPlayer.y);
                     newX += this.curPlayer.offset;
                 });
             }

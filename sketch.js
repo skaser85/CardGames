@@ -66,7 +66,7 @@ function setup() {
     gameP.style("font-size", "18px");
     gameSel = createSelect()
     gameSel.style("padding", "2px");
-    gameSel.position(restart.x + restart.width + 15, restart.y + restart.height + 5);
+    gameSel.position(restart.x + restart.width + 15, restart.y + restart.height + 4);
     gameSel.option("");
     gameSel.option("Solitaire");
     gameSel.option("FreeCell");

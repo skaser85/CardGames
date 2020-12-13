@@ -1,5 +1,12 @@
 class PlayArea {
-    constructor(name, x, y, width, height, rotateDeg, borderColor, fillColor) {
+    static type = {
+        "Pile": 0,
+        "Suit": 1,
+        "Cell": 2
+    }
+
+    constructor(kind, name, x, y, width, height, rotateDeg, borderColor, fillColor) {
+        this.kind = kind;
         this.name = name;
         this.x = x;
         this.y = y;

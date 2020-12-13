@@ -57,7 +57,7 @@ class FreeCell {
         this.deck.cards = [...cards];
         this.deck.shuffle();
 
-        this.logger.addTo({ type: Logger.type.gameStarted });
+        this.logger.addTo({ type: Logger.type.gameStarted, name: Logger.getTypeName(Logger.type.gameStarted) });
 
     }
 
@@ -198,6 +198,7 @@ class FreeCell {
                     this.message.set(Message.type.normal, `Congrats on pulling the ${this.getValue(card.name)}!!!`);
                     this.logger.addTo({
                         type: Logger.type.pulledFromDeck,
+                        name: Logger.getTypeName(Logger.type.pulledFromDeck),
                         card: card.name
                     });
                 }
@@ -209,6 +210,7 @@ class FreeCell {
                             this.curCard.backShowing = false;
                             this.logger.addTo({
                                 type: Logger.type.cardFlipped,
+                                name: Logger.getTypeName(Logger.type.cardFlipped),
                                 card: this.curCard.name
                             });
                         } else {
@@ -243,6 +245,7 @@ class FreeCell {
                             if(this.canPlace(this.selectedPile, this.selectedCard)) {
                                 let loggerData = {
                                     type: Logger.type.cardsMoved,
+                                    name: Logger.getTypeName(Logger.type.cardsMoved),
                                     cards: null,
                                     from: this.selectedCard.pile.name,
                                     to: this.selectedPile.name
@@ -276,7 +279,7 @@ class FreeCell {
                                     }
                                     if(!pileExists) {
                                         this.gameOver = true;
-                                        this.logger.addTo({ type: Logger.type.gameWon });
+                                        this.logger.addTo({ type: Logger.type.gameWon, name: Logger.getTypeName(Logger.type.gameWon) });
                                     }
                                 }
                             } else {
@@ -306,7 +309,7 @@ class FreeCell {
         this.deck.cardsInPlay = [];
         this.dealCards();
         this.gameOver = false;
-        this.logger.addTo({ type: Logger.type.gameRestarted });
+        this.logger.addTo({ type: Logger.type.gameRestarted, name: Logger.getTypeName(Logger.type.gameRestarted) });
     }
 
     undo() {
@@ -328,12 +331,7 @@ class FreeCell {
             case(Logger.type.cardsMoved):
                 lastState.cards.forEach(c => {
                     // c is the Card object, not just the card name
-                    let pa;
-                    if(lastState.from === this.playerPile.name) {
-                        pa = this.playerPile;
-                    } else {
-                        pa = this.playAreas.find(p => p.name === lastState.from);
-                    }
+                    let pa = this.playAreas.find(p => p.name === lastState.from);
                     pa.addTo(c);
                     if(lastState.to.startsWith("Suit")) {
                         let sa = this.playAreas.find(p => p.name === lastState.to);
@@ -361,12 +359,7 @@ class FreeCell {
             case(Logger.type.cardsMoved):
                 lastState.cards.forEach(c => {
                     // c is the Card object, not just the card name
-                    let pa;
-                    if(lastState.to === this.playerPile.name) {
-                        pa = this.playerPile;
-                    } else {
-                        pa = this.playAreas.find(p => p.name === lastState.to);
-                    }
+                    let pa = this.playAreas.find(p => p.name === lastState.from);
                     pa.addTo(c);
                     if(lastState.to.startsWith("Suit")) {
                         let sa = this.playAreas.find(p => p.name === lastState.to);

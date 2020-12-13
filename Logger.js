@@ -11,6 +11,10 @@ class Logger {
         "cardFlipped": 8
     }
 
+    static getTypeName(t) {
+        return Object.keys(Logger.type)[t];
+    }
+
     constructor() {
         this.log = [];
         this.undoState = null;

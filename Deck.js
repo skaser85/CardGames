@@ -35,7 +35,7 @@ class Deck {
         let c = this.cards[0];
         this.cards.splice(0, 1);
         c.visible = true;
-        c.backImg = this.img;
+        if(!c.backImg) c.backImg = this.img;
         this.cardsInPlay.push(c);
         return(c)
     }

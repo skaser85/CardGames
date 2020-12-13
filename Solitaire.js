@@ -42,6 +42,7 @@ class Solitaire {
 
         this.deck = new Deck(pileWidth / 2 + 50, 150, pileWidth, pileHeight, cardWidth, cardHeight, "purple", this.colors.salmon, this.colors.salmonA);
         this.deck.cards = [...cards];
+        this.deck.cards.forEach(c => c.backShowing = false);
         this.deck.shuffle();
 
         this.playerPile = new Hand("Player1", this.deck.right + 60, 150, pileWidth, pileHeight, 0);

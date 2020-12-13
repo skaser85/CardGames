@@ -58,6 +58,7 @@ class FreeCell {
 
         this.deck = new Deck(0, 0, 0, 0, cardWidth, cardHeight, "purple", this.colors.salmon, this.colors.salmonA);
         this.deck.cards = [...cards];
+        this.deck.cards.forEach(c => c.backShowing = false);
         this.deck.shuffle();
 
         this.logger.addTo({ type: Logger.type.gameStarted, name: Logger.getTypeName(Logger.type.gameStarted) });

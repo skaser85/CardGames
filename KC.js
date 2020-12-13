@@ -42,6 +42,7 @@ class KC {
         // setup deck
         this.deck = new Deck(width / 2, height / 2 - pileHeight / 2, pileWidth, pileHeight, cardWidth, cardHeight, "purple", this.colors.salmon, this.colors.salmonA);
         this.deck.cards = [...cards];
+        this.deck.cards.forEach(c => c.backShowing = false);
         this.deck.shuffle();
 
         // setup player's hand
@@ -53,33 +54,25 @@ class KC {
 
         this.curPlayer = this.players[0];
 
-        button = createButton(this.btnText);
-        let p1 = this.players[0];
-        button.position(p1.textRight - 20, p1.top - p1.topOffset);
-        button.mousePressed(() => {
-            this.handleButtonPress();
-            button.elt.innerText = this.btnText;
-        });
-
         this.logger.addTo({ type: "game started" });
     }
 
     undo() {
         if(this.logger.log.length === 1 || this.logger.log.length - this.logger.redoPointer === 1) {
-            this.message.set("error", "Cannot undo past start of game.");
+            this.message.set(Message.type.error, "Cannot undo past start of game.");
             return;
         }
         if(this.logger.log[this.logger.log.length - 1].type === "game restarted") {
-            this.message.set("error", "Cannot undo past the restart of a game.");
+            this.message.set(Message.type.error, "Cannot undo past the restart of a game.");
             return;
         }
         if(this.logger.log[this.logger.log.length - 1].type === "game won") {
-            this.message.set("error", "Cannot undo once the game has been won.");
+            this.message.set(Message.type.error, "Cannot undo once the game has been won.");
             return;
         }
         let lastState = this.logger.getUndoState();
         switch(lastState.type) {
-            case("card moved"):
+            case(Logger.type.cardMoved):
                 let card = this.deck.cardsInPlay.find(c => c.name === lastState.card);
                 let pa;
                 pa = this.playAreas.find(p => p.name === lastState.from);
@@ -87,7 +80,7 @@ class KC {
                 if(card.pile) card.pile.removeFrom(card);
                 pa.addTo(card);
                 break;
-            case("cards moved"):
+            case(Logger.type.cardsMoved):
                 lastState.cards.forEach(c => {
                     // c is the Card object, not just the card name
                     let pa;
@@ -97,18 +90,18 @@ class KC {
                     pa.addTo(c);
                 });
                 break;
-            case("pulled from deck"):
+            case(Logger.type.pulledFromDeck):
                 let cardPulled = this.deck.cardsInPlay.find(c => c.name === lastState.card);
                 if(cardPulled.pile) cardPulled.pile.removeFrom(cardPulled);
                 this.deck.cards.push(cardPulled);
                 this.playerHasPulledFromDeck = false;
                 break;
-            case("turn started"):
+            case(Logger.type.turnStarted):
                 this.turnStarted = false;
                 this.btnText = "Start Turn";
                 button.elt.innerText = this.btnText;
                 break;
-            case("turn ended"):
+            case(Logger.type.turnEnded):
                 this.curPlayer = this.players.find(p => p.name === lastState.player);
                 this.turnStarted = true;
                 // always true because we've already checked that this has happened by the time we get to the undo
@@ -123,7 +116,7 @@ class KC {
     redo() {
         let redoState = this.logger.getRedoState();
         switch(redoState.type) {
-            case("card moved"):
+            case(Logger.type.cardMoved):
                 let card = this.deck.cardsInPlay.find(c => c.name === redoState.card);
                 let pa;
                 pa = this.playAreas.find(p => p.name === redoState.to);
@@ -131,7 +124,7 @@ class KC {
                 if(card.pile) card.pile.removeFrom(card);
                 pa.addTo(card);
                 break;
-            case("cards moved"):
+            case(Logger.type.cardsMoved):
                 redoState.cards.forEach(c => {
                     // c is the Card object, not just the card name
                     let pa;
@@ -141,7 +134,7 @@ class KC {
                     pa.addTo(c);
                 });
                 break;
-            case("pulled from deck"):
+            case(Logger.type.pulledFromDeck):
                 let cardPulled = this.deck.cardsInPlay.find(c => c.name === redoState.card);
                 if(cardPulled.pile) cardPulled.pile.removeFrom(cardPulled);
                 this.curPlayer.addTo(cardPulled);
@@ -151,12 +144,12 @@ class KC {
                 }
                 this.playerHasPulledFromDeck = true;
                 break;
-            case("turn started"):
+            case(Logger.type.turnStarted):
                 this.turnStarted = true;
                 this.btnText = "End Turn";
                 button.elt.innerText = this.btnText;
                 break;
-            case("turn ended"):
+            case(Logger.type.turnEnded):
                 this.curPlayer.setCardsToNotVisible();
                 this.curPlayer = this.nextPlayer();
                 this.curPlayer.setCardsToVisible();
@@ -206,7 +199,11 @@ class KC {
     restartGame(cards) {
         this.deck.cards = [];
         this.deck.cards = [...cards];
-        this.deck.cards.forEach(c => c.pile = null);
+        this.deck.cards.forEach(c => {
+            c.pile = null
+            c.backShowing = false;
+        });
+        this.deck.shuffle();
         this.deck.cardsInPlay = [];
         this.players.forEach(p => p.cards = []);
         this.playAreas.forEach(p => p.cards = []);
@@ -223,6 +220,7 @@ class KC {
             let p = this.playAreas[i];
             if(["northPile", "eastPile", "southPile", "westPile"].includes(p.name)) {
                 let c = this.deck.getCard();
+                c.backShowing = false;
                 p.addTo(c);
             }
         }
@@ -231,6 +229,7 @@ class KC {
             let p = this.players[i];
             for(let k = 0; k < 7; k++) {
                 let c = this.deck.getCard();
+                c.backShowing = false;
                 p.addTo(c);
             }
         }
@@ -387,10 +386,10 @@ class KC {
             if(this.deck.isActive) {
                 if(!this.deck.isEmpty) {
                     if(!this.turnStarted) {
-                        this.message.set("error", "Turn has not started yet.");
+                        this.message.set(Message.type.error, "Turn has not started yet.");
                     } else {
                         if(this.playerHasPulledFromDeck) {
-                            this.message.set("error", "You can only select 1 card from the deck per turn.");
+                            this.message.set(Message.type.error, "You can only select 1 card from the deck per turn.");
                         } else {
                             let card = this.deck.getCard();
                             this.curPlayer.addTo(card);
@@ -398,7 +397,7 @@ class KC {
                                 this.deck.isEmpty = true;
                             }
                             this.playerHasPulledFromDeck = true;
-                            this.message.set("normal", `Congrats on pulling the ${this.getValue(card.name)}!!!`);
+                            this.message.set(Message.type.normal, `Congrats on pulling the ${this.getValue(card.name)}!!!`);
                             this.logger.addTo({
                                 type: "pulled from deck",
                                 player: this.curPlayer.name,
@@ -430,7 +429,7 @@ class KC {
                         
                         let card = this.selectedCard;
                         if(!this.turnStarted) {
-                            this.message.set("error", "Please start your turn before making any moves.");
+                            this.message.set(Message.type.error, "Please start your turn before making any moves.");
                         } else {
                             if(this.canPlace(this.selectedPile, this.selectedCard)) {
                                 if(this.selectedCard.pile instanceof PlayArea && this.selectedCard.pile.cards.length > 1) {
@@ -464,7 +463,7 @@ class KC {
                                     this.curPlayArea.addTo(this.selectedCard);
                                 }
                             } else {
-                                this.message.set("error", `Cannot play the ${this.getValue(card.name)} card in the ${this.curPlayArea.name}.`);
+                                this.message.set(Message.type.error, `Cannot play the ${this.getValue(card.name)} card in the ${this.curPlayArea.name}.`);
                                 card.setCoords(card.pile.x, card.pile.y);
                             }
                         }
@@ -493,7 +492,7 @@ class KC {
         if(!this.gameOver) {
             if(this.turnStarted) {
                 if(!this.playerHasPulledFromDeck) {
-                    this.message.set("error", "You have not yet pulled a card from the deck.");
+                    this.message.set(Message.type.error, "You have not yet pulled a card from the deck.");
                 } else {
                     if(this.curPlayer.cards.length === 0) {
                         this.gameOver = true;
@@ -510,7 +509,7 @@ class KC {
                         });
                         this.turnStarted = false;
                         this.playerHasPulledFromDeck = false;
-                        this.message.set("normal", `Great moves, ${this.curPlayer.name}!`);
+                        this.message.set(Logger.type.normal, `Great moves, ${this.curPlayer.name}!`);
                         this.curPlayer.setCardsToNotVisible();
                         this.btnText = "Start Turn";
                         this.curPlayer = this.nextPlayer();
@@ -519,7 +518,7 @@ class KC {
                 }
             } else {
                 this.turnStarted = true;
-                this.message.set("normal", `Best of luck, ${this.curPlayer.name}!`);
+                this.message.set(Message.type.normal, `Best of luck, ${this.curPlayer.name}!`);
                 this.btnText = "End Turn";
                 this.logger.addTo({ type: "turn started", });
             }

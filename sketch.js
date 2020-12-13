@@ -4,7 +4,7 @@ let game;
 let suits = ["C", "D", "H", "S"];
 let honors = {1: "A", 11: "J", 12: "Q", 13: "K"};
 let cards = [];
-let button;
+let kcBtn;
 let restart;
 let logger;
 let undoBtn;
@@ -76,17 +76,29 @@ function setup() {
         switch(gameSel.value()) {
             case "":
                 game = null;
+                if(kcBtn) kcBtn = null;
                 break;
             case "Solitaire":
+                if(kcBtn) kcBtn = null;
                 game = new Solitaire(7, cW, cH, cards, colors, logger);
                 game.dealCards();
                 break;
             case "FreeCell":
+                if(kcBtn) kcBtn = null;
                 game = new FreeCell(cW, cH, cards, colors, logger);
                 game.dealCards();
                 break;
             case "Kings Corner":
                 game = new KC(4, cW, cH, cards, colors, logger);
+                if(!kcBtn) {
+                    kcBtn = createButton(game.btnText);
+                    let p1 = game.players[0];
+                    kcBtn.position(p1.textRight - 20, p1.top - p1.topOffset);
+                    kcBtn.mousePressed(() => {
+                        game.handleButtonPress();
+                        kcBtn.elt.innerText = game.btnText;
+                    });
+                }
                 game.dealCards();
                 break;
         }

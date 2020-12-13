@@ -45,8 +45,8 @@ class Logger {
             strokeWeight(1);
             let redoText = `Available: ${this.redoPointer}`
             let textW = textWidth(redoText);
-            let textL = (textW / 2) + redoBtn.x + redoBtn.width;
-            let textT = redoBtn.y + 4;
+            let textL = (textW / 2) + redoBtn.x - 5;
+            let textT = redoBtn.y + redoBtn.height + 5;
             text(redoText, textL, textT);
             pop();
         }

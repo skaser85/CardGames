@@ -1,5 +1,5 @@
 class Deck {
-    constructor(x, y, width, height, cardWidth, cardHeight, deckColor, borderColor, fillColor) {
+    constructor(x, y, width, height, cardWidth, cardHeight, folder, deckColor, borderColor, fillColor) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -11,6 +11,7 @@ class Deck {
         this.cardWidth = cardWidth;
         this.cardHeight = cardHeight;
         this.deckColor = deckColor;
+        this.folder = folder;
         this.borderColor = borderColor;
         this.fillColor = fillColor;
         this.isActive = false;
@@ -19,12 +20,29 @@ class Deck {
         this.isEmpty = false;
         
         this.backColors = ["blue", "gray", "green", "purple", "red", "yellow"];
-        this.img = loadImage(`cards/two char/${this.deckColor}_back.png`);
+        this.img = loadImage(`cards/${this.folder}/${this.deckColor}_back.png`);
+    }
+
+    changeDeck(fldr) {
+        this.folder = fldr;
+        this.img = loadImage(`cards/${this.folder}/${this.deckColor}_back.png`, (dImg) => {
+            this.cardsInPlay.forEach(c => c.backImg = dImg);
+        });
+        if(this.cards) {
+            this.cards.forEach(c => {
+                loadImage(`cards/${this.folder}/${c.name}.png`, img => { c.img = img; });
+            });
+        }
+        if(this.cardsInPlay) {
+            this.cardsInPlay.forEach(c => {
+                loadImage(`cards/${this.folder}/${c.name}.png`, img => { c.img = img; });
+            })
+        }
     }
 
     changeDeckColor(c) {
         this.deckColor = c;
-        this.img = loadImage(`cards/two char/${this.deckColor}_back.png`, (img) => {
+        this.img = loadImage(`cards/${this.folder}/${this.deckColor}_back.png`, (img) => {
             this.cardsInPlay.forEach(c => c.backImg = img);
         });
     }

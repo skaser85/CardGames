@@ -11,15 +11,29 @@ let undoBtn;
 let redoBtn;
 let gameSel;
 let gameP;
+let deckColorSel;
+let deckColorP;
 let deckSel;
 let deckP;
 let colors = {};
+let decks = {
+    "original": {
+        folder: "two char",
+        backColors: ["blue", "gray", "green", "purple", "red", "yellow"]
+    },
+    "regular": {
+        folder: "regular",
+        backColors: ["blue", "red"]
+    }
+}
+let initialDeck = "regular"
+let globalDeck = decks[initialDeck];
 
 function preload() {
     suits.forEach(s => {
         for(let i = 1; i < 14; i++) {
-            let v = i > 10 || i === 1 ? honors[i] : i;
-            loadImage(`cards/two char/${v}${s}.png`, img => {
+            let v = i > 10 || i === 1 ? honors[i] : i
+            loadImage(`cards/${globalDeck.folder}/${v}${s}.png`, img => {
                 cards.push(new Card(`${v}${s}`, img, cW, cH, 0, 0));
             });
         }
@@ -106,26 +120,44 @@ function setup() {
         }
     });
 
-    // "blue", "gray", "green", "purple", "red", "yellow"
-
     deckP = createP("Select Deck");
-    // deckP.position(width / 2, height / 2);
     deckP.position(gameSel.x + gameSel.width * 5, - 5);
     deckP.style("color", "white");
     deckP.style("font-size", "18px");
     deckSel = createSelect()
     deckSel.style("padding", "2px");
     deckSel.position(gameSel.x + (gameSel.width * 5), restart.y + restart.height + 4);
-    deckSel.option("blue");
-    deckSel.option("gray");
-    deckSel.option("green");
-    deckSel.option("purple");
-    deckSel.option("red");
-    deckSel.option("yellow");
-    deckSel.selected("blue");
+    Object.keys(decks).forEach(d => deckSel.option(d));
+    deckSel.selected(initialDeck);
     deckSel.changed(() => {
+        globalDeck = decks[deckSel.value()];
+        deckColorSel.elt.options.length = 0;
+        for(let c of globalDeck.backColors) {
+            deckColorSel.option(c);
+        }
+        deckColorSel.selected(globalDeck.backColors[0]);
         if(game) {
-            game.deck.changeDeckColor(deckSel.value());
+            game.deck.changeDeck(globalDeck.folder);
+            game.deck.changeDeckColor(deckColorSel.value());
+        }
+    });
+
+    deckColorP = createP("Select Deck Color");
+    deckColorP.position(gameSel.x + gameSel.width * 9.5, - 5);
+    deckColorP.style("color", "white");
+    deckColorP.style("font-size", "18px");
+    deckColorSel = createSelect()
+    deckColorSel.style("padding", "2px");
+    deckColorSel.style("width", "75px");
+    deckColorSel.position(gameSel.x + (gameSel.width * 9.5), restart.y + restart.height + 4);
+    console.log(globalDeck);
+    for(let c of globalDeck.backColors) {
+        deckColorSel.option(c);
+    }
+    deckColorSel.selected(globalDeck.backColors[0]);
+    deckColorSel.changed(() => {
+        if(game) {
+            game.deck.changeDeckColor(deckColorSel.value());
         }
     });
 

@@ -56,7 +56,7 @@ class FreeCell {
             this.playAreas.push(area);
         }
 
-        this.deck = new Deck(0, 0, 0, 0, cardWidth, cardHeight, deckSel.value(), this.colors.salmon, this.colors.salmonA);
+        this.deck = new Deck(0, 0, 0, 0, cardWidth, cardHeight, globalDeck.folder, deckColorSel.value(), this.colors.salmon, this.colors.salmonA);
         this.deck.cards = [...cards];
         this.deck.cards.forEach(c => c.backShowing = false);
         this.deck.shuffle();

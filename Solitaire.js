@@ -40,7 +40,7 @@ class Solitaire {
             suitX += gutter + pileWidth;
         }
 
-        this.deck = new Deck(pileWidth / 2 + 50, 150, pileWidth, pileHeight, cardWidth, cardHeight, deckSel.value(), this.colors.salmon, this.colors.salmonA);
+        this.deck = new Deck(pileWidth / 2 + 50, 150, pileWidth, pileHeight, cardWidth, cardHeight, globalDeck.folder, deckColorSel.value(), this.colors.salmon, this.colors.salmonA);
         this.deck.cards = [...cards];
         this.deck.cards.forEach(c => c.backShowing = false);
         this.deck.shuffle();

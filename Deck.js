@@ -19,7 +19,14 @@ class Deck {
         this.isEmpty = false;
         
         this.backColors = ["blue", "gray", "green", "purple", "red", "yellow"];
-        this.img = loadImage(`cards/${this.deckColor}_back.png`);
+        this.img = loadImage(`cards/two char/${this.deckColor}_back.png`);
+    }
+
+    changeDeckColor(c) {
+        this.deckColor = c;
+        this.img = loadImage(`cards/two char/${this.deckColor}_back.png`, (img) => {
+            this.cardsInPlay.forEach(c => c.backImg = img);
+        });
     }
 
     shuffle() {

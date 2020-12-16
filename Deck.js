@@ -19,7 +19,7 @@ class Deck {
         this.cardsInPlay = [];
         this.isEmpty = false;
         this.drawType = globalDeck.isSprite ? "sprite" : "img";
-        this.img = null;
+        this.img = globalDeck.isSprite ? null : globalDeck.backs.find(b => b.name === deckColorSel.value()).img;
     }
 
     changeDeck(c) {

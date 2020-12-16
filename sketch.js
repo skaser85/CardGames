@@ -111,7 +111,7 @@ let decks = {
         isSprite: false,
         cards: []
     },
-    "test": {
+    "regular-sprite": {
         folder: "regular",
         backColors: ["blue", "red"],
         backs: [
@@ -304,10 +304,8 @@ let decks = {
         cards: []
     }
 }
-let initialDeck = "pixel";
+let initialDeck = "original";
 let globalDeck = decks[initialDeck];
-let testImg = {};
-let testCard;
 
 function loadImg(fldr, name) {
     return new Promise((resolve, reject) => {
@@ -493,17 +491,12 @@ async function setup() {
                 game.deck.changeDeckColor(deckColorSel.value());
             }
         });
-
-        // testCard = cards.find(c => c.name === "KH");
-        // testCard.setCoords(200, 200);
     }
 
 }
 
 function draw() {
     background(0, 100, 0);
-
-    if(testCard) testCard.draw();
 
     if(game) {
         game.update();

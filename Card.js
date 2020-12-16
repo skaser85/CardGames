@@ -1,11 +1,13 @@
 class Card {
-    constructor(name, img, width, height, x, y) {
+    constructor(name, img, width, height, x, y, spriteInfo, drawType) {
         this.name = name;
         this.img = img;
         this.width = width;
         this.height = height;
         this.x = x;
         this.y = y;
+        this.spriteInfo = spriteInfo || null;
+        this.drawType = drawType;
         this.rotateDeg = 0;
         this.isActive = false;
         this.isSelected = false;
@@ -18,8 +20,9 @@ class Card {
         this.bottom = 0;
         this.visible = false;
         this.backShowing = false;
-        this.updateDirs();
         this.backImg = null;
+        this.backColor = "";
+        this.updateDirs();
     }
 
     setRotation(deg) {
@@ -79,9 +82,20 @@ class Card {
         translate(this.x, this.y);
         rotate(this.rotateDeg);
         if(this.backShowing) {
-            image(this.backImg, 0, 0, this.width, this.height);
+            if(this.drawType === "sprite") {
+                let back = globalDeck.backs.find(b => b.name === this.backColor);
+                let backX = back.c * globalDeck.spriteInfo.w + globalDeck.spriteInfo.xPad;
+                let backY = back.r * globalDeck.spriteInfo.h + back.yPad;
+                image(globalDeck.spriteInfo.sprite, 0, 0, this.width, this.height, backX, backY, globalDeck.spriteInfo.w, globalDeck.spriteInfo.h);
+            } else {
+                image(this.backImg, 0, 0, this.width, this.height);
+            }
         } else {
-            image(this.img, 0, 0, this.width, this.height);
+            if(this.drawType === "sprite") {
+                image(this.spriteInfo.sprite, 0, 0, this.width, this.height, this.spriteInfo.x, this.spriteInfo.y, this.spriteInfo.w, this.spriteInfo.h);
+            } else {
+                image(this.img, 0, 0, this.width, this.height);
+            }
         }
         rect(0, 0, this.width, this.height);
         pop();

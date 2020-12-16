@@ -18,33 +18,52 @@ class Deck {
         this.cards = [];
         this.cardsInPlay = [];
         this.isEmpty = false;
+        this.drawType = globalDeck.isSprite ? "sprite" : "img";
         
         this.backColors = ["blue", "gray", "green", "purple", "red", "yellow"];
-        this.img = loadImage(`cards/${this.folder}/${this.deckColor}_back.png`);
+        this.img = null;
     }
 
-    changeDeck(fldr) {
-        this.folder = fldr;
-        this.img = loadImage(`cards/${this.folder}/${this.deckColor}_back.png`, (dImg) => {
-            this.cardsInPlay.forEach(c => c.backImg = dImg);
-        });
+    changeDeck(c) {
+        debugger;
+        this.folder = globalDeck.folder;
+        this.backColors = globalDeck.backColors;
+        this.drawType = globalDeck.isSprite ? "sprite" : "img";
+        this.deckColor = c;
         if(this.cards) {
-            this.cards.forEach(c => {
-                loadImage(`cards/${this.folder}/${c.name}.png`, img => { c.img = img; });
-            });
-        }
-        if(this.cardsInPlay) {
-            this.cardsInPlay.forEach(c => {
-                loadImage(`cards/${this.folder}/${c.name}.png`, img => { c.img = img; });
-            })
+            if(globalDeck.isSprite) {
+                this.cards.forEach(cd => {
+                    cd.backColor = this.deckColor;
+                    cd.drawType === "sprite"
+                });
+                this.cardsInPlay.forEach(cd => {
+                    cd.backColor = this.deckColor;
+                    cd.drawType === "sprite"
+                });
+            } else {
+                this.img = loadImage(`cards/${this.folder}/${this.deckColor}_back.png`, (dImg) => {
+                    this.cardsInPlay.forEach(cd => {
+                        cd.backImg = dImg;
+                        cd.drawType = "img";
+                    });
+                    this.cards.forEach(cd => {
+                        cd.img = dImg; 
+                        cd.drawType = "img";
+                    });
+                });
+            }
         }
     }
 
     changeDeckColor(c) {
         this.deckColor = c;
-        this.img = loadImage(`cards/${this.folder}/${this.deckColor}_back.png`, (img) => {
-            this.cardsInPlay.forEach(c => c.backImg = img);
-        });
+        if(globalDeck.isSprite) {
+            this.cardsInPlay.forEach(cd => cd.backColor = c);
+        } else {
+            this.img = loadImage(`cards/${this.folder}/${this.deckColor}_back.png`, (img) => {
+                this.cardsInPlay.forEach(cd => cd.backImg = img);
+            });
+        }
     }
 
     shuffle() {
@@ -61,6 +80,7 @@ class Deck {
         this.cards.splice(0, 1);
         c.visible = true;
         if(!c.backImg) c.backImg = this.img;
+        if(globalDeck.isSprite) c.backColor = this.deckColor;
         this.cardsInPlay.push(c);
         return(c)
     }
@@ -88,7 +108,21 @@ class Deck {
         translate(this.x, this.y)
         rect(0, 0, this.width, this.height);
         if(!this.isEmpty) {
-            image(this.img, 0, 0, this.cardWidth, this.cardHeight);
+            if(this.drawType === "sprite") {
+                let back = globalDeck.backs.find(b => b.name === this.deckColor);
+                let backX = back.c * globalDeck.spriteInfo.w + back.xPad;
+                let backY = back.r * globalDeck.spriteInfo.h + back.yPad;
+                image(globalDeck.spriteInfo.sprite, 0, 0, this.width, this.height, backX, backY, globalDeck.spriteInfo.w, globalDeck.spriteInfo.h);
+            } else {
+                if(!this.img) {
+                    loadImage(`cards/${this.folder}/${this.deckColor}_back.png`, img => {
+                        this.img = img;
+                        image(this.img, 0, 0, this.cardWidth, this.cardHeight);
+                    });
+                } else {
+                    image(this.img, 0, 0, this.cardWidth, this.cardHeight);
+                }
+            }
         }
         pop();
     }

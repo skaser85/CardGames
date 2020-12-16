@@ -1,0 +1,9 @@
+{
+    "name": "multicolored",
+	"folder": "multicolored",
+	"isSprite": false,
+	"backs": [
+		{ "name": "blue", "file": "blue_back.png"},
+		{ "name": "red", "file": "red_back.png"}
+	]
+}

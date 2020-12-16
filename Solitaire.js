@@ -23,7 +23,7 @@ class Solitaire {
         let pileWidth = cardWidth + 10;
         let pileHeight = cardHeight + 10;
         let spacing = (width / this.numPlayAreas);
-        if(spacing < cardWidth) alert(`Spacing requires cardWidth to be ${spacing}, but it is currently ${cardWidth}.  Please lower cardWidth to accomodate the number of piles you need.`);
+        if(spacing < cardWidth) alert(`Spacing requires cardWidth to be ${spacing}, but it is currently ${cardWidth}.  Please lower cardWidth to accommodate the number of piles you need.`);
         let paY = height / 3;
 
         for(let i = 0; i < this.numPlayAreas; i++) {

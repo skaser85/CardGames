@@ -1,0 +1,13 @@
+{
+    "name": "original",
+	"folder": "two char",
+	"isSprite": false,
+	"backs": [
+		{ "name": "blue", "file": "blue_back.png"},
+		{ "name": "gray", "file": "gray_back.png"},
+		{ "name": "green", "file": "green_back.png"},
+		{ "name": "purple", "file": "purple_back.png"},
+		{ "name": "red", "file": "red_back.png"},
+		{ "name": "yellow", "file": "yellow_back.png"}
+	]
+}

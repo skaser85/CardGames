@@ -1,0 +1,91 @@
+{
+	"name": "pixel",
+	"folder": "pixel",
+	"isSprite": true,
+	"spriteInfo": {
+		"name": "Pixel_Playing_Card_Set_YEWBI",
+		"cardW": 32,
+		"cardH": 48,
+		"startX": 32,
+		"startY": 32
+	},
+	"cardInfo": [
+		{"name": "AS", "r": 0, "c": 0},
+		{"name": "2S", "r": 1, "c": 0},
+		{"name": "3S", "r": 2, "c": 0},
+		{"name": "4S", "r": 0, "c": 4},
+		{"name": "5S", "r": 1, "c": 4},
+		{"name": "6S", "r": 2, "c": 4},
+		{"name": "7S", "r": 0, "c": 8},
+		{"name": "8S", "r": 1, "c": 8},
+		{"name": "9S", "r": 2, "c": 8},
+		{"name": "10S","r": 0, "c": 12},
+		{"name": "JS", "r": 1, "c": 12},
+		{"name": "QS", "r": 2, "c": 12},
+		{"name": "KS", "r": 0, "c": 16},
+
+		{"name": "AD", "r": 0, "c": 1},
+		{"name": "2D", "r": 1, "c": 1},
+		{"name": "3D", "r": 2, "c": 1},
+		{"name": "4D", "r": 0, "c": 5},
+		{"name": "5D", "r": 1, "c": 5},
+		{"name": "6D", "r": 2, "c": 5},
+		{"name": "7D", "r": 0, "c": 9},
+		{"name": "8D", "r": 1, "c": 9},
+		{"name": "9D", "r": 2, "c": 9},
+		{"name": "10D","r": 0, "c": 13},
+		{"name": "JD", "r": 1, "c": 13},
+		{"name": "QD", "r": 2, "c": 13},
+		{"name": "KD", "r": 0, "c": 17},
+
+		{"name": "AC", "r": 0, "c": 2 },
+		{"name": "2C", "r": 1, "c": 2 },
+		{"name": "3C", "r": 2, "c": 2 },
+		{"name": "4C", "r": 0, "c": 6 },
+		{"name": "5C", "r": 1, "c": 6 },
+		{"name": "6C", "r": 2, "c": 6 },
+		{"name": "7C", "r": 0, "c": 10 },
+		{"name": "8C", "r": 1, "c": 10 },
+		{"name": "9C", "r": 2, "c": 10 },
+		{"name": "10C","r": 0, "c": 14 },
+		{"name": "JC", "r": 1, "c": 14 },
+		{"name": "QC", "r": 2, "c": 14 },
+		{"name": "KC", "r": 0, "c": 18 },
+
+		{"name": "AH", "r": 0, "c": 3 },
+		{"name": "2H", "r": 1, "c": 3 },
+		{"name": "3H", "r": 2, "c": 3 },
+		{"name": "4H", "r": 0, "c": 7 },
+		{"name": "5H", "r": 1, "c": 7 },
+		{"name": "6H", "r": 2, "c": 7 },
+		{"name": "7H", "r": 0, "c": 11 },
+		{"name": "8H", "r": 1, "c": 11 },
+		{"name": "9H", "r": 2, "c": 11 },
+		{"name": "10H","r": 0, "c": 15 },
+		{"name": "JH", "r": 1, "c": 15 },
+		{"name": "QH", "r": 2, "c": 15 },
+		{"name": "KH", "r": 0, "c": 19 }
+	],
+	"backs": [
+		{
+			"name": "pink-dotted",
+			"r": 4,
+			"c": 0
+		},
+		{
+			"name": "silver-dotted",
+			"r": 4,
+			"c": 1
+		},
+		{
+			"name": "silver-solid",
+			"r": 4,
+			"c": 2
+		},
+		{
+			"name": "red",
+			"r": 4,
+			"c": 3
+		}
+	]
+}

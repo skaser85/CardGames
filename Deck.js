@@ -19,37 +19,39 @@ class Deck {
         this.cardsInPlay = [];
         this.isEmpty = false;
         this.drawType = globalDeck.isSprite ? "sprite" : "img";
-        
-        this.backColors = ["blue", "gray", "green", "purple", "red", "yellow"];
         this.img = null;
     }
 
     changeDeck(c) {
-        debugger;
         this.folder = globalDeck.folder;
         this.backColors = globalDeck.backColors;
         this.drawType = globalDeck.isSprite ? "sprite" : "img";
+        this.img = globalDeck.backs.find(b => b.name === c).img;
         this.deckColor = c;
         if(this.cards) {
             if(globalDeck.isSprite) {
                 this.cards.forEach(cd => {
                     cd.backColor = this.deckColor;
-                    cd.drawType === "sprite"
+                    cd.drawType = "sprite"
+                    cd.spriteInfo = globalDeck.cardInfo[cd.name].spriteInfo;
                 });
                 this.cardsInPlay.forEach(cd => {
                     cd.backColor = this.deckColor;
-                    cd.drawType === "sprite"
+                    cd.drawType = "sprite"
+                    cd.spriteInfo = globalDeck.cardInfo[cd.name].spriteInfo;
                 });
             } else {
-                this.img = loadImage(`cards/${this.folder}/${this.deckColor}_back.png`, (dImg) => {
-                    this.cardsInPlay.forEach(cd => {
-                        cd.backImg = dImg;
-                        cd.drawType = "img";
-                    });
-                    this.cards.forEach(cd => {
-                        cd.img = dImg; 
-                        cd.drawType = "img";
-                    });
+                this.cardsInPlay.forEach(cd => {
+                    cd.backImg = this.img;
+                    cd.drawType = "img";
+                    cd.spriteInfo = null;
+                    cd.img = globalDeck.cards.find(t => t.name === cd.name).img;
+                });
+                this.cards.forEach(cd => {
+                    cd.backImg = this.img;
+                    cd.drawType = "img";
+                    cd.spriteInfo = null;
+                    cd.img = globalDeck.cards.find(t => t.name === cd.name).img;
                 });
             }
         }
@@ -57,12 +59,11 @@ class Deck {
 
     changeDeckColor(c) {
         this.deckColor = c;
+        this.img = globalDeck.backs.find(b => b.name === c).img;
         if(globalDeck.isSprite) {
             this.cardsInPlay.forEach(cd => cd.backColor = c);
         } else {
-            this.img = loadImage(`cards/${this.folder}/${this.deckColor}_back.png`, (img) => {
-                this.cardsInPlay.forEach(cd => cd.backImg = img);
-            });
+            this.cardsInPlay.forEach(cd => cd.backImg = this.img);
         }
     }
 

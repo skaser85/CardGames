@@ -20,17 +20,96 @@ let decks = {
     "original": {
         folder: "two char",
         backColors: ["blue", "gray", "green", "purple", "red", "yellow"],
-        isSprite: false
+        backs: [
+            {
+                name: "blue",
+                r: 0,
+                c: 0,
+                xPad: 0,
+                yPad: 0
+            },
+            {
+                name: "gray",
+                r: 0,
+                c: 0,
+                xPad: 0,
+                yPad: 0
+            },
+            {
+                name: "green",
+                r: 0,
+                c: 0,
+                xPad: 0,
+                yPad: 0
+            },
+            {
+                name: "purple",
+                r: 0,
+                c: 0,
+                xPad: 0,
+                yPad: 0
+            },
+            {
+                name: "red",
+                r: 0,
+                c: 0,
+                xPad: 0,
+                yPad: 0
+            },
+            {
+                name: "yellow",
+                r: 0,
+                c: 0,
+                xPad: 0,
+                yPad: 0
+            }
+        ],
+        isSprite: false,
+        cards: []
     },
-    // "regular": {
-    //     folder: "regular",
-    //     backColors: ["blue", "red"],
-    //     isSprite: false
-    // },
+    "regular": {
+        folder: "regular",
+        backColors: ["blue", "red"],
+        backs: [
+            {
+                name: "blue",
+                r: 0,
+                c: 0,
+                xPad: 0,
+                yPad: 0
+            },
+            {
+                name: "red",
+                r: 0,
+                c: 0,
+                xPad: 0,
+                yPad: 0
+            },
+        ],
+        isSprite: false,
+        cards: []
+    },
     "multicolored": {
         folder: "multicolored",
         backColors: ["blue", "red"],
-        isSprite: false
+        backs: [
+            {
+                name: "blue",
+                r: 0,
+                c: 0,
+                xPad: 0,
+                yPad: 0
+            },
+            {
+                name: "red",
+                r: 0,
+                c: 0,
+                xPad: 0,
+                yPad: 0
+            },
+        ],
+        isSprite: false,
+        cards: []
     },
     "test": {
         folder: "regular",
@@ -62,6 +141,64 @@ let decks = {
             xPad: 0,
             yPad: 0
         },
+        cardInfo: {
+            "AC":  { r: 0, c: 0, spriteInfo: null },
+            "2C":  { r: 0, c: 1, spriteInfo: null },
+            "3C":  { r: 0, c: 2, spriteInfo: null },
+            "4C":  { r: 0, c: 3, spriteInfo: null },
+            "5C":  { r: 0, c: 4, spriteInfo: null },
+            "6C":  { r: 0, c: 5, spriteInfo: null },
+            "7C":  { r: 0, c: 6, spriteInfo: null },
+            "8C":  { r: 0, c: 7, spriteInfo: null },
+            "9C":  { r: 0, c: 8, spriteInfo: null },
+            "10C": { r: 0, c: 9, spriteInfo: null },
+            "JC":  { r: 0, c: 10, spriteInfo: null },
+            "QC":  { r: 0, c: 11, spriteInfo: null },
+            "KC":  { r: 0, c: 12, spriteInfo: null },
+
+            "AD":  { r: 1, c: 0, spriteInfo: null },
+            "2D":  { r: 1, c: 1, spriteInfo: null },
+            "3D":  { r: 1, c: 2, spriteInfo: null },
+            "4D":  { r: 1, c: 3, spriteInfo: null },
+            "5D":  { r: 1, c: 4, spriteInfo: null },
+            "6D":  { r: 1, c: 5, spriteInfo: null },
+            "7D":  { r: 1, c: 6, spriteInfo: null },
+            "8D":  { r: 1, c: 7, spriteInfo: null },
+            "9D":  { r: 1, c: 8, spriteInfo: null },
+            "10D": { r: 1, c: 9, spriteInfo: null },
+            "JD":  { r: 1, c: 10, spriteInfo: null },
+            "QD":  { r: 1, c: 11, spriteInfo: null },
+            "KD":  { r: 1, c: 12, spriteInfo: null },
+
+            "AH":  { r: 2, c: 0, spriteInfo: null },
+            "2H":  { r: 2, c: 1, spriteInfo: null },
+            "3H":  { r: 2, c: 2, spriteInfo: null },
+            "4H":  { r: 2, c: 3, spriteInfo: null },
+            "5H":  { r: 2, c: 4, spriteInfo: null },
+            "6H":  { r: 2, c: 5, spriteInfo: null },
+            "7H":  { r: 2, c: 6, spriteInfo: null },
+            "8H":  { r: 2, c: 7, spriteInfo: null },
+            "9H":  { r: 2, c: 8, spriteInfo: null },
+            "10H": { r: 2, c: 9, spriteInfo: null },
+            "JH":  { r: 2, c: 10, spriteInfo: null },
+            "QH":  { r: 2, c: 11, spriteInfo: null },
+            "KH":  { r: 2, c: 12, spriteInfo: null },
+
+            "AS":  { r: 3, c: 0, spriteInfo: null },
+            "2S":  { r: 3, c: 1, spriteInfo: null },
+            "3S":  { r: 3, c: 2, spriteInfo: null },
+            "4S":  { r: 3, c: 3, spriteInfo: null },
+            "5S":  { r: 3, c: 4, spriteInfo: null },
+            "6S":  { r: 3, c: 5, spriteInfo: null },
+            "7S":  { r: 3, c: 6, spriteInfo: null },
+            "8S":  { r: 3, c: 7, spriteInfo: null },
+            "9S":  { r: 3, c: 8, spriteInfo: null },
+            "10S": { r: 3, c: 9, spriteInfo: null },
+            "JS":  { r: 3, c: 10, spriteInfo: null },
+            "QS":  { r: 3, c: 11, spriteInfo: null },
+            "KS":  { r: 3, c: 12, spriteInfo: null },
+        },
+        cards: []
     },
     "pixel": {
         folder: "pixel",
@@ -107,6 +244,64 @@ let decks = {
             xPad: 32,
             yPad: 32
         },
+        cardInfo: {
+            "AS":  { r: 0, c: 0, spriteInfo: null},
+            "2S":  { r: 1, c: 0, spriteInfo: null},
+            "3S":  { r: 2, c: 0, spriteInfo: null},
+            "4S":  { r: 0, c: 4, spriteInfo: null},
+            "5S":  { r: 1, c: 4, spriteInfo: null},
+            "6S":  { r: 2, c: 4, spriteInfo: null},
+            "7S":  { r: 0, c: 8, spriteInfo: null},
+            "8S":  { r: 1, c: 8, spriteInfo: null},
+            "9S":  { r: 2, c: 8, spriteInfo: null},
+            "10S": { r: 0, c: 12, spriteInfo: null},
+            "JS":  { r: 1, c: 12, spriteInfo: null},
+            "QS":  { r: 2, c: 12, spriteInfo: null},
+            "KS":  { r: 0, c: 16, spriteInfo: null},
+
+            "AD":  { r: 0, c: 1, spriteInfo: null },
+            "2D":  { r: 1, c: 1, spriteInfo: null },
+            "3D":  { r: 2, c: 1, spriteInfo: null },
+            "4D":  { r: 0, c: 5, spriteInfo: null },
+            "5D":  { r: 1, c: 5, spriteInfo: null },
+            "6D":  { r: 2, c: 5, spriteInfo: null },
+            "7D":  { r: 0, c: 9, spriteInfo: null },
+            "8D":  { r: 1, c: 9, spriteInfo: null },
+            "9D":  { r: 2, c: 9, spriteInfo: null },
+            "10D": { r: 0, c: 13, spriteInfo: null },
+            "JD":  { r: 1, c: 13, spriteInfo: null },
+            "QD":  { r: 2, c: 13, spriteInfo: null },
+            "KD":  { r: 0, c: 17, spriteInfo: null },
+
+            "AC":  { r: 0, c: 2, spriteInfo: null },
+            "2C":  { r: 1, c: 2, spriteInfo: null },
+            "3C":  { r: 2, c: 2, spriteInfo: null },
+            "4C":  { r: 0, c: 6, spriteInfo: null },
+            "5C":  { r: 1, c: 6, spriteInfo: null },
+            "6C":  { r: 2, c: 6, spriteInfo: null },
+            "7C":  { r: 0, c: 10, spriteInfo: null },
+            "8C":  { r: 1, c: 10, spriteInfo: null },
+            "9C":  { r: 2, c: 10, spriteInfo: null },
+            "10C": { r: 0, c: 14, spriteInfo: null },
+            "JC":  { r: 1, c: 14, spriteInfo: null },
+            "QC":  { r: 2, c: 14, spriteInfo: null },
+            "KC":  { r: 0, c: 18, spriteInfo: null },
+
+            "AH":  { r: 0, c: 3, spriteInfo: null },
+            "2H":  { r: 1, c: 3, spriteInfo: null },
+            "3H":  { r: 2, c: 3, spriteInfo: null },
+            "4H":  { r: 0, c: 7, spriteInfo: null },
+            "5H":  { r: 1, c: 7, spriteInfo: null },
+            "6H":  { r: 2, c: 7, spriteInfo: null },
+            "7H":  { r: 0, c: 11, spriteInfo: null },
+            "8H":  { r: 1, c: 11, spriteInfo: null },
+            "9H":  { r: 2, c: 11, spriteInfo: null },
+            "10H": { r: 0, c: 15, spriteInfo: null },
+            "JH":  { r: 1, c: 15, spriteInfo: null },
+            "QH":  { r: 2, c: 15, spriteInfo: null },
+            "KH":  { r: 0, c: 19, spriteInfo: null },
+        },
+        cards: []
     }
 }
 let initialDeck = "pixel";
@@ -114,7 +309,7 @@ let globalDeck = decks[initialDeck];
 let testImg = {};
 let testCard;
 
-function loadSprite(fldr, name) {
+function loadImg(fldr, name) {
     return new Promise((resolve, reject) => {
         loadImage(`cards/${fldr}/${name}.png`, img => {
             resolve(img)
@@ -124,172 +319,62 @@ function loadSprite(fldr, name) {
 
 async function loadAssets() {
     return new Promise(async (resolve, reject) => {
-        let spriteInfo;
-        let spriteSheet;
-        if(!globalDeck.isSprite) {
-            spriteInfo = {
-                sprite: "",
-                x: 0,
-                y: 0,
-                w: 0,
-                h: 0
-            }
-        } else {
-            spriteSheet = await loadSprite(globalDeck.folder, globalDeck.spriteInfo.name);
-            globalDeck.spriteInfo.sprite = spriteSheet;
-            spriteInfo = {
-                sprite: spriteSheet,
-                x: globalDeck.spriteInfo.x,
-                y: globalDeck.spriteInfo.y,
-                w: globalDeck.spriteInfo.w,
-                h: globalDeck.spriteInfo.h
-            }
-        }
-        Object.keys(decks).forEach(async dk => {
-            let d = decks[dk];
+        for(let i = 0; i < Object.keys(decks).length; i++) {
+            let d = decks[Object.keys(decks)[i]];
             if(d.isSprite) {
-                d.spriteInfo.sprite = await loadSprite(d.folder, d.spriteInfo.name);
+                d.spriteInfo.sprite = await loadImg(d.folder, d.spriteInfo.name);
+            } else {
+                for(let k = 0; k < d.backs.length; k++) {
+                    d.backs[k].img = await loadImg(d.folder, `${d.backs[k].name}_back`);
+                }
             }
-        });
-        if(globalDeck.folder === "pixel") {
-            await getPixelCards(spriteSheet);
-        } else {
-            await getCards(spriteSheet, spriteInfo);
         }
+        await getCards();
         resolve(true);
     });
 }
 
-function getCards(spriteSheet, spriteInfo) {
-    return new Promise((resolve, reject) => {
-        suits.forEach((s, sIdx) => {
-            for(let i = 1; i < 14; i++) {
-                let v = i > 10 || i === 1 ? honors[i] : i
-                if(globalDeck.isSprite) {
-                    let sp = {
-                        sprite: spriteSheet,
-                        x: (i - 1) * globalDeck.spriteInfo.w + globalDeck.spriteInfo.xPad,
-                        y: sIdx * globalDeck.spriteInfo.h + globalDeck.spriteInfo.yPad,
-                        w: globalDeck.spriteInfo.w,
-                        h: globalDeck.spriteInfo.h
+function getCards() {
+    return new Promise(async (resolve, reject) => {
+        for(let d = 0; d < Object.keys(decks).length; d++) {
+            let dk = decks[Object.keys(decks)[d]];
+            for(let s = 0; s < suits.length; s++) {
+                let su = suits[s];
+                for(let i = 1; i < 14; i++) {
+                    let v = i > 10 || i === 1 ? honors[i] : i;
+                    let c = `${v}${su}`;
+                    if(dk.isSprite) {
+                        let p = dk.cardInfo[c];
+                        let sp = {
+                            sprite: dk.spriteInfo.sprite,
+                            x: p.c * dk.spriteInfo.w + dk.spriteInfo.xPad,
+                            y: p.r * dk.spriteInfo.h + dk.spriteInfo.yPad,
+                            w: dk.spriteInfo.w,
+                            h: dk.spriteInfo.h
+                        }
+                        p.spriteInfo = sp;
+                        dk.cards.push(new Card(c, null, cW, cH, 0, 0, sp, "sprite"));
+                    } else {
+                        let cImg = await loadImg(dk.folder, c);
+                        dk.cards.push(new Card(`${c}`, cImg, cW, cH, 0, 0, null, "img"));
                     }
-                    cards.push(new Card(`${v}${s}`, null, cW, cH, 0, 0, sp, "sprite"));
-                } else {
-                    loadImage(`cards/${globalDeck.folder}/${v}${s}.png`, img => {
-                        cards.push(new Card(`${v}${s}`, img, cW, cH, 0, 0, spriteInfo, "img"));
-                    });
                 }
-            }
-            if(sIdx === suits.length - 1) resolve(true);
-        });
-    });
-}
-
-async function getPixelCards(spriteSheet) {
-    return new Promise((resolve, reject) => {
-        let px = {
-            "AS":  { r: 0, c: 0  },
-            "2S":  { r: 1, c: 0  },
-            "3S":  { r: 2, c: 0  },
-            "4S":  { r: 0, c: 4  },
-            "5S":  { r: 1, c: 4  },
-            "6S":  { r: 2, c: 4  },
-            "7S":  { r: 0, c: 8  },
-            "8S":  { r: 1, c: 8  },
-            "9S":  { r: 2, c: 8  },
-            "10S": { r: 0, c: 12 },
-            "JS":  { r: 1, c: 12 },
-            "QS":  { r: 2, c: 12 },
-            "KS":  { r: 0, c: 16 },
-
-            "AD":  { r: 0, c: 1  },
-            "2D":  { r: 1, c: 1  },
-            "3D":  { r: 2, c: 1  },
-            "4D":  { r: 0, c: 5  },
-            "5D":  { r: 1, c: 5  },
-            "6D":  { r: 2, c: 5  },
-            "7D":  { r: 0, c: 9  },
-            "8D":  { r: 1, c: 9  },
-            "9D":  { r: 2, c: 9  },
-            "10D": { r: 0, c: 13 },
-            "JD":  { r: 1, c: 13 },
-            "QD":  { r: 2, c: 13 },
-            "KD":  { r: 0, c: 17 },
-
-            "AC":  { r: 0, c: 2  },
-            "2C":  { r: 1, c: 2  },
-            "3C":  { r: 2, c: 2  },
-            "4C":  { r: 0, c: 6  },
-            "5C":  { r: 1, c: 6  },
-            "6C":  { r: 2, c: 6  },
-            "7C":  { r: 0, c: 10 },
-            "8C":  { r: 1, c: 10 },
-            "9C":  { r: 2, c: 10 },
-            "10C": { r: 0, c: 14 },
-            "JC":  { r: 1, c: 14 },
-            "QC":  { r: 2, c: 14 },
-            "KC":  { r: 0, c: 18 },
-
-            "AH":  { r: 0, c: 3  },
-            "2H":  { r: 1, c: 3  },
-            "3H":  { r: 2, c: 3  },
-            "4H":  { r: 0, c: 7  },
-            "5H":  { r: 1, c: 7  },
-            "6H":  { r: 2, c: 7  },
-            "7H":  { r: 0, c: 11 },
-            "8H":  { r: 1, c: 11 },
-            "9H":  { r: 2, c: 11 },
-            "10H": { r: 0, c: 15 },
-            "JH":  { r: 1, c: 15 },
-            "QH":  { r: 2, c: 15 },
-            "KH":  { r: 0, c: 19 },
+            };
         };
-        
-        let pxBacks = [
-            {
-                name: "pink-dotted",
-                r: 5,
-                c: 0
-            },
-            {
-                name: "silver-dotted",
-                r: 5,
-                c: 1
-            },
-            {
-                name: "silver-solid",
-                r: 5,
-                c: 2
-            },
-            {
-                name: "red",
-                r: 5,
-                c: 3
-            },
-        ];
-        suits.forEach((s, sIdx) => {
-            for(let i = 1; i < 14; i++) {
-                let v = i > 10 || i === 1 ? honors[i] : i;
-                let c = `${v}${s}`;
-                let p = px[Object.keys(px).find(it => it === c)];
-                let sp = {
-                    sprite: spriteSheet,
-                    x: p.c * globalDeck.spriteInfo.w + globalDeck.spriteInfo.xPad,
-                    y: p.r * globalDeck.spriteInfo.h + globalDeck.spriteInfo.yPad,
-                    w: globalDeck.spriteInfo.w,
-                    h: globalDeck.spriteInfo.h
-                }
-                cards.push(new Card(c, null, cW, cH, 0, 0, sp, "sprite"));
-            }
-            if(sIdx === suits.length - 1) resolve(true);
-        });
+        resolve(true);
     });
 }
 
 async function setup() {
+    let t = createP("Loading assets . . . Please hold . . . ");
+    t.position(100, 100);
+    t.style("font-size", "64px");
+    t.style("color", "black");
+    
     let assetsLoaded = await loadAssets();
 
     if(assetsLoaded) {
+        t.elt.remove();
         createCanvas(1200, 960);
         rectMode(CENTER);
         imageMode(CENTER);
@@ -310,7 +395,7 @@ async function setup() {
         restart = createButton("Restart Game");
         restart.position(15, 15);
         restart.mousePressed(() => {
-            game.restartGame(cards);
+            game.restartGame(globalDeck.cards);
         });
 
         undoBtn = createButton("Undo");
@@ -345,16 +430,16 @@ async function setup() {
                     break;
                 case "Solitaire":
                     if(kcBtn) kcBtn = null;
-                    game = new Solitaire(7, cW, cH, cards, colors, logger);
+                    game = new Solitaire(7, cW, cH, globalDeck.cards, colors, logger);
                     game.dealCards();
                     break;
                 case "FreeCell":
                     if(kcBtn) kcBtn = null;
-                    game = new FreeCell(cW, cH, cards, colors, logger);
+                    game = new FreeCell(cW, cH, globalDeck.cards, colors, logger);
                     game.dealCards();
                     break;
                 case "Kings Corner":
-                    game = new KC(4, cW, cH, cards, colors, logger);
+                    game = new KC(4, cW, cH, globalDeck.cards, colors, logger);
                     if(!kcBtn) {
                         kcBtn = createButton(game.btnText);
                         let p1 = game.players[0];

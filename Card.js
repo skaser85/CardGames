@@ -84,7 +84,7 @@ class Card {
         if(this.backShowing) {
             if(this.drawType === "sprite") {
                 let back = globalDeck.backs.find(b => b.name === this.backColor);
-                let backX = back.c * globalDeck.spriteInfo.w + globalDeck.spriteInfo.xPad;
+                let backX = back.c * globalDeck.spriteInfo.w + back.xPad;
                 let backY = back.r * globalDeck.spriteInfo.h + back.yPad;
                 image(globalDeck.spriteInfo.sprite, 0, 0, this.width, this.height, backX, backY, globalDeck.spriteInfo.w, globalDeck.spriteInfo.h);
             } else {

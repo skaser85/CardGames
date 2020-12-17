@@ -2,6 +2,7 @@
 	"name": "pixel",
 	"folder": "pixel",
 	"isSprite": true,
+	"cardFileFormat": ".png",
 	"spriteInfo": {
 		"name": "Pixel_Playing_Card_Set_YEWBI",
 		"cardW": 32,

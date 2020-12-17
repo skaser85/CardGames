@@ -2,6 +2,7 @@
     "name": "regular-sprite",
 	"folder": "regular",
 	"isSprite": true,
+	"cardFileFormat": ".png",
 	"spriteInfo": {
 		"name": "sprite",
 		"cardW": 75,

@@ -34,74 +34,69 @@ function loadDecks() {
         for(let i = 0; i < deckJSON.length; i++) {
             let d = await loadDeck(deckJSON[i]);
             decks.push(d);
+            await loadAssets(d);
         }
-        resolve();
+        resolve(true);
     });
 }
 
-function loadImg(fldr, name) {
+function loadImg(fldr, file) {
     return new Promise((resolve, reject) => {
-        loadImage(`cards/${fldr}/${name}.png`, img => {
+        loadImage(`cards/${fldr}/${file}`, img => {
             resolve(img)
         });
     });
 }
 
-async function loadAssets() {
+async function loadAssets(d) {
     return new Promise(async (resolve, reject) => {
-        for(let i = 0; i < decks.length; i++) {
-            let d = decks[i];
-            if(d.isSprite) {
-                d.spriteInfo.sprite = await loadImg(d.folder, d.spriteInfo.name);
-            } else {
-                for(let k = 0; k < d.backs.length; k++) {
-                    d.backs[k].img = await loadImg(d.folder, `${d.backs[k].name}_back`);
-                }
+        if(d.isSprite) {
+            d.spriteInfo.sprite = await loadImg(d.folder, `${d.spriteInfo.name}${d.cardFileFormat}`);
+        } else {
+            for(let k = 0; k < d.backs.length; k++) {
+                d.backs[k].img = await loadImg(d.folder, `${d.backs[k].file}${d.cardFileFormat}`);
             }
         }
-        await getCards();
+        await getCards(d);
         resolve(true);
     });
 }
 
-function getCards() {
+function getCards(d) {
     return new Promise(async (resolve, reject) => {
-        for(let d = 0; d < decks.length; d++) {
-            let dk = decks[d];
-            if(!dk.cards) dk.cards = [];
-            for(let s = 0; s < suits.length; s++) {
-                let su = suits[s];
-                for(let i = 1; i < 14; i++) {
-                    let v = i > 10 || i === 1 ? honors[i] : i;
-                    let c = `${v}${su}`;
-                    if(dk.isSprite) {
-                        let p = dk.cardInfo.find(t => t.name === c);
-                        let sp = {
-                            sprite: dk.spriteInfo.sprite,
-                            x: p.c * dk.spriteInfo.cardW + dk.spriteInfo.startX,
-                            y: p.r * dk.spriteInfo.cardH + dk.spriteInfo.startY,
-                            w: dk.spriteInfo.cardW,
-                            h: dk.spriteInfo.cardH
-                        }
-                        p.spriteInfo = sp;
-                        dk.cards.push(new Card(c, null, cW, cH, 0, 0, sp, "sprite"));
-                        for(let b = 0; b < dk.backs.length; b++) {
-                            let bk = dk.backs[b];
-                            let sp = {
-                                sprite: dk.spriteInfo.sprite,
-                                x: bk.c * dk.spriteInfo.cardW + dk.spriteInfo.startX,
-                                y: bk.r * dk.spriteInfo.cardH + dk.spriteInfo.startY,
-                                w: dk.spriteInfo.cardW,
-                                h: dk.spriteInfo.cardH
-                            }
-                            bk.spriteInfo = sp;
-                        }
-                    } else {
-                        let cImg = await loadImg(dk.folder, c);
-                        dk.cards.push(new Card(`${c}`, cImg, cW, cH, 0, 0, null, "img"));
+        if(!d.cards) d.cards = [];
+        for(let s = 0; s < suits.length; s++) {
+            let su = suits[s];
+            for(let i = 1; i < 14; i++) {
+                let v = i > 10 || i === 1 ? honors[i] : i;
+                let c = `${v}${su}`;
+                if(d.isSprite) {
+                    let p = d.cardInfo.find(t => t.name === c);
+                    let sp = {
+                        sprite: d.spriteInfo.sprite,
+                        x: p.c * d.spriteInfo.cardW + d.spriteInfo.startX,
+                        y: p.r * d.spriteInfo.cardH + d.spriteInfo.startY,
+                        w: d.spriteInfo.cardW,
+                        h: d.spriteInfo.cardH
                     }
+                    p.spriteInfo = sp;
+                    d.cards.push(new Card(c, null, cW, cH, 0, 0, sp, "sprite"));
+                    for(let b = 0; b < d.backs.length; b++) {
+                        let bk = d.backs[b];
+                        let sp = {
+                            sprite: d.spriteInfo.sprite,
+                            x: bk.c * d.spriteInfo.cardW + d.spriteInfo.startX,
+                            y: bk.r * d.spriteInfo.cardH + d.spriteInfo.startY,
+                            w: d.spriteInfo.cardW,
+                            h: d.spriteInfo.cardH
+                        }
+                        bk.spriteInfo = sp;
+                    }
+                } else {
+                    let cImg = await loadImg(d.folder, `${c}${d.cardFileFormat}`);
+                    d.cards.push(new Card(`${c}`, cImg, cW, cH, 0, 0, null, "img"));
                 }
-            };
+            }
         };
         resolve(true);
     });
@@ -115,9 +110,8 @@ async function setup() {
     t.position(100, 100);
     t.style("font-size", "64px");
     t.style("color", "black");
-    
-    await loadDecks();
-    let assetsLoaded = await loadAssets();
+
+    let assetsLoaded = await loadDecks();
     globalDeck = decks[0];
 
     if(assetsLoaded) {

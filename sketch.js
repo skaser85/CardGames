@@ -173,15 +173,15 @@ async function setup() {
             switch(gameSel.value()) {
                 case "":
                     game = null;
-                    if(kcBtn) kcBtn = null;
+                    if(kcBtn) kcBtn.elt.hidden = true;
                     break;
                 case "Solitaire":
-                    if(kcBtn) kcBtn = null;
+                    if(kcBtn) kcBtn.elt.hidden = true;
                     game = new Solitaire(7, cW, cH, globalDeck.cards, colors, logger);
                     game.dealCards();
                     break;
                 case "FreeCell":
-                    if(kcBtn) kcBtn = null;
+                    if(kcBtn) kcBtn.elt.hidden = true;
                     game = new FreeCell(cW, cH, globalDeck.cards, colors, logger);
                     game.dealCards();
                     break;
@@ -196,6 +196,7 @@ async function setup() {
                             kcBtn.elt.innerText = game.btnText;
                         });
                     }
+                    if(kcBtn.elt.hidden) kcBtn.elt.hidden = false;
                     game.dealCards();
                     break;
             }

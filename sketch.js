@@ -79,20 +79,22 @@ function getCards(d) {
                     }
                     p.spriteInfo = sp;
                     d.cards.push(new Card(c, null, cW, cH, 0, 0, sp, "sprite"));
-                    for(let b = 0; b < d.backs.length; b++) {
-                        let bk = d.backs[b];
-                        let sp = {
-                            sprite: d.spriteInfo.sprite,
-                            x: bk.c * d.spriteInfo.cardW + d.spriteInfo.startX,
-                            y: bk.r * d.spriteInfo.cardH + d.spriteInfo.startY,
-                            w: d.spriteInfo.cardW,
-                            h: d.spriteInfo.cardH
-                        }
-                        bk.spriteInfo = sp;
-                    }
                 } else {
                     let cImg = await loadImg(d.folder, `${c}${d.cardFileFormat}`);
                     d.cards.push(new Card(`${c}`, cImg, cW, cH, 0, 0, null, "img"));
+                }
+            }
+            if(d.isSprite) {
+                for(let b = 0; b < d.backs.length; b++) {
+                    let bk = d.backs[b];
+                    let sp = {
+                        sprite: d.spriteInfo.sprite,
+                        x: bk.c * d.spriteInfo.cardW + d.spriteInfo.startX,
+                        y: bk.r * d.spriteInfo.cardH + d.spriteInfo.startY,
+                        w: d.spriteInfo.cardW,
+                        h: d.spriteInfo.cardH
+                    }
+                    bk.spriteInfo = sp;
                 }
             }
         };

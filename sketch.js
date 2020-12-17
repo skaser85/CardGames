@@ -46,7 +46,7 @@ function loadImg(fldr, file) {
     });
 }
 
-async function loadAssets(d) {
+function loadAssets(d) {
     return new Promise(async (resolve, reject) => {
         if(d.isSprite) {
             d.spriteInfo.sprite = await loadImg(d.folder, `${d.spriteInfo.name}${d.cardFileFormat}`);

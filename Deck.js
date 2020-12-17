@@ -1,5 +1,5 @@
 class Deck {
-    constructor(x, y, width, height, cardWidth, cardHeight, folder, deckColor, borderColor, fillColor) {
+    constructor(x, y, width, height, cardWidth, cardHeight, deckColor, borderColor, fillColor) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -11,7 +11,6 @@ class Deck {
         this.cardWidth = cardWidth;
         this.cardHeight = cardHeight;
         this.deckColor = deckColor;
-        this.folder = folder;
         this.borderColor = borderColor;
         this.fillColor = fillColor;
         this.isActive = false;
@@ -24,7 +23,6 @@ class Deck {
     }
 
     changeDeck(c) {
-        this.folder = globalDeck.folder;
         this.backColors = globalDeck.backColors;
         this.drawType = globalDeck.isSprite ? "sprite" : "img";
         this.spriteInfo = globalDeck.isSprite ? globalDeck.backs.find(b => b.name === c).spriteInfo : null;

@@ -4,7 +4,6 @@ let cH = 130;
 let game;
 let suits = ["C", "D", "H", "S"];
 let honors = {1: "A", 11: "J", 12: "Q", 13: "K"};
-let cards = [];
 let kcBtn;
 let restart;
 let logger;

@@ -40,7 +40,7 @@ class KC {
         );
 
         // setup deck
-        this.deck = new Deck(width / 2, height / 2 - pileHeight / 2, pileWidth, pileHeight, cardWidth, cardHeight, globalDeck.folder, deckColorSel.value(), this.colors.salmon, this.colors.salmonA);
+        this.deck = new Deck(width / 2, height / 2 - pileHeight / 2, pileWidth, pileHeight, cardWidth, cardHeight, deckColorSel.value(), this.colors.salmon, this.colors.salmonA);
         this.deck.cards = [...cards];
         this.deck.cards.forEach(c => c.backShowing = false);
         this.deck.shuffle();
@@ -54,7 +54,7 @@ class KC {
 
         this.curPlayer = this.players[0];
 
-        this.logger.addTo({ type: "game started" });
+        this.logger.addTo({ type: Logger.type.gameStarted });
     }
 
     undo() {
@@ -62,11 +62,11 @@ class KC {
             this.message.set(Message.type.error, "Cannot undo past start of game.");
             return;
         }
-        if(this.logger.log[this.logger.log.length - 1].type === "game restarted") {
+        if(this.logger.log[this.logger.log.length - 1].type === Logger.type.gameRestarted) {
             this.message.set(Message.type.error, "Cannot undo past the restart of a game.");
             return;
         }
-        if(this.logger.log[this.logger.log.length - 1].type === "game won") {
+        if(this.logger.log[this.logger.log.length - 1].type === Logger.type.gameWon) {
             this.message.set(Message.type.error, "Cannot undo once the game has been won.");
             return;
         }
@@ -212,7 +212,7 @@ class KC {
         this.turnStarted = false;
         this.playerHasPulledFromDeck = false;
         this.dealCards();
-        this.logger.addTo({ type: "game restarted"});
+        this.logger.addTo({ type: Logger.type.gameRestarted});
     }
 
     dealCards() {
@@ -399,7 +399,7 @@ class KC {
                             this.playerHasPulledFromDeck = true;
                             this.message.set(Message.type.normal, `Congrats on pulling the ${this.getValue(card.name)}!!!`);
                             this.logger.addTo({
-                                type: "pulled from deck",
+                                type: Logger.type.pulledFromDeck,
                                 player: this.curPlayer.name,
                                 card: card.name
                             });
@@ -434,7 +434,7 @@ class KC {
                             if(this.canPlace(this.selectedPile, this.selectedCard)) {
                                 if(this.selectedCard.pile instanceof PlayArea && this.selectedCard.pile.cards.length > 1) {
                                     let loggerData = {
-                                        type: "cards moved",
+                                        type: Logger.type.cardsMoved,
                                         cards: null,
                                         from: this.selectedCard.pile.name,
                                         to: this.selectedPile.name
@@ -455,7 +455,7 @@ class KC {
                                     this.logger.addTo(loggerData);
                                 } else {
                                     this.logger.addTo({
-                                        type: "card moved",
+                                        type: Logger.type.cardMoved,
                                         card: this.selectedCard.name,
                                         from: this.selectedCard.pile.name,
                                         to: this.selectedPile.name,
@@ -498,18 +498,18 @@ class KC {
                         this.gameOver = true;
                         button.elt.hidden = true;
                         this.logger.addTo({
-                            type: "game won",
+                            type: Logger.type.gameWon,
                             player: this.curPlayer.name
                         });
                     } else {
                         this.logger.addTo({
-                            type: "turn ended",
+                            type: Logger.type.turnEnded,
                             player: this.curPlayer.name,
                             playerHasPulledFromDeck: this.playerHasPulledFromDeck
                         });
                         this.turnStarted = false;
                         this.playerHasPulledFromDeck = false;
-                        this.message.set(Logger.type.normal, `Great moves, ${this.curPlayer.name}!`);
+                        this.message.set(Message.type.normal, `Great moves, ${this.curPlayer.name}!`);
                         this.curPlayer.setCardsToNotVisible();
                         this.btnText = "Start Turn";
                         this.curPlayer = this.nextPlayer();
@@ -520,7 +520,7 @@ class KC {
                 this.turnStarted = true;
                 this.message.set(Message.type.normal, `Best of luck, ${this.curPlayer.name}!`);
                 this.btnText = "End Turn";
-                this.logger.addTo({ type: "turn started", });
+                this.logger.addTo({ type: Logger.type.turnStarted, });
             }
         }
     }

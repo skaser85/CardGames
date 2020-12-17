@@ -1,5 +1,5 @@
 class Solitaire {
-    constructor(numPlayAreas, cardWidth, cardHeight, cards, colors, logger) {
+    constructor(numPlayAreas, cardWidth, cardHeight, dk, colors, logger) {
         this.numPlayAreas = numPlayAreas;
         this.playAreas = [];
 
@@ -40,15 +40,16 @@ class Solitaire {
             suitX += gutter + pileWidth;
         }
 
-        this.deck = new Deck(pileWidth / 2 + 50, 150, pileWidth, pileHeight, cardWidth, cardHeight, deckColorSel.value(), this.colors.salmon, this.colors.salmonA);
-        this.deck.cards = [...cards];
+        this.deck = new Deck(pileWidth / 2 + 50, 150, pileWidth, pileHeight, cardWidth, cardHeight, deckColorSel.value(), this.colors.salmon, this.colors.salmonA, dk.isSprite ? "sprite" : "img");
+        this.deck.cards = [...dk.cards];
+        if(!dk.isSprite) this.deck.img = dk.backs.find(b => b.name === deckColorSel.value()).img;
         this.deck.cards.forEach(c => c.backShowing = false);
         this.deck.shuffle();
 
         this.playerPile = new Hand("Player1", this.deck.right + 60, 150, pileWidth, pileHeight, 0);
         this.playerPile.showName = false;
 
-        this.logger.addTo({ type: Logger.type.gameStarted });
+        this.logger.addTo({ type: Logger.type.gameStarted, name: Logger.getTypeName(Logger.type.gameStarted) });
 
     }
 
@@ -272,7 +273,7 @@ class Solitaire {
                                     }
                                     if(!pileExists) {
                                         this.gameOver = true;
-                                        this.logger.addTo({ type: Logger.type.gameWon });
+                                        this.logger.addTo({ type: Logger.type.gameWon, name: Logger.getTypeName(Logger.type.gameWon)});
                                     }
                                 }
                             } else {
@@ -302,7 +303,7 @@ class Solitaire {
         this.deck.cardsInPlay = [];
         this.dealCards();
         this.gameOver = false;
-        this.logger.addTo({ type: Logger.type.gameRestarted });
+        this.logger.addTo({ type: Logger.type.gameRestarted, name: Logger.getTypeName(Logger.type.gameRestarted) });
     }
 
     undo() {

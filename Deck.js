@@ -1,5 +1,5 @@
 class Deck {
-    constructor(x, y, width, height, cardWidth, cardHeight, deckColor, borderColor, fillColor) {
+    constructor(x, y, width, height, cardWidth, cardHeight, deckColor, borderColor, fillColor, drawType) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -17,29 +17,29 @@ class Deck {
         this.cards = [];
         this.cardsInPlay = [];
         this.isEmpty = false;
-        this.drawType = globalDeck.isSprite ? "sprite" : "img";
-        this.img = globalDeck.isSprite ? null : globalDeck.backs.find(b => b.name === deckColorSel.value()).img;
-        this.spriteInfo = globalDeck.isSprite ? globalDeck.backs.find(b => b.name === deckColorSel.value()).spriteInfo : null;
+        this.drawType = drawType;
+        this.img = null;
+        this.spriteInfo = null;
     }
 
-    changeDeck(c) {
-        this.backColors = globalDeck.backColors;
-        this.drawType = globalDeck.isSprite ? "sprite" : "img";
-        this.spriteInfo = globalDeck.isSprite ? globalDeck.backs.find(b => b.name === c).spriteInfo : null;
-        this.img = globalDeck.isSprite ? null : globalDeck.backs.find(b => b.name === c).img;
+    changeDeck(dk, c) {
+        this.backColors = dk.backColors;
+        this.drawType = dk.isSprite ? "sprite" : "img";
+        this.spriteInfo = dk.isSprite ? dk.backs.find(b => b.name === c).spriteInfo : null;
+        this.img = dk.isSprite ? null : dk.backs.find(b => b.name === c).img;
         this.deckColor = c;
         if(this.cards) {
-            if(globalDeck.isSprite) {
+            if(dk.isSprite) {
                 this.cards.forEach(cd => {
                     cd.backColor = this.deckColor;
                     cd.drawType = "sprite"
-                    cd.spriteInfo = globalDeck.cardInfo.find(t => t.name === cd.name).spriteInfo;
+                    cd.spriteInfo = dk.cardInfo.find(t => t.name === cd.name).spriteInfo;
                     cd.backSpriteInfo = this.spriteInfo;
                 });
                 this.cardsInPlay.forEach(cd => {
                     cd.backColor = this.deckColor;
                     cd.drawType = "sprite"
-                    cd.spriteInfo = globalDeck.cardInfo.find(t => t.name === cd.name).spriteInfo;
+                    cd.spriteInfo = dk.cardInfo.find(t => t.name === cd.name).spriteInfo;
                     cd.backSpriteInfo = this.spriteInfo;
                 });
             } else {
@@ -48,24 +48,24 @@ class Deck {
                     cd.drawType = "img";
                     cd.spriteInfo = null;
                     cd.backSpriteInfo = null;
-                    cd.img = globalDeck.cards.find(t => t.name === cd.name).img;
+                    cd.img = dk.cards.find(t => t.name === cd.name).img;
                 });
                 this.cards.forEach(cd => {
                     cd.backImg = this.img;
                     cd.drawType = "img";
                     cd.spriteInfo = null;
                     cd.backSpriteInfo = null;
-                    cd.img = globalDeck.cards.find(t => t.name === cd.name).img;
+                    cd.img = dk.cards.find(t => t.name === cd.name).img;
                 });
             }
         }
     }
 
-    changeDeckColor(c) {
+    changeDeckColor(dk, c) {
         this.deckColor = c;
-        this.img = globalDeck.isSprite ? null : globalDeck.backs.find(b => b.name === c).img;
-        this.spriteInfo = globalDeck.isSprite ? globalDeck.backs.find(b => b.name === c).spriteInfo : null;
-        if(globalDeck.isSprite) {
+        this.img = dk.isSprite ? null : dk.backs.find(b => b.name === c).img;
+        this.spriteInfo = dk.isSprite ? dk.backs.find(b => b.name === c).spriteInfo : null;
+        if(dk.isSprite) {
             this.cardsInPlay.forEach(cd => {
                 cd.backColor = c
                 cd.backSpriteInfo = this.spriteInfo;
@@ -92,7 +92,7 @@ class Deck {
         this.cards.splice(0, 1);
         c.visible = true;
         if(!c.backImg) c.backImg = this.img;
-        if(globalDeck.isSprite) c.backColor = this.deckColor;
+        if(this.drawType === "sprite") c.backColor = this.deckColor;
         this.cardsInPlay.push(c);
         return(c)
     }

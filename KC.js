@@ -1,6 +1,6 @@
 // King's Corner
 class KC {
-    constructor(numPlayers, cardWidth, cardHeight, cards, colors, logger) {
+    constructor(numPlayers, cardWidth, cardHeight, dk, colors, logger) {
         this.numPlayers = numPlayers;
         this.cardWidth = cardWidth;
         this.cardHeight = cardHeight;
@@ -40,8 +40,9 @@ class KC {
         );
 
         // setup deck
-        this.deck = new Deck(width / 2, height / 2 - pileHeight / 2, pileWidth, pileHeight, cardWidth, cardHeight, deckColorSel.value(), this.colors.salmon, this.colors.salmonA);
-        this.deck.cards = [...cards];
+        this.deck = new Deck(width / 2, height / 2 - pileHeight / 2, pileWidth, pileHeight, cardWidth, cardHeight, deckColorSel.value(), this.colors.salmon, this.colors.salmonA, dk.isSprite ? "sprite" : "img");
+        this.deck.cards = [...dk.cards];
+        if(!dk.isSprite) this.deck.img = dk.backs.find(b => b.name === deckColorSel.value()).img;
         this.deck.cards.forEach(c => c.backShowing = false);
         this.deck.shuffle();
 

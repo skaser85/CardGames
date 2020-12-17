@@ -17,7 +17,6 @@ let deckSel;
 let deckP;
 let colors = {};
 let decks = [];
-let globalDeck;
 let deckJSON = ["original", "regular", "multicolored", "regular_sprite", "pixel"];
 
 function loadDeck(d) {
@@ -101,6 +100,10 @@ function getCards(d) {
     });
 }
 
+function getDeck() {
+    return decks.find(d => d.name === deckSel.value());
+}
+
 async function setup() {
     let canvas = createCanvas(1200, 960);
     canvas.elt.hidden = true;
@@ -111,7 +114,6 @@ async function setup() {
     t.style("color", "black");
 
     let assetsLoaded = await loadDecks();
-    globalDeck = decks[0];
 
     if(assetsLoaded) {
         t.elt.remove();
@@ -135,7 +137,7 @@ async function setup() {
         restart = createButton("Restart Game");
         restart.position(15, 15);
         restart.mousePressed(() => {
-            game.restartGame(globalDeck.cards);
+            game.restartGame(getDeck().cards);
         });
 
         undoBtn = createButton("Undo");
@@ -163,6 +165,10 @@ async function setup() {
         gameSel.option("Kings Corner");
         gameSel.selected("");
         gameSel.changed(() => {
+            logger.addTo({
+                type: Logger.type.gameChanged,
+                to: gameSel.value()
+            });
             switch(gameSel.value()) {
                 case "":
                     game = null;
@@ -170,16 +176,16 @@ async function setup() {
                     break;
                 case "Solitaire":
                     if(kcBtn) kcBtn.elt.hidden = true;
-                    game = new Solitaire(7, cW, cH, globalDeck.cards, colors, logger);
+                    game = new Solitaire(7, cW, cH, getDeck(), colors, logger);
                     game.dealCards();
                     break;
                 case "FreeCell":
                     if(kcBtn) kcBtn.elt.hidden = true;
-                    game = new FreeCell(cW, cH, globalDeck.cards, colors, logger);
+                    game = new FreeCell(cW, cH, getDeck(), colors, logger);
                     game.dealCards();
                     break;
                 case "Kings Corner":
-                    game = new KC(4, cW, cH, globalDeck.cards, colors, logger);
+                    game = new KC(4, cW, cH, getDeck(), colors, logger);
                     if(!kcBtn) {
                         kcBtn = createButton(game.btnText);
                         let p1 = game.players[0];
@@ -203,17 +209,16 @@ async function setup() {
         deckSel.style("padding", "2px");
         deckSel.position(gameSel.x + (gameSel.width * 5), restart.y + restart.height + 4);
         decks.forEach(d => deckSel.option(d.name));
-        deckSel.selected(globalDeck.name);
+        deckSel.selected(decks[0].name);
         deckSel.changed(async () => {
-            globalDeck = decks.find(d => d.name === deckSel.value());
             deckColorSel.elt.options.length = 0;
-            for(let c of globalDeck.backs) {
+            for(let c of getDeck().backs) {
                 deckColorSel.option(c.name);
             }
-            deckColorSel.selected(globalDeck.backs[0].name);
+            deckColorSel.selected(getDeck().backs[0].name);
             if(game) {
-                game.deck.changeDeck(deckColorSel.value());
-                game.deck.changeDeckColor(deckColorSel.value());
+                game.deck.changeDeck(getDeck(), deckColorSel.value());
+                game.deck.changeDeckColor(getDeck(), deckColorSel.value());
             }
         });
 
@@ -225,13 +230,13 @@ async function setup() {
         deckColorSel.style("padding", "2px");
         deckColorSel.style("width", "100px");
         deckColorSel.position(gameSel.x + gameSel.width * 9.5 + 6, restart.y + restart.height + 4);
-        for(let c of globalDeck.backs) {
+        for(let c of getDeck().backs) {
             deckColorSel.option(c.name);
         }
-        deckColorSel.selected(globalDeck.backs[0].name);
+        deckColorSel.selected(getDeck().backs[0].name);
         deckColorSel.changed(() => {
             if(game) {
-                game.deck.changeDeckColor(deckColorSel.value());
+                game.deck.changeDeckColor(getDeck(), deckColorSel.value());
             }
         });
     }

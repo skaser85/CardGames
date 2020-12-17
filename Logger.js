@@ -8,7 +8,8 @@ class Logger {
         "gameWon": 5,
         "turnStarted": 6,
         "turnEnded": 7,
-        "cardFlipped": 8
+        "cardFlipped": 8,
+        "gameChanged": 9
     }
 
     static getTypeName(t) {

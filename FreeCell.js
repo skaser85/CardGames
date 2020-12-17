@@ -4,7 +4,7 @@
 // need to work on undo/redo
 
 class FreeCell {
-    constructor(cardWidth, cardHeight, cards, colors, logger) {
+    constructor(cardWidth, cardHeight, dk, colors, logger) {
         this.numPlayAreas = 8;
         this.playAreas = [];
 
@@ -56,8 +56,9 @@ class FreeCell {
             this.playAreas.push(area);
         }
 
-        this.deck = new Deck(0, 0, 0, 0, cardWidth, cardHeight, deckColorSel.value(), this.colors.salmon, this.colors.salmonA);
-        this.deck.cards = [...cards];
+        this.deck = new Deck(0, 0, 0, 0, cardWidth, cardHeight, deckColorSel.value(), this.colors.salmon, this.colors.salmonA, dk.isSprite ? "sprite" : "img");
+        this.deck.cards = [...dk.cards];
+        if(!dk.isSprite) this.deck.img = dk.backs.find(b => b.name === deckColorSel.value()).img;
         this.deck.cards.forEach(c => c.backShowing = false);
         this.deck.shuffle();
 
@@ -321,7 +322,7 @@ class FreeCell {
     }
 
     undo() {
-        let nextUndo = this.logger.log[this.logger.log.length - 1 - this.logger.redoPointer]
+        let nextUndo = this.logger.log[this.logger.log.length - 1 - this.logger.redoPointer];
         if(nextUndo.type === Logger.type.gameStarted) {
             this.message.set(Message.type.error, "Cannot undo past start of game.");
             return;

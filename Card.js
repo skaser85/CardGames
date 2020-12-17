@@ -22,6 +22,7 @@ class Card {
         this.backShowing = false;
         this.backImg = null;
         this.backColor = "";
+        this.backSpriteInfo = null;
         this.updateDirs();
     }
 
@@ -83,10 +84,7 @@ class Card {
         rotate(this.rotateDeg);
         if(this.backShowing) {
             if(this.drawType === "sprite") {
-                let back = globalDeck.backs.find(b => b.name === this.backColor);
-                let backX = back.c * globalDeck.spriteInfo.w + back.xPad;
-                let backY = back.r * globalDeck.spriteInfo.h + back.yPad;
-                image(globalDeck.spriteInfo.sprite, 0, 0, this.width, this.height, backX, backY, globalDeck.spriteInfo.w, globalDeck.spriteInfo.h);
+                image(this.backSpriteInfo.sprite, 0, 0, this.width, this.height, this.backSpriteInfo.x, this.backSpriteInfo.y, this.backSpriteInfo.w, this.backSpriteInfo.h);
             } else {
                 image(this.backImg, 0, 0, this.width, this.height);
             }

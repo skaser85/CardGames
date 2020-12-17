@@ -20,37 +20,43 @@ class Deck {
         this.isEmpty = false;
         this.drawType = globalDeck.isSprite ? "sprite" : "img";
         this.img = globalDeck.isSprite ? null : globalDeck.backs.find(b => b.name === deckColorSel.value()).img;
+        this.spriteInfo = globalDeck.isSprite ? globalDeck.backs.find(b => b.name === deckColorSel.value()).spriteInfo : null;
     }
 
     changeDeck(c) {
         this.folder = globalDeck.folder;
         this.backColors = globalDeck.backColors;
         this.drawType = globalDeck.isSprite ? "sprite" : "img";
-        this.img = globalDeck.backs.find(b => b.name === c).img;
+        this.spriteInfo = globalDeck.isSprite ? globalDeck.backs.find(b => b.name === c).spriteInfo : null;
+        this.img = globalDeck.isSprite ? null : globalDeck.backs.find(b => b.name === c).img;
         this.deckColor = c;
         if(this.cards) {
             if(globalDeck.isSprite) {
                 this.cards.forEach(cd => {
                     cd.backColor = this.deckColor;
                     cd.drawType = "sprite"
-                    cd.spriteInfo = globalDeck.cardInfo[cd.name].spriteInfo;
+                    cd.spriteInfo = globalDeck.cardInfo.find(t => t.name === cd.name).spriteInfo;
+                    cd.backSpriteInfo = this.spriteInfo;
                 });
                 this.cardsInPlay.forEach(cd => {
                     cd.backColor = this.deckColor;
                     cd.drawType = "sprite"
-                    cd.spriteInfo = globalDeck.cardInfo[cd.name].spriteInfo;
+                    cd.spriteInfo = globalDeck.cardInfo.find(t => t.name === cd.name).spriteInfo;
+                    cd.backSpriteInfo = this.spriteInfo;
                 });
             } else {
                 this.cardsInPlay.forEach(cd => {
                     cd.backImg = this.img;
                     cd.drawType = "img";
                     cd.spriteInfo = null;
+                    cd.backSpriteInfo = null;
                     cd.img = globalDeck.cards.find(t => t.name === cd.name).img;
                 });
                 this.cards.forEach(cd => {
                     cd.backImg = this.img;
                     cd.drawType = "img";
                     cd.spriteInfo = null;
+                    cd.backSpriteInfo = null;
                     cd.img = globalDeck.cards.find(t => t.name === cd.name).img;
                 });
             }
@@ -59,11 +65,18 @@ class Deck {
 
     changeDeckColor(c) {
         this.deckColor = c;
-        this.img = globalDeck.backs.find(b => b.name === c).img;
+        this.img = globalDeck.isSprite ? null : globalDeck.backs.find(b => b.name === c).img;
+        this.spriteInfo = globalDeck.isSprite ? globalDeck.backs.find(b => b.name === c).spriteInfo : null;
         if(globalDeck.isSprite) {
-            this.cardsInPlay.forEach(cd => cd.backColor = c);
+            this.cardsInPlay.forEach(cd => {
+                cd.backColor = c
+                cd.backSpriteInfo = this.spriteInfo;
+            });
         } else {
-            this.cardsInPlay.forEach(cd => cd.backImg = this.img);
+            this.cardsInPlay.forEach(cd => {
+                cd.backImg = this.img;
+                cd.backSpriteInfo = null;
+            });
         }
     }
 
@@ -110,19 +123,9 @@ class Deck {
         rect(0, 0, this.width, this.height);
         if(!this.isEmpty) {
             if(this.drawType === "sprite") {
-                let back = globalDeck.backs.find(b => b.name === this.deckColor);
-                let backX = back.c * globalDeck.spriteInfo.w + back.xPad;
-                let backY = back.r * globalDeck.spriteInfo.h + back.yPad;
-                image(globalDeck.spriteInfo.sprite, 0, 0, this.width, this.height, backX, backY, globalDeck.spriteInfo.w, globalDeck.spriteInfo.h);
+                image(this.spriteInfo.sprite, 0, 0, this.width, this.height, this.spriteInfo.x, this.spriteInfo.y, this.spriteInfo.w, this.spriteInfo.h);
             } else {
-                if(!this.img) {
-                    loadImage(`cards/${this.folder}/${this.deckColor}_back.png`, img => {
-                        this.img = img;
-                        image(this.img, 0, 0, this.cardWidth, this.cardHeight);
-                    });
-                } else {
-                    image(this.img, 0, 0, this.cardWidth, this.cardHeight);
-                }
+                image(this.img, 0, 0, this.cardWidth, this.cardHeight);
             }
         }
         pop();

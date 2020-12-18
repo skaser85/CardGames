@@ -382,6 +382,10 @@ class KC {
         });
     }
 
+    handleDoubleClick() {
+        this.message.set(Message.type.error, "Double-click is not yet handled in Kings Corner.");
+    }
+
     handleClick() {
         if(!this.gameOver) {
             if(this.deck.isActive) {

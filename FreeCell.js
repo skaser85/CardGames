@@ -62,7 +62,7 @@ class FreeCell {
         this.deck.cards.forEach(c => c.backShowing = false);
         this.deck.shuffle();
 
-        this.logger.addTo({ type: Logger.type.gameStarted, name: Logger.getTypeName(Logger.type.gameStarted) });
+        this.logger.addTo({ type: Logger.type.gameStarted });
 
     }
 
@@ -192,6 +192,10 @@ class FreeCell {
         this.deck.isEmpty = true;
     }
 
+    handleDoubleClick() {
+        this.message.set(Message.type.error, "Double-click is not yet handled in FreeCell.");
+    }
+
     handleClick() {
         if(!this.gameOver) {
             if(this.deck.isActive) {
@@ -207,7 +211,6 @@ class FreeCell {
                     this.message.set(Message.type.normal, `Congrats on pulling the ${this.getValue(card.name)}!!!`);
                     this.logger.addTo({
                         type: Logger.type.pulledFromDeck,
-                        name: Logger.getTypeName(Logger.type.pulledFromDeck),
                         card: card.name
                     });
                 }
@@ -219,7 +222,6 @@ class FreeCell {
                             this.curCard.backShowing = false;
                             this.logger.addTo({
                                 type: Logger.type.cardFlipped,
-                                name: Logger.getTypeName(Logger.type.cardFlipped),
                                 card: this.curCard.name
                             });
                         } else {
@@ -254,7 +256,6 @@ class FreeCell {
                             if(this.canPlace(this.selectedPile, this.selectedCard)) {
                                 let loggerData = {
                                     type: Logger.type.cardsMoved,
-                                    name: Logger.getTypeName(Logger.type.cardsMoved),
                                     cards: null,
                                     from: this.selectedCard.pile.name,
                                     to: this.selectedPile.name
@@ -288,7 +289,7 @@ class FreeCell {
                                     }
                                     if(!pileExists) {
                                         this.gameOver = true;
-                                        this.logger.addTo({ type: Logger.type.gameWon, name: Logger.getTypeName(Logger.type.gameWon) });
+                                        this.logger.addTo({ type: Logger.type.gameWon });
                                     }
                                 }
                             } else {
@@ -318,7 +319,7 @@ class FreeCell {
         this.deck.cardsInPlay = [];
         this.dealCards();
         this.gameOver = false;
-        this.logger.addTo({ type: Logger.type.gameRestarted, name: Logger.getTypeName(Logger.type.gameRestarted) });
+        this.logger.addTo({ type: Logger.type.gameRestarted });
     }
 
     undo() {

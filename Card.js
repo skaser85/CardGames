@@ -71,6 +71,7 @@ class Card {
         noFill();
         if(this.isSelected) {
             let c = this.isActive ? color(255, 50, 0) : color(255, 50, 0, 175);
+            if(this.isDragging) c = color(255, 0, 255);
             stroke(c);
             strokeWeight(4);
         } else if(this.isActive) {

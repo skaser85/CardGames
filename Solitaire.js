@@ -49,7 +49,7 @@ class Solitaire {
         this.playerPile = new Hand("Player1", this.deck.right + 60, 150, pileWidth, pileHeight, 0);
         this.playerPile.showName = false;
 
-        this.logger.addTo({ type: Logger.type.gameStarted, name: Logger.getTypeName(Logger.type.gameStarted) });
+        this.logger.addTo({ type: Logger.type.gameStarted });
 
     }
 
@@ -180,6 +180,62 @@ class Solitaire {
         }
     }
 
+    handleDoubleClick() {
+        if(!this.gameOver) {
+            if(this.curCard) {
+                let viable = [];
+                this.playAreas.forEach(pa => {
+                    if(!pa.cards.find(c => c.name === this.curCard.name)) {
+                        if(this.canPlace(pa, this.curCard)) viable.push(pa);
+                    }
+                });
+                if(viable.length) {
+                    let suitPA = null;
+                    let pilePA = null;
+                    viable.forEach(v => {
+                        if(!suitPA && v.kind === PlayArea.type.Suit) {
+                            suitPA = v;
+                        }
+                        if(!pilePA && v.kind === PlayArea.type.Pile) {
+                            if(!v.cards.length) {
+                                if(this.curCard.name.slice(0, 1) === "K") pilePA = v
+                            } else {
+                                pilePA = v;
+                            }
+                        }
+                    });
+                    let pa = null;
+                    // checks if there's a stack of cards to move, then only allows for the stack to moved
+                    // to a Pile since we can't move a stack to a Suit
+                    let cardsToMove = this.getCardsToMove(this.curCard.name, this.curCard.pile.cards);
+                    if(cardsToMove.length > 1) {
+                        if(pilePA) {
+                            pa = pilePA
+                        } else {
+                            this.message.set(Message.type.error, "There is no valid pile for this stack of cards.");
+                            this.resetSelected();
+                        }
+                    } else {
+                        if(suitPA) {
+                            pa = suitPA;
+                        } else {
+                            if(pilePA) pa = pilePA;
+                        }
+                    }
+                    if(pa) {
+                        this.placeCard(this.curCard, pa);
+                    } else {
+                        this.message.set(Message.type.error, "There is no valid pile to place this card.");
+                        this.resetSelected();
+                    }
+                } else {
+                    this.message.set(Message.type.error, "There is no valid pile to place this card.");
+                    this.resetSelected();
+                }
+            }
+        }
+    }
+
     handleClick() {
         if(!this.gameOver) {
             if(this.deck.isActive) {
@@ -238,58 +294,87 @@ class Solitaire {
                         if(this.selectedPile) {
                             let card = this.selectedCard;
                             if(this.canPlace(this.selectedPile, this.selectedCard)) {
-                                let loggerData = {
-                                    type: Logger.type.cardsMoved,
-                                    cards: null,
-                                    from: this.selectedCard.pile.name,
-                                    to: this.selectedPile.name
-                                };
-                                let cardsToMove = [];
-                                let selectedCardFound = false;
-                                let cards = [...this.selectedCard.pile.cards];
-                                cards.forEach(c => {
-                                    if(!selectedCardFound && c === this.selectedCard) {
-                                        selectedCardFound = true;
-                                    }
-                                    if(selectedCardFound) {
-                                        cardsToMove.push(c);
-                                        this.selectedPile.addTo(c);
-                                    }
-                                });
-                                loggerData.cards = cardsToMove;
-                                this.logger.addTo(loggerData);
-                                // set the card under the last one laid down to be not visible so that it doesn't draw
-                                if(this.selectedPile.kind === PlayArea.type.Suit && this.selectedPile.cards.length > 1) {
-                                    this.selectedPile.cards[this.selectedPile.cards.length - 2].visible = false;
-                                }
-                                if(this.deck.isEmpty) {
-                                    let pileExists = false;
-                                    for(let i = 0; i < this.playAreas.length; i++) {
-                                        let pa = this.playAreas[i];
-                                        if(pa.kind === PlayArea.type.Pile && pa.cards.length) {
-                                            pileExists = true;
-                                            break;
-                                        }
-                                    }
-                                    if(!pileExists) {
-                                        this.gameOver = true;
-                                        this.logger.addTo({ type: Logger.type.gameWon, name: Logger.getTypeName(Logger.type.gameWon)});
-                                    }
-                                }
+                                this.placeCard(this.selectedCard, this.selectedPile);
                             } else {
                                 this.message.set(Message.type.error, `Cannot play the ${this.getValue(card.name)} card in the ${this.curPlayArea.name}.`);
                                 card.setCoords(card.pile.x, card.pile.y);
+                                this.resetSelected();
                             }
-                            
-                            this.selectedCard.isSelected = false;
-                            this.selectedCard = null;
-                            this.selectedPile.isSelected = false;
-                            this.selectedPile = null;                              
                         }
                     }
                 }
             }
         }
+    }
+
+    resetSelected() {
+        if(this.selectedCard) {
+            this.selectedCard.isSelected = false;
+            this.selectedCard = null;
+        }
+        if(this.selectedPile) {
+            this.selectedPile.isSelected = false;
+            this.selectedPile = null;
+        }
+    }
+
+    getCardsToMove(selCardName, cards) {
+        let cardsToMove = [];
+        let selectedCardFound = false;
+        for(let i = 0; i < cards.length; i++) {
+            let c = cards[i];
+            if(!selectedCardFound && c.name === selCardName) {
+                selectedCardFound = true;
+            }
+            if(selectedCardFound) {
+                cardsToMove.push(c);
+            }
+        }
+        return cardsToMove;
+    }
+
+    moveCards(selCardName, cards, pa) {
+        return new Promise((resolve, reject) => {
+            let cardsToMove = this.getCardsToMove(selCardName, cards);
+            cardsToMove.forEach(c => pa.addTo(c));
+            resolve(cardsToMove);
+        });
+    }
+
+    // i think this needs to take in the card and pile to work with instead of using the globals...
+    // i think...maybe...idk
+    async placeCard(card, pa) {
+        let loggerData = {
+            type: Logger.type.cardsMoved,
+            cards: null,
+            from: card.pile.name,
+            to: pa.name
+        };
+        let cardsToMove = await this.moveCards(card.name, [...card.pile.cards], pa);
+        loggerData.cards = cardsToMove;
+        this.logger.addTo(loggerData);
+        // set the card under the last one laid down to be not visible so that it doesn't draw
+        if(pa.kind === PlayArea.type.Suit && pa.cards.length > 1) {
+            pa.cards[pa.cards.length - 2].visible = false;
+        }
+        if(this.deck.isEmpty) {
+            let pileExists = false;
+            for(let i = 0; i < this.playAreas.length; i++) {
+                let pa = this.playAreas[i];
+                if(pa.kind === PlayArea.type.Pile && pa.cards.length) {
+                    pileExists = true;
+                    break;
+                }
+            }
+            if(!pileExists) {
+                if(!this.playerPile.cards.length) {
+                    this.gameOver = true;
+                    this.logger.addTo({ type: Logger.type.gameWon });
+                }
+            }
+        }
+        // reset the selected card/pile vars so that we don't get any weird selection issues
+        this.resetSelected();
     }
 
     restartGame() {
@@ -303,7 +388,7 @@ class Solitaire {
         this.deck.cardsInPlay = [];
         this.dealCards();
         this.gameOver = false;
-        this.logger.addTo({ type: Logger.type.gameRestarted, name: Logger.getTypeName(Logger.type.gameRestarted) });
+        this.logger.addTo({ type: Logger.type.gameRestarted });
     }
 
     undo() {
@@ -425,30 +510,37 @@ class Solitaire {
 
         // update cards
         // figure out which cards have the mouse over them
-        this.curCard = null;
-        let possibleCards = [];
-        let pileCheck = null;
-        for(let i = 0; i < this.deck.cardsInPlay.length; i++) {
-            let c = this.deck.cardsInPlay[i];
-            if(c.visible) {
-                c.update();
-                if(c.isActive) {
-                    if(!pileCheck) pileCheck = c.pile;
-                    possibleCards.push(c);
+        if(mouseIsPressed) {
+            if(this.curCard && this.curCard.isDragging) {
+
+            }
+        } else {
+            this.curCard = null;
+            let possibleCards = [];
+            let pileCheck = null;
+            for(let i = 0; i < this.deck.cardsInPlay.length; i++) {
+                let c = this.deck.cardsInPlay[i];
+                if(c.visible) {
+                    c.update();
+                    if(c.isActive) {
+                        if(!pileCheck) pileCheck = c.pile;
+                        possibleCards.push(c);
+                    }
                 }
             }
-        }
 
-        if(pileCheck) {
-            for(let i = pileCheck.cards.length - 1; i >= 0; i--) {
-                let c = pileCheck.cards[i];
-                if(!this.curCard) {
-                    if(c.isActive && possibleCards.includes(c)) {
-                        this.curCard = c;
+            if(pileCheck) {
+                for(let i = pileCheck.cards.length - 1; i >= 0; i--) {
+                    let c = pileCheck.cards[i];
+                    if(!this.curCard) {
+                        if(c.isActive && possibleCards.includes(c)) {
+                            this.curCard = c;
+                        }
+                    } else {
+                        c.isActive = false;
                     }
-                } else {
-                    c.isActive = false;
                 }
+           
             }
         }
 

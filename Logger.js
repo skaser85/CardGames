@@ -25,6 +25,7 @@ class Logger {
     addTo(state) {
         if(this.redoPointer) this.log.splice(this.log.length - this.redoPointer, this.redoPointer);
         this.redoPointer = 0;
+        state.name = Logger.getTypeName(state.type);
         this.log.push(state);
     }
 

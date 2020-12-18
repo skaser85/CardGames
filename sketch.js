@@ -17,7 +17,7 @@ let deckSel;
 let deckP;
 let colors = {};
 let decks = [];
-let deckJSON = ["original", "regular", "multicolored", "regular_sprite", "pixel"];
+let deckJSON = ["original"];//, "regular", "multicolored", "regular_sprite", "pixel"];
 
 function loadDeck(d) {
     return new Promise((resolve, reject) => {
@@ -256,5 +256,10 @@ function draw() {
 
 function mouseClicked() {
     if(game) game.handleClick();
+    return false; // safety precaution for browser weirdness
+}
+
+function doubleClicked() {
+    if(game) game.handleDoubleClick();
     return false; // safety precaution for browser weirdness
 }

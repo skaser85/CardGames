@@ -75,6 +75,14 @@ class PlayArea {
         rect(0, 0, this.width, this.height);
         pop();
 
+        push()
+        fill(255, 255, 255);
+        stroke(0, 0, 0);
+        let tSize = 16
+        textSize(tSize);
+        text(this.name, this.x, this.top - tSize / 2);
+        pop();
+
         this.cards.forEach(c => {
             if(c.visible) c.draw()
         });

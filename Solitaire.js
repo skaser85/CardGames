@@ -77,6 +77,7 @@ class Solitaire {
     }
 
     getSuit(cardName) {
+        console.log("test");
         let suit = cardName.slice(-1);
         let suitValueText = "";        
         switch(suit) {

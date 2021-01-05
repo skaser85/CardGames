@@ -19,6 +19,8 @@ let colors = {};
 let decks = [];
 let deckJSON = ["original"];//, "regular", "multicolored", "regular_sprite", "pixel"];
 
+console.log("test");
+
 function loadDeck(d) {
     return new Promise((resolve, reject) => {
         loadJSON(`decks/${d}.json`, data => {
